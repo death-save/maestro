@@ -1,3 +1,5 @@
+// @ts-check
+
 /**
  * @todo monkey patch for Foundry.js stopAll bug
  */
@@ -60,11 +62,11 @@ Maestro.Conductor = class {
     /**
      * Ready Hook
      */
-    async static _hookOnReady() {
+    static async _hookOnReady() {
         Hooks.on("ready", async () => {
             maestro.hypeTrack._checkForHypeTracks();
 
-            this._hookOnRenderCharacterSheets();
+            Maestro.Conductor._hookOnRenderCharacterSheets();
         });
     }
 
@@ -80,7 +82,7 @@ Maestro.Conductor = class {
     /**
      * Actor Sheet Hook (Character type only)
      */
-    _hookOnRenderCharacterSheets() {
+    static _hookOnRenderCharacterSheets() {
         if(!game.user.isGM) return;
         const sheetClasses = Object.values(CONFIG.Actor.sheetClasses.character);
 
@@ -95,7 +97,7 @@ Maestro.Conductor = class {
     /**
      * Render Scene Sheet Hook
      */
-    async static _hookOnRenderSceneSheet() {
+    static async _hookOnRenderSceneSheet() {
         Hooks.on("renderSceneSheet", async (app, html, data) => {
             await maestro.sceneMusic._injectPlaylistSelector(app, html, data);
         });
@@ -197,7 +199,7 @@ Maestro.HypeTrack = class {
      */
     async _createHypeTracksPlaylist(create) {
         if(create) {
-            return await Playlist.create({"name": HypeTrack.DEFAULT_CONFIG.playlistName});
+            return await Playlist.create({"name": Maestro.Stage.DEFAULT_CONFIG.HypeTrack.playlistName});
         } else {
             return;
         }
@@ -244,7 +246,7 @@ Maestro.HypeTrack = class {
      * Sets the Hype Track
      * @param {Number} trackId - Id of the track in the playlist 
      */
-    async _setActorHypeTrack(trackId) {
+    async _setActorHypeTrack(actor, trackId) {
         try {
             await this.actor.setFlag(Maestro.Stage.DEFAULT_CONFIG.Module.name, Maestro.Stage.DEFAULT_CONFIG.HypeTrack.flagNames.track, data.track);
         } catch (e) {
@@ -288,7 +290,7 @@ Maestro.HypeTrack = class {
          * Open the Hype Track form on button click
          */
         hypeButton.click(async ev => {
-            const actorTrack = await this._getActorTrack(app.entity);
+            const actorTrack = await this._getActorHypeTrack(app.entity);
             this._openTrackForm(app.entity, actorTrack, {closeOnSubmit: true});
         });
     }
