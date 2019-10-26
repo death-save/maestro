@@ -1,0 +1,19 @@
+<form autocomplete="off" onsubmit="event.preventDefault();">
+
+    <div class="form-group">
+        <label>Actor Theme Song</label>
+        <select name="track" class="track-select" title="Track selection">
+            {{#select track}}
+                <option value=""></option>
+                {{#each playlistTracks}}
+                <option value="{{this.id}}">{{this.name}}</option>
+                {{/each}}
+            {{/select}}
+        </select>
+        <p class="hint">Select the audio file to use as this actor's theme song</p> 
+    </div>
+
+    <button type="submit" name="submit">
+        <i class="far fa-save"></i> Save Track
+    </button>
+</form>
