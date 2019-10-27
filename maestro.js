@@ -114,20 +114,13 @@ Maestro.Conductor = class {
         });
     }
 
+    /**
+     * Patch bug in stopAll function in Foundry.js Playlist class
+     * @author KaKaRoTo (patch contents)
+     */
     static _monkeyPatchStopAll() {
-        const target = Playlist.prototype.stopAll;
-        const expectedFunction = function() {
-            stopAll() {
-            const sounds = this.data.sounds.map(s => {
-                s.playing = false;
-                return s;
-            });
-            this.update({playing: false, sounds: sounds});
-        }
-    }
-
-        //if (target.toString() == expectedFunction) {
-        if(target) {
+        if (game.data.version == "0.3.9") {
+            //Patch:
             Playlist.prototype.stopAll = function() {
                 const sounds = this.data.sounds.map(s => mergeObject(s, { playing: false }, { inplace: false }));
                 this.update({playing: false, sounds: sounds});            
