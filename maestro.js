@@ -68,6 +68,7 @@ Maestro.Conductor = class {
             maestro.hypeTrack._checkForHypeTracksPlaylist();
 
             Maestro.Conductor._hookOnRenderCharacterSheets();
+            Maestro.Conductor._monkeyPatchStopAll();
         });
     }
 
@@ -113,11 +114,28 @@ Maestro.Conductor = class {
         });
     }
 
-    static monkeyPatchStopAll() {
-        Playlist.prototype.stopAll = function() {
-            const sounds = this.data.sounds.map(s => mergeObject(s, { playing: false }, { inplace: false }));
-            this.update({playing: false, sounds: sounds});            
+    static _monkeyPatchStopAll() {
+        const target = Playlist.prototype.stopAll;
+        const expectedFunction = function() {
+            stopAll() {
+            const sounds = this.data.sounds.map(s => {
+                s.playing = false;
+                return s;
+            });
+            this.update({playing: false, sounds: sounds});
         }
+    }
+
+        //if (target.toString() == expectedFunction) {
+        if(target) {
+            Playlist.prototype.stopAll = function() {
+                const sounds = this.data.sounds.map(s => mergeObject(s, { playing: false }, { inplace: false }));
+                this.update({playing: false, sounds: sounds});            
+            }
+        } else {
+            return;
+        }
+        
     }
 }
 
