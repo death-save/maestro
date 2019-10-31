@@ -1,10 +1,6 @@
 // @ts-check
 
 /**
- * @todo monkey patch for Foundry.js stopAll bug
- */
-
-/**
  * Create a global const to namespace classes
  */
 const Maestro = this.Maestro || {};
@@ -18,12 +14,16 @@ const maestro = this.maestro || {};
  * Holds constants
  */
 Maestro.Stage = class {
+    static get MODULE_NAME() {
+        return "maestro";
+    }
+
+    static get MODULE_LABEL() {
+        return "Maestro";
+    }
+
     static get DEFAULT_CONFIG() {
         return {
-            Module: {
-                name: "maestro",
-                label: "Maestro"
-            },
             SceneMusic: {
                 name: "scene-music",
                 flagNames: {
@@ -44,6 +44,26 @@ Maestro.Stage = class {
             }
         }
     }
+
+    static get SETTINGS_DESCRIPTORS() {
+        return {
+            SceneMusic: {
+                EnableN: "Enable Scene Music",
+                EnableH: "Enable the ability to link a playlist to a Scene"
+            },
+            HypeTrack: {
+                EnableN: "Enable Hype Track",
+                EnableH: "Enable the ability to set a Track for an Actor",
+                PlayOnTurnN: "Play on Turn",
+                PlayOnTurnH: "Play Hype Track on Actor's turn in Combat",
+                //future features
+                PlayOnCritN: "Play on Critical Roll",
+                PlayOnCritH: "Play Hype Track when Actor rolls a critical",
+                PlayOnKillN: "Play on Kill",
+                PlayOnKillH: "Play when Actor kills an enemy"
+            }
+        }
+    }
 }
 
 /**
@@ -51,7 +71,6 @@ Maestro.Stage = class {
  */
 Maestro.Conductor = class {
     static begin() {
-        maestro.sceneMusic = new Maestro.SceneMusic();
         maestro.hypeTrack = new Maestro.HypeTrack();
 
         Maestro.Conductor._hookOnReady();
@@ -65,6 +84,7 @@ Maestro.Conductor = class {
      */
     static async _hookOnReady() {
         Hooks.on("ready", async () => {
+            maestro.sceneMusic = new Maestro.SceneMusic();
             maestro.hypeTrack._checkForHypeTracksPlaylist();
 
             Maestro.Conductor._hookOnRenderCharacterSheets();
@@ -89,6 +109,7 @@ Maestro.Conductor = class {
         const sheetClasses = Object.values(CONFIG.Actor.sheetClasses.character);
 
         for (let s of sheetClasses) {
+            // @ts-ignore
             const sheetClass = s.id.split(".")[1];
             Hooks.on(`render${sheetClass}`, (app, html, data) => {
                 maestro.hypeTrack._addHypeButton(app, html, data);
@@ -133,13 +154,31 @@ Maestro.Conductor = class {
 }
 
 Maestro.StageHand = class {
+
+    /**
+     * Builds a setting metadata object from provided params
+     * @param {*} type -- the type of the setting
+     * @param {String} scope -- client/world
+     * @param {*} defaultValue -- what the setting should default to
+     * @param {Boolean} config -- should the setting be shown in Foundry Module Settings tab
+     * @param {Function} onChange -- a function to execute when the setting changes
+     */
+    static buildSetting(type, scope, defaultValue, config, onChange) {
+        return {
+            "type": type,
+            "scope": scope,
+            "defaultValue": defaultValue,
+            "config": config,
+            "onChange": onChange
+        }
+    }
     /**
      * Registers game settings for the specified  /  function
      * @param {String} key -- the key to refer to the setting 
      * @param {Object} setting -- a setting object
      */
     static registerSetting(key, setting) {
-        game.settings.register(Maestro.Stage.DEFAULT_CONFIG.Module.name, key, setting);
+        game.settings.register(Maestro.Stage.MODULE_NAME, key, setting);
     }
 
     /**
@@ -147,7 +186,7 @@ Maestro.StageHand = class {
      * @param {String} key -- the key to lookup 
      */
     static getSetting(key) {
-        return game.settings.get(Maestro.Stage.DEFAULT_CONFIG.Module.name, key);
+        return game.settings.get(Maestro.Stage.MODULE_NAME, key);
     }
 
     /**
@@ -215,14 +254,14 @@ Maestro.StageHand = class {
 
             if (updated) {
                 //console.log(CUBButler.MODULE_NAME, settingKey, tempSettingObject);
-                newSettingValue = await game.settings.set(Maestro.Stage.DEFAULT_CONFIG.Module.name, settingKey, tempSettingObject);
+                newSettingValue = await game.settings.set(Maestro.Stage.MODULE_NAME, settingKey, tempSettingObject);
             } else {
                 throw ("Failed to update nested property of " + key + " check syntax");
             }
 
         } else if (typeof oldSettingValue === typeof value) {
             //console.log(CUBButler.MODULE_NAME, key, value);
-            newSettingValue = await game.settings.set(Maestro.Stage.DEFAULT_CONFIG.Module.name, key, value);
+            newSettingValue = await game.settings.set(Maestro.Stage.MODULE_NAME, key, value);
         }
         return newSettingValue;
     }
@@ -232,6 +271,27 @@ Maestro.StageHand = class {
  * Adds the ability to set a playlist for a scene which will be played on activation
  */
 Maestro.SceneMusic = class {
+    constructor() {
+        this.settings = {
+            enable:  Maestro.StageHand.registerSetting(Maestro.Stage.DEFAULT_CONFIG.SceneMusic.name + '_' + Maestro.Stage.SETTINGS_DESCRIPTORS.SceneMusic.EnableN,Maestro.SceneMusic.SETTINGS_META.enable)
+        }
+    }
+
+    static get SETTINGS_ONCHANGE() {
+        return {
+            enable: s => {
+                if (maestro.sceneMusic) {
+                    maestro.sceneMusic.settings.enable = s
+                }
+            }
+        }
+    }
+
+    static get SETTINGS_META() {
+        return {
+            enable: Maestro.StageHand.buildSetting(Boolean, "World", false, false, Maestro.SceneMusic.SETTINGS_ONCHANGE.enable )
+        }
+    }
 
     /**
      * Retrieves additional data about a scene for later user
@@ -239,9 +299,9 @@ Maestro.SceneMusic = class {
      */
     _getAdditionalData(scene) {
         return {
-            moduleName: Maestro.Stage.DEFAULT_CONFIG.Module.name,
+            moduleName: Maestro.Stage.MODULE_NAME,
             flagName: Maestro.Stage.DEFAULT_CONFIG.SceneMusic.flagNames.playlist,
-            scenePlaylistFlag: game.scenes.get(scene.id).getFlag(Maestro.Stage.DEFAULT_CONFIG.Module.name, Maestro.Stage.DEFAULT_CONFIG.SceneMusic.flagNames.playlist) || " ",
+            scenePlaylistFlag: game.scenes.get(scene.id).getFlag(Maestro.Stage.MODULE_NAME, Maestro.Stage.DEFAULT_CONFIG.SceneMusic.flagNames.playlist) || " ",
             playlists: game.playlists.entities || []
         }
     }
@@ -266,7 +326,7 @@ Maestro.SceneMusic = class {
      * @param {Object} update 
      */
     _checkForScenePlaylist(scene, update) {
-        const scenePlaylistFlag = scene.getFlag(Maestro.Stage.DEFAULT_CONFIG.Module.name, Maestro.Stage.DEFAULT_CONFIG.SceneMusic.flagNames.playlist);
+        const scenePlaylistFlag = scene.getFlag(Maestro.Stage.MODULE_NAME, Maestro.Stage.DEFAULT_CONFIG.SceneMusic.flagNames.playlist);
 
         if ( scenePlaylistFlag && update.active === true ) {
             maestro.sceneMusic._playScenePlaylist(scenePlaylistFlag);
@@ -327,7 +387,7 @@ Maestro.HypeTrack = class {
      */
     async _checkHype(combat, update) {
         if(update.turn || update.round) {
-            //const actorTrack = combat.combatant.actor.getFlag(Maestro.Stage.DEFAULT_CONFIG.Module.name, Maestro.DEFAULT_CONFIG.HypeTrack.flagNames.track);
+            //const actorTrack = combat.combatant.actor.getFlag(Maestro.Stage.MODULE_NAME, Maestro.DEFAULT_CONFIG.HypeTrack.flagNames.track);
             const actorTrack = await this._getActorHypeTrack(combat.combatant.actor);
 
             this.playlist.stopAll();
@@ -348,7 +408,7 @@ Maestro.HypeTrack = class {
         let actorTrack;
 
         try {
-            actorTrack = await actor.getFlag(Maestro.Stage.DEFAULT_CONFIG.Module.name, Maestro.Stage.DEFAULT_CONFIG.HypeTrack.flagNames.track);
+            actorTrack = await actor.getFlag(Maestro.Stage.MODULE_NAME, Maestro.Stage.DEFAULT_CONFIG.HypeTrack.flagNames.track);
             return actorTrack;
         } catch (e) {
             console.log(e);
@@ -363,7 +423,7 @@ Maestro.HypeTrack = class {
      */
     async _setActorHypeTrack(actor, trackId) {
         try {
-            await actor.setFlag(Maestro.Stage.DEFAULT_CONFIG.Module.name, Maestro.Stage.DEFAULT_CONFIG.HypeTrack.flagNames.track, trackId);
+            await actor.setFlag(Maestro.Stage.MODULE_NAME, Maestro.Stage.DEFAULT_CONFIG.HypeTrack.flagNames.track, trackId);
         } catch (e) {
             //we should do something with this in the future, eg. if the flag can't be found
             throw e
@@ -444,7 +504,6 @@ Maestro.HypeTrackActorForm = class extends FormApplication {
     
     /**
      * Default Options for this FormApplication
-     * @todo extract to module constants
      */
     static get defaultOptions() {
         return mergeObject(super.defaultOptions, {
