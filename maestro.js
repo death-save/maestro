@@ -157,14 +157,18 @@ Maestro.StageHand = class {
 
     /**
      * Builds a setting metadata object from provided params
+     * @param {String} name -- the name of the setting
+     * @param {String} hint -- additional description of the setting
      * @param {*} type -- the type of the setting
      * @param {String} scope -- client/world
      * @param {*} defaultValue -- what the setting should default to
      * @param {Boolean} config -- should the setting be shown in Foundry Module Settings tab
      * @param {Function} onChange -- a function to execute when the setting changes
      */
-    static buildSetting(type, scope, defaultValue, config, onChange) {
+    static buildSetting(name, hint, type, scope, defaultValue, config, onChange) {
         return {
+            "name": name,
+            "hint": hint,
             "type": type,
             "scope": scope,
             "defaultValue": defaultValue,
@@ -172,6 +176,7 @@ Maestro.StageHand = class {
             "onChange": onChange
         }
     }
+
     /**
      * Registers game settings for the specified  /  function
      * @param {String} key -- the key to refer to the setting 
@@ -273,7 +278,7 @@ Maestro.StageHand = class {
 Maestro.SceneMusic = class {
     constructor() {
         this.settings = {
-            enable:  Maestro.StageHand.registerSetting(Maestro.Stage.DEFAULT_CONFIG.SceneMusic.name + '_' + Maestro.Stage.SETTINGS_DESCRIPTORS.SceneMusic.EnableN,Maestro.SceneMusic.SETTINGS_META.enable)
+            enable:  Maestro.StageHand.registerSetting(Maestro.Stage.DEFAULT_CONFIG.SceneMusic.name + '_' + Maestro.Stage.SETTINGS_DESCRIPTORS.SceneMusic.EnableN, Maestro.SceneMusic.SETTINGS_META.enable)
         }
     }
 
@@ -289,7 +294,7 @@ Maestro.SceneMusic = class {
 
     static get SETTINGS_META() {
         return {
-            enable: Maestro.StageHand.buildSetting(Boolean, "World", false, false, Maestro.SceneMusic.SETTINGS_ONCHANGE.enable )
+            enable: Maestro.StageHand.buildSetting(Maestro.Stage.SETTINGS_DESCRIPTORS.SceneMusic.EnableN, Maestro.Stage.SETTINGS_DESCRIPTORS.SceneMusic.EnableH, Boolean, "World", false, true, Maestro.SceneMusic.SETTINGS_ONCHANGE.enable )
         }
     }
 
@@ -352,6 +357,26 @@ Maestro.SceneMusic = class {
 Maestro.HypeTrack = class {
     constructor() {
         this.playlist = null;
+
+        this.settings = {
+            enable: Maestro.StageHand.initSetting(Maestro.Stage.DEFAULT_CONFIG.HypeTrack.name + "_" + Maestro.Stage.SETTINGS_DESCRIPTORS.HypeTrack.EnableN, Maestro.HypeTrack.SETTINGS_META.enable)
+        };
+    }
+
+    static get SETTINGS_ONCHANGE() {
+        return {
+            enable: s => {
+                if (maestro.hypeTrack) {
+                    maestro.hypeTrack.settings.enable = s
+                }
+            }
+        }
+    }
+
+    static get SETTINGS_META() {
+        return {
+            enable: Maestro.StageHand.buildSetting(Maestro.Stage.SETTINGS_DESCRIPTORS.HypeTrack.EnableN, Maestro.Stage.SETTINGS_DESCRIPTORS.HypeTrack.EnableH, Boolean, "World", false, true, Maestro.HypeTrack.SETTINGS_ONCHANGE.enable )
+        }
     }
 
     /**
