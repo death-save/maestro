@@ -2,11 +2,13 @@
 
 /**
  * Create a global const to namespace classes
+ * @todo find a better way to differentiate from the other maestro const
  */
 const Maestro = this.Maestro || {};
 
 /**
  * Create a global const to store class instances
+ * @todo find a better way to differentiate from the other maestro const
  */
 const maestro = this.maestro || {};
 
@@ -36,7 +38,7 @@ Maestro.Stage = class {
                 playlistName: "Hype Tracks",
                 buttonIcon: "fas fa-music",
                 buttonText: " Hype",
-                aTitle: "Change Actor Theme Song",
+                aTitle: "Change Actor Hype Track",
                 flagNames: {
                     track: "track"
                 },
@@ -48,10 +50,10 @@ Maestro.Stage = class {
     static get SETTINGS_DESCRIPTORS() {
         return {
             SceneMusic: {
-                EnableN: "Enable Scene Music",
+                EnableN: "Enable Scene Playlist",
                 EnableH: "Enable the ability to link a playlist to a Scene",
                 StopOnSceneChangeN: "Stop on Scene Change",
-                StopOnSceneChangeH: "Stop currently Scene Playlist on Scene Change"
+                StopOnSceneChangeH: "Stop currently playing Scene Playlist on Scene Change"
             },
             HypeTrack: {
                 EnableN: "Enable Hype Track",
@@ -586,7 +588,7 @@ Maestro.HypeTrackActorForm = class extends FormApplication {
     static get defaultOptions() {
         return mergeObject(super.defaultOptions, {
             id: "hype-track-form",
-            title: "Character Theme Song",
+            title: Maestro.Stage.DEFAULT_CONFIG.HypeTrack.aTitle,
             template: Maestro.Stage.DEFAULT_CONFIG.HypeTrack.templatePath,
             classes: ["sheet"],
             width: 500
