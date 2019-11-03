@@ -91,7 +91,7 @@ Maestro.Conductor = class {
             }
             
 
-            Maestro.Conductor._hookOnRenderCharacterSheets();
+            Maestro.Conductor._hookOnRenderActorSheets();
             Maestro.Conductor._monkeyPatchStopAll();
             Maestro.Conductor._hookOnRenderSceneSheet();
             Maestro.Conductor._hookOnPreUpdateScene();
