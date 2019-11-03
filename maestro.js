@@ -74,10 +74,6 @@ Maestro.Stage = class {
 Maestro.Conductor = class {
     static begin() {
         Maestro.Conductor._hookOnReady();
-        Maestro.Conductor._hookOnRenderSceneSheet();
-        Maestro.Conductor._hookOnPreUpdateScene();
-        //Maestro.Conductor._hookOnUpdateScene();
-        Maestro.Conductor._hookOnUpdateCombat();
     }
 
     /**
@@ -95,6 +91,9 @@ Maestro.Conductor = class {
 
             Maestro.Conductor._hookOnRenderCharacterSheets();
             Maestro.Conductor._monkeyPatchStopAll();
+            Maestro.Conductor._hookOnRenderSceneSheet();
+            Maestro.Conductor._hookOnPreUpdateScene();
+            Maestro.Conductor._hookOnUpdateCombat();
         });
     }
 
@@ -133,23 +132,20 @@ Maestro.Conductor = class {
     }
 
     /**
-     * Update Scene Hook
-     */
-    /*
-    static _hookOnUpdateScene() {
-        Hooks.on("updateScene", (scene, updateData, options, userId) => {
-            maestro.sceneMusic._checkForScenePlaylist(scene, updateData);
-        });
-    }
-    */
-
-    /**
      * Pre-Update Scene Hook
+     * @todo remove 0.3.9 check after 0.4.0 release
      */
     static _hookOnPreUpdateScene() {
-        Hooks.on("preUpdateScene", (scene, updateData, options, userId) => {
-            maestro.sceneMusic._checkForScenePlaylist(scene, updateData);
-        });
+        if (game.data.version == "0.3.9") {
+            Hooks.on("preUpdateScene", (scenes, updateData, options) => {
+                maestro.sceneMusic._checkForScenePlaylist(scenes, updateData);
+            });
+        } else {
+            Hooks.on("preUpdateScene", (scene, updateData, options) => {
+                maestro.sceneMusic._checkForScenePlaylist(scene, updateData);
+            })
+        }
+        
     }
 
     /**
@@ -158,7 +154,9 @@ Maestro.Conductor = class {
      */
     static _monkeyPatchStopAll() {
         if (game.data.version == "0.3.9") {
-            //Patch:
+            /**
+             * Patch
+             */
             Playlist.prototype.stopAll = function() {
                 const sounds = this.data.sounds.map(s => mergeObject(s, { playing: false }, { inplace: false }));
                 this.update({playing: false, sounds: sounds});            
@@ -296,8 +294,8 @@ Maestro.StageHand = class {
 Maestro.SceneMusic = class {
     constructor() {
         this.settings = {
-            enable:  Maestro.StageHand.registerSetting(Maestro.Stage.DEFAULT_CONFIG.SceneMusic.name + '_' + Maestro.Stage.SETTINGS_DESCRIPTORS.SceneMusic.EnableN, Maestro.SceneMusic.SETTINGS_META.enable),
-            stopOnSceneChange:  Maestro.StageHand.registerSetting(Maestro.Stage.DEFAULT_CONFIG.SceneMusic.name + '_' + Maestro.Stage.SETTINGS_DESCRIPTORS.SceneMusic.StopOnSceneChangeN, Maestro.SceneMusic.SETTINGS_META.stopOnSceneChange)
+            enable:  Maestro.StageHand.initSetting(Maestro.Stage.DEFAULT_CONFIG.SceneMusic.name + '_' + Maestro.Stage.SETTINGS_DESCRIPTORS.SceneMusic.EnableN, Maestro.SceneMusic.SETTINGS_META.enable),
+            stopOnSceneChange:  Maestro.StageHand.initSetting(Maestro.Stage.DEFAULT_CONFIG.SceneMusic.name + '_' + Maestro.Stage.SETTINGS_DESCRIPTORS.SceneMusic.StopOnSceneChangeN, Maestro.SceneMusic.SETTINGS_META.stopOnSceneChange)
 
         }
     }
@@ -364,8 +362,15 @@ Maestro.SceneMusic = class {
             return;
         }
 
-        const currentScene = scenes.entities.find(s => s.active === true);
+        let currentScene;
         const newScene = scenes.get(update._id);
+
+        if (game.data.version == "0.3.9") {
+            currentScene = scenes.entities.find(s => s.active === true);
+        } else {
+            currentScene = scenes;
+        }
+        
         const currentScenePlaylistFlag = currentScene.getFlag(Maestro.Stage.MODULE_NAME, Maestro.Stage.DEFAULT_CONFIG.SceneMusic.flagNames.playlist);
         const newScenePlaylistFlag = newScene.getFlag(Maestro.Stage.MODULE_NAME, Maestro.Stage.DEFAULT_CONFIG.SceneMusic.flagNames.playlist);
 
@@ -391,6 +396,7 @@ Maestro.SceneMusic = class {
 
         if (playlist && playlist.sounds.length > 0) {
             playlist.playAll();
+            console.log(Maestro.Stage.MODULE_LABEL + ` | Playing Scene Playlist "` + playlist.name + `"`);
         }
     }
 }
