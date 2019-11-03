@@ -109,18 +109,28 @@ Maestro.Conductor = class {
     }
     
     /**
-     * Actor Sheet Hook (Character type only)
+     * Render Actor Sheets Hook
+     * Walks the registered Sheet classes for Actor and registers a Hook on render of each
      */
-    static _hookOnRenderCharacterSheets() {
-        if(!game.user.isGM) return;
-        const sheetClasses = Object.values(CONFIG.Actor.sheetClasses.character);
+    static _hookOnRenderActorSheets() {
+        if(!game.user.isGM) {
+            return;
+        }
 
-        for (let s of sheetClasses) {
-            // @ts-ignore
-            const sheetClass = s.id.split(".")[1];
-            Hooks.on(`render${sheetClass}`, (app, html, data) => {
-                maestro.hypeTrack._addHypeButton(app, html, data);
-            });
+        const sheetClasses = Object.values(CONFIG.Actor.sheetClasses);
+
+        for (let sheetClass of sheetClasses) {
+            if (sheetClass instanceof Object) {
+                const sheetSubClasses = Object.values(sheetClass);
+
+                for (let sheetSubClass of sheetSubClasses) {
+                    const sheetSubClassName = sheetSubClass.id.split(".")[1];
+
+                    Hooks.on(`render${sheetSubClassName}`, (app, html, data) => {
+                        maestro.hypeTrack._addHypeButton(app, html, data);
+                    });
+                }
+            }           
         }
     }
 
