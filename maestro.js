@@ -49,7 +49,9 @@ Maestro.Stage = class {
         return {
             SceneMusic: {
                 EnableN: "Enable Scene Music",
-                EnableH: "Enable the ability to link a playlist to a Scene"
+                EnableH: "Enable the ability to link a playlist to a Scene",
+                StopOnSceneChangeN: "Stop on Scene Change",
+                StopOnSceneChangeH: "Stop currently Scene Playlist on Scene Change"
             },
             HypeTrack: {
                 EnableN: "Enable Hype Track",
@@ -71,11 +73,10 @@ Maestro.Stage = class {
  */
 Maestro.Conductor = class {
     static begin() {
-        maestro.hypeTrack = new Maestro.HypeTrack();
-
         Maestro.Conductor._hookOnReady();
         Maestro.Conductor._hookOnRenderSceneSheet();
-        Maestro.Conductor._hookOnUpdateScene();
+        Maestro.Conductor._hookOnPreUpdateScene();
+        //Maestro.Conductor._hookOnUpdateScene();
         Maestro.Conductor._hookOnUpdateCombat();
     }
 
@@ -85,7 +86,12 @@ Maestro.Conductor = class {
     static async _hookOnReady() {
         Hooks.on("ready", async () => {
             maestro.sceneMusic = new Maestro.SceneMusic();
-            maestro.hypeTrack._checkForHypeTracksPlaylist();
+            maestro.hypeTrack = new Maestro.HypeTrack();
+
+            if(maestro.hypeTrack) {
+                maestro.hypeTrack._checkForHypeTracksPlaylist();
+            }
+            
 
             Maestro.Conductor._hookOnRenderCharacterSheets();
             Maestro.Conductor._monkeyPatchStopAll();
@@ -129,8 +135,19 @@ Maestro.Conductor = class {
     /**
      * Update Scene Hook
      */
+    /*
     static _hookOnUpdateScene() {
         Hooks.on("updateScene", (scene, updateData, options, userId) => {
+            maestro.sceneMusic._checkForScenePlaylist(scene, updateData);
+        });
+    }
+    */
+
+    /**
+     * Pre-Update Scene Hook
+     */
+    static _hookOnPreUpdateScene() {
+        Hooks.on("preUpdateScene", (scene, updateData, options, userId) => {
             maestro.sceneMusic._checkForScenePlaylist(scene, updateData);
         });
     }
@@ -274,11 +291,14 @@ Maestro.StageHand = class {
 
 /**
  * Adds the ability to set a playlist for a scene which will be played on activation
+ * @todo create a handler method for each hook
  */
 Maestro.SceneMusic = class {
     constructor() {
         this.settings = {
-            enable:  Maestro.StageHand.registerSetting(Maestro.Stage.DEFAULT_CONFIG.SceneMusic.name + '_' + Maestro.Stage.SETTINGS_DESCRIPTORS.SceneMusic.EnableN, Maestro.SceneMusic.SETTINGS_META.enable)
+            enable:  Maestro.StageHand.registerSetting(Maestro.Stage.DEFAULT_CONFIG.SceneMusic.name + '_' + Maestro.Stage.SETTINGS_DESCRIPTORS.SceneMusic.EnableN, Maestro.SceneMusic.SETTINGS_META.enable),
+            stopOnSceneChange:  Maestro.StageHand.registerSetting(Maestro.Stage.DEFAULT_CONFIG.SceneMusic.name + '_' + Maestro.Stage.SETTINGS_DESCRIPTORS.SceneMusic.StopOnSceneChangeN, Maestro.SceneMusic.SETTINGS_META.stopOnSceneChange)
+
         }
     }
 
@@ -288,13 +308,20 @@ Maestro.SceneMusic = class {
                 if (maestro.sceneMusic) {
                     maestro.sceneMusic.settings.enable = s
                 }
+            },
+            stopOnSceneChange: s => {
+                if (maestro.sceneMusic) {
+                    maestro.sceneMusic.settings.stopOnSceneChange = s
+                }
             }
         }
     }
 
     static get SETTINGS_META() {
         return {
-            enable: Maestro.StageHand.buildSetting(Maestro.Stage.SETTINGS_DESCRIPTORS.SceneMusic.EnableN, Maestro.Stage.SETTINGS_DESCRIPTORS.SceneMusic.EnableH, Boolean, "World", false, true, Maestro.SceneMusic.SETTINGS_ONCHANGE.enable )
+            enable: Maestro.StageHand.buildSetting(Maestro.Stage.SETTINGS_DESCRIPTORS.SceneMusic.EnableN, Maestro.Stage.SETTINGS_DESCRIPTORS.SceneMusic.EnableH, Boolean, "World", false, true, Maestro.SceneMusic.SETTINGS_ONCHANGE.enable ),
+            stopOnSceneChange: Maestro.StageHand.buildSetting(Maestro.Stage.SETTINGS_DESCRIPTORS.SceneMusic.StopOnSceneChangeN, Maestro.Stage.SETTINGS_DESCRIPTORS.SceneMusic.StopOnSceneChangeH, Boolean, "World", false, true, Maestro.SceneMusic.SETTINGS_ONCHANGE.stopOnSceneChange )
+
         }
     }
 
@@ -327,14 +354,31 @@ Maestro.SceneMusic = class {
 
     /**
      * Checks for the existence of a playlist flag on the specified scene
-     * @param {Object} scene 
+     * Currently works within a pre-update Scene hook
+     * @todo build a handler to call this instead and pass the relevant data
+     * @param {Object} scenes
      * @param {Object} update 
      */
-    _checkForScenePlaylist(scene, update) {
-        const scenePlaylistFlag = scene.getFlag(Maestro.Stage.MODULE_NAME, Maestro.Stage.DEFAULT_CONFIG.SceneMusic.flagNames.playlist);
+    _checkForScenePlaylist(scenes, update) {
+        if (!getProperty(maestro, "sceneMusic.settings.enable") && update.active !== true) {
+            return;
+        }
 
-        if ( scenePlaylistFlag && update.active === true ) {
-            maestro.sceneMusic._playScenePlaylist(scenePlaylistFlag);
+        const currentScene = scenes.entities.find(s => s.active === true);
+        const newScene = scenes.get(update._id);
+        const currentScenePlaylistFlag = currentScene.getFlag(Maestro.Stage.MODULE_NAME, Maestro.Stage.DEFAULT_CONFIG.SceneMusic.flagNames.playlist);
+        const newScenePlaylistFlag = newScene.getFlag(Maestro.Stage.MODULE_NAME, Maestro.Stage.DEFAULT_CONFIG.SceneMusic.flagNames.playlist);
+
+        if ( getProperty(maestro, "sceneMusic.settings.stopOnSceneChange")) {
+            const playlist = game.playlists.get(currentScenePlaylistFlag);
+            if (playlist) {
+                playlist.stopAll();
+            }
+            
+        } 
+        
+        if (newScenePlaylistFlag ) {
+            maestro.sceneMusic._playScenePlaylist(newScenePlaylistFlag);
         }
     }
 
@@ -373,6 +417,9 @@ Maestro.HypeTrack = class {
         }
     }
 
+    /**
+     * Gets setting metadata for each setting
+     */
     static get SETTINGS_META() {
         return {
             enable: Maestro.StageHand.buildSetting(Maestro.Stage.SETTINGS_DESCRIPTORS.HypeTrack.EnableN, Maestro.Stage.SETTINGS_DESCRIPTORS.HypeTrack.EnableH, Boolean, "World", false, true, Maestro.HypeTrack.SETTINGS_ONCHANGE.enable )
