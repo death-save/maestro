@@ -92,7 +92,6 @@ Maestro.Conductor = class {
             
 
             Maestro.Conductor._hookOnRenderActorSheets();
-            Maestro.Conductor._monkeyPatchStopAll();
             Maestro.Conductor._hookOnRenderSceneSheet();
             Maestro.Conductor._hookOnPreUpdateScene();
             Maestro.Conductor._hookOnUpdateCombat();
@@ -156,25 +155,6 @@ Maestro.Conductor = class {
             Hooks.on("preUpdateScene", (scene, updateData, options) => {
                 maestro.sceneMusic._checkForScenePlaylist(scene, updateData);
             })
-        }
-        
-    }
-
-    /**
-     * Patch bug in stopAll function in Foundry.js Playlist class
-     * @author KaKaRoTo (patch contents)
-     */
-    static _monkeyPatchStopAll() {
-        if (game.data.version == "0.3.9") {
-            /**
-             * Patch
-             */
-            Playlist.prototype.stopAll = function() {
-                const sounds = this.data.sounds.map(s => mergeObject(s, { playing: false }, { inplace: false }));
-                this.update({playing: false, sounds: sounds});            
-            }
-        } else {
-            return;
         }
         
     }
