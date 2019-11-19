@@ -86,16 +86,28 @@ Maestro.Conductor = class {
             maestro.sceneMusic = new Maestro.SceneMusic();
             maestro.hypeTrack = new Maestro.HypeTrack();
 
-            if(maestro.hypeTrack) {
+            if (maestro.hypeTrack) {
                 maestro.hypeTrack._checkForHypeTracksPlaylist();
             }
             
-
-            Maestro.Conductor._hookOnRenderActorSheets();
-            Maestro.Conductor._hookOnRenderSceneSheet();
-            Maestro.Conductor._hookOnPreUpdateScene();
-            Maestro.Conductor._hookOnUpdateCombat();
+            if (game.data.version == "0.4.0") {
+                //prevent issue with sheets not being registered
+                window.setTimeout(Maestro.Conductor._readyHookRegistrations, 500);
+            } else {
+                Maestro.Conductor._readyHookRegistrations();
+            }
+           
         });
+    }
+
+    /**
+     * Ready Hook Registrations
+     */
+    static _readyHookRegistrations() {
+        Maestro.Conductor._hookOnRenderActorSheets();
+        Maestro.Conductor._hookOnRenderSceneSheet();
+        Maestro.Conductor._hookOnPreUpdateScene();
+        Maestro.Conductor._hookOnUpdateCombat();
     }
 
     /**
