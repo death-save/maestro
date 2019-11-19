@@ -528,12 +528,6 @@ Maestro.HypeTrack = class {
      */
     async _addHypeButton (app, html, data) {
         /**
-         * Finds the header and the close button
-         */
-        const windowHeader = html.parent().parent().find(".window-header");
-        const windowCloseBtn = windowHeader.find(".close");
-    
-        /**
          * Hype Button html literal
          * @todo replace with a template instead
          */
@@ -544,15 +538,23 @@ Maestro.HypeTrack = class {
             </a>`
         );
         
+        if (html.header.find(hypeButton)) {
+            return;
+        }
+
+        /**
+         * Finds the header and the close button
+         */
+        const windowHeader = html.find(".window-header");
+        const windowCloseBtn = windowHeader.find(".close");
+    
         /**
          * Create an instance of the hypeButton before the close button
-         * Removes existing instances first to avoid duplicates
          */
-        windowHeader.find('.hype-track').remove();
         windowCloseBtn.before(hypeButton);
     
         /**
-         * Open the Hype Track form on button click
+         * Register a click listener that opens the Hype Track form
          */
         hypeButton.click(async ev => {
             const actorTrack = await this._getActorHypeTrack(app.entity);
