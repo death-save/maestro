@@ -3,11 +3,11 @@
     "title":"Maestro",
     "description":"Adds new sound related features such as Scene Playlists and Hype Tracks",
     "author":"Evan Clarke (errational#2007)",
-    "version":"0.2.2",
-    "minimumCoreVersion":"0.3.9",
+    "version":"0.2.1",
+    "minimumCoreVersion":"0.4.0",
     "scripts":["./maestro.js"],
-    "manifest":"https://raw.githubusercontent.com/death-save/maestro/master/module.json",
-    "download": "https://github.com/death-save/maestro/archive/master.zip",
+    "manifest":"https://raw.githubusercontent.com/death-save/maestro/fvtt-040/module.json",
+    "download": "https://github.com/death-save/maestro/archive/fvtt-040.zip",
     "url": "https://github.com/death-save/maestro"
   }
   
