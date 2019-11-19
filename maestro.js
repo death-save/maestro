@@ -31,7 +31,7 @@ Maestro.Stage = class {
                 flagNames: {
                     playlist: "playlistId"
                 },
-                templatePath: "public/modules/maestro/templates/playlist-select.html"
+                templatePath: "./modules/maestro/templates/playlist-select.html"
             },
             HypeTrack: {
                 name: "hype-track",
@@ -42,7 +42,7 @@ Maestro.Stage = class {
                 flagNames: {
                     track: "track"
                 },
-                templatePath: "public/modules/maestro/templates/hype-track-form.html"
+                templatePath: "./modules/maestro/templates/hype-track-form.html"
             }
         }
     }
