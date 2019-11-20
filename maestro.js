@@ -358,22 +358,16 @@ Maestro.SceneMusic = class {
      * Checks for the existence of a playlist flag on the specified scene
      * Currently works within a pre-update Scene hook
      * @todo build a handler to call this instead and pass the relevant data
-     * @param {Object} scenes
+     * @param {Object} scene
      * @param {Object} update 
      */
-    _checkForScenePlaylist(scenes, update) {
+    _checkForScenePlaylist(scene, update) {
         if (!getProperty(maestro, "sceneMusic.settings.enable") && update.active !== true) {
             return;
         }
 
-        let currentScene;
-        const newScene = scenes.get(update._id);
-
-        if (game.data.version == "0.3.9") {
-            currentScene = scenes.entities.find(s => s.active === true);
-        } else {
-            currentScene = scenes;
-        }
+        const currentScene = scene;
+        const newScene = game.scenes.get(update._id);
         
         const currentScenePlaylistFlag = currentScene.getFlag(Maestro.Stage.MODULE_NAME, Maestro.Stage.DEFAULT_CONFIG.SceneMusic.flagNames.playlist);
         const newScenePlaylistFlag = newScene.getFlag(Maestro.Stage.MODULE_NAME, Maestro.Stage.DEFAULT_CONFIG.SceneMusic.flagNames.playlist);
@@ -530,7 +524,7 @@ Maestro.HypeTrack = class {
             </a>`
         );
         
-        if (html.header.find(hypeButton)) {
+        if (html.find(`.${Maestro.Stage.DEFAULT_CONFIG.HypeTrack.name}`).length > 0) {
             return;
         }
 
