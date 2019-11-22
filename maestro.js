@@ -31,7 +31,7 @@ Maestro.Stage = class {
                 flagNames: {
                     playlist: "playlistId"
                 },
-                templatePath: "public/modules/maestro/templates/playlist-select.html"
+                templatePath: "./modules/maestro/templates/playlist-select.html"
             },
             HypeTrack: {
                 name: "hype-track",
@@ -42,7 +42,7 @@ Maestro.Stage = class {
                 flagNames: {
                     track: "track"
                 },
-                templatePath: "public/modules/maestro/templates/hype-track-form.html"
+                templatePath: "./modules/maestro/templates/hype-track-form.html"
             }
         }
     }
@@ -86,17 +86,28 @@ Maestro.Conductor = class {
             maestro.sceneMusic = new Maestro.SceneMusic();
             maestro.hypeTrack = new Maestro.HypeTrack();
 
-            if(maestro.hypeTrack) {
+            if (maestro.hypeTrack) {
                 maestro.hypeTrack._checkForHypeTracksPlaylist();
             }
             
-
-            Maestro.Conductor._hookOnRenderActorSheets();
-            Maestro.Conductor._monkeyPatchStopAll();
-            Maestro.Conductor._hookOnRenderSceneSheet();
-            Maestro.Conductor._hookOnPreUpdateScene();
-            Maestro.Conductor._hookOnUpdateCombat();
+            if (game.data.version == "0.4.0") {
+                //prevent issue with sheets not being registered
+                window.setTimeout(Maestro.Conductor._readyHookRegistrations, 500);
+            } else {
+                Maestro.Conductor._readyHookRegistrations();
+            }
+           
         });
+    }
+
+    /**
+     * Ready Hook Registrations
+     */
+    static _readyHookRegistrations() {
+        Maestro.Conductor._hookOnRenderActorSheets();
+        Maestro.Conductor._hookOnRenderSceneSheet();
+        Maestro.Conductor._hookOnPreUpdateScene();
+        Maestro.Conductor._hookOnUpdateCombat();
     }
 
     /**
@@ -156,25 +167,6 @@ Maestro.Conductor = class {
             Hooks.on("preUpdateScene", (scene, updateData, options) => {
                 maestro.sceneMusic._checkForScenePlaylist(scene, updateData);
             })
-        }
-        
-    }
-
-    /**
-     * Patch bug in stopAll function in Foundry.js Playlist class
-     * @author KaKaRoTo (patch contents)
-     */
-    static _monkeyPatchStopAll() {
-        if (game.data.version == "0.3.9") {
-            /**
-             * Patch
-             */
-            Playlist.prototype.stopAll = function() {
-                const sounds = this.data.sounds.map(s => mergeObject(s, { playing: false }, { inplace: false }));
-                this.update({playing: false, sounds: sounds});            
-            }
-        } else {
-            return;
         }
         
     }
@@ -366,22 +358,16 @@ Maestro.SceneMusic = class {
      * Checks for the existence of a playlist flag on the specified scene
      * Currently works within a pre-update Scene hook
      * @todo build a handler to call this instead and pass the relevant data
-     * @param {Object} scenes
+     * @param {Object} scene
      * @param {Object} update 
      */
-    _checkForScenePlaylist(scenes, update) {
+    _checkForScenePlaylist(scene, update) {
         if (!getProperty(maestro, "sceneMusic.settings.enable") && update.active !== true) {
             return;
         }
 
-        let currentScene;
-        const newScene = scenes.get(update._id);
-
-        if (game.data.version == "0.3.9") {
-            currentScene = scenes.entities.find(s => s.active === true);
-        } else {
-            currentScene = scenes;
-        }
+        const currentScene = scene;
+        const newScene = game.scenes.get(update._id);
         
         const currentScenePlaylistFlag = currentScene.getFlag(Maestro.Stage.MODULE_NAME, Maestro.Stage.DEFAULT_CONFIG.SceneMusic.flagNames.playlist);
         const newScenePlaylistFlag = newScene.getFlag(Maestro.Stage.MODULE_NAME, Maestro.Stage.DEFAULT_CONFIG.SceneMusic.flagNames.playlist);
@@ -528,12 +514,6 @@ Maestro.HypeTrack = class {
      */
     async _addHypeButton (app, html, data) {
         /**
-         * Finds the header and the close button
-         */
-        const windowHeader = html.parent().parent().find(".window-header");
-        const windowCloseBtn = windowHeader.find(".close");
-    
-        /**
          * Hype Button html literal
          * @todo replace with a template instead
          */
@@ -544,15 +524,23 @@ Maestro.HypeTrack = class {
             </a>`
         );
         
+        if (html.find(`.${Maestro.Stage.DEFAULT_CONFIG.HypeTrack.name}`).length > 0) {
+            return;
+        }
+
+        /**
+         * Finds the header and the close button
+         */
+        const windowHeader = html.find(".window-header");
+        const windowCloseBtn = windowHeader.find(".close");
+    
         /**
          * Create an instance of the hypeButton before the close button
-         * Removes existing instances first to avoid duplicates
          */
-        windowHeader.find('.hype-track').remove();
         windowCloseBtn.before(hypeButton);
     
         /**
-         * Open the Hype Track form on button click
+         * Register a click listener that opens the Hype Track form
          */
         hypeButton.click(async ev => {
             const actorTrack = await this._getActorHypeTrack(app.entity);
