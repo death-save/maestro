@@ -1,3 +1,5 @@
+![https://img.shields.io/badge/Foundry%20VTT-0.4.0%2B-green](https://img.shields.io/badge/Foundry%20VTT-0.4.0%2B-green)
+
 # Maestro
 **Author**: Evan Clarke (errational#2007 on Foundry discord)    
 **Features code by**: KaKaRoTo#4756
