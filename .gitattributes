@@ -1,0 +1,5 @@
+/types-foundry-vtt export-ignore
+.gitignore export-ignore
+.gitattributes export-ignore
+.gitmodules export-ignore
+tsconfig export-ignore
