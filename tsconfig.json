@@ -1,0 +1,8 @@
+{
+    "compilerOptions": {
+        "allowJs": true,
+        "typeRoots": ["types-foundry-vtt"],
+        "target": "ES2019",
+        "outDir": "./out-js"
+    }
+}
