@@ -51,7 +51,8 @@ Maestro.Stage = class {
                 buttonText: " Item Track",
                 aTitle: "Change Item Track",
                 flagNames: {
-                    track: "track"
+                    track: "track",
+                    played: "item-track-played"
                 },
                 templatePath: "./modules/maestro/templates/item-track-form.html"
             }
@@ -744,8 +745,9 @@ Maestro.ItemTrack = class {
      */
     async _checkItemTrack(message, html, data) {
         const itemCard = html.find(".dnd5e.chat-card.item-card");
+        const trackPlayed = message.getFlag(Maestro.Stage.MODULE_NAME, Maestro.Stage.DEFAULT_CONFIG.ItemTrack.flagNames.played);
         
-        if(!itemCard || itemCard.length === 0) {
+        if(!itemCard || itemCard.length === 0 || trackPlayed) {
             return;
         }
         
@@ -766,7 +768,8 @@ Maestro.ItemTrack = class {
             return;
         }
 
-        this._playTrack(itemTrack);
+        await this._playTrack(itemTrack);
+        return this._setChatMessageFlag(message);
     }
     
 
@@ -877,6 +880,16 @@ Maestro.ItemTrack = class {
         this.playlist.updateSound({id: trackId, playing: true});
     }
 
+    /**
+     * Sets a flag on a chat 
+     */
+    _setChatMessageFlag(message) {
+        if (!message) {
+            return;
+        }
+
+        message.setFlag(Maestro.Stage.MODULE_NAME, Maestro.Stage.DEFAULT_CONFIG.ItemTrack.flagNames.played, true);
+    }
     
 }
 
