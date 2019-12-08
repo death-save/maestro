@@ -110,8 +110,10 @@ Maestro.Conductor = class {
             if (maestro.itemTrack) {
                 maestro.itemTrack._checkForItemTracksPlaylist();
             }
-            
-            Maestro.Conductor._readyHookRegistrations();
+
+            //Set a timeout to allow the sheets to register correctly before we try to hook on them
+            window.setTimeout(Maestro.Conductor._readyHookRegistrations, 500);
+            //Maestro.Conductor._readyHookRegistrations();
         });
     }
 
@@ -148,10 +150,12 @@ Maestro.Conductor = class {
         const sheetClasses = Object.values(CONFIG.Actor.sheetClasses);
 
         for (let sheetClass of sheetClasses) {
+            // @ts-ignore
             if (sheetClass instanceof Object) {
                 const sheetSubClasses = Object.values(sheetClass);
 
                 for (let sheetSubClass of sheetSubClasses) {
+                    // @ts-ignore
                     const sheetSubClassName = sheetSubClass.id.split(".")[1];
 
                     Hooks.on(`render${sheetSubClassName}`, (app, html, data) => {
@@ -622,10 +626,11 @@ Maestro.HypeTrack = class {
 
     /**
      * Plays a sound based on the id
-     * @param {String} trackId 
+     * @param {*} trackId 
      */
     _playTrack(trackId) {
         //const sound = this._getPlaylistSound(trackId);
+        // @ts-ignore
         if(!(trackId instanceof Number)) {
             trackId = Number(trackId);
         }
@@ -744,7 +749,7 @@ Maestro.ItemTrack = class {
      * @param {Object} data  the data payload
      */
     async _checkItemTrack(message, html, data) {
-        const itemCard = html.find(".dnd5e.chat-card.item-card");
+        const itemCard = html.find("[data-item-id]");
         const trackPlayed = message.getFlag(Maestro.Stage.MODULE_NAME, Maestro.Stage.DEFAULT_CONFIG.ItemTrack.flagNames.played);
         
         if(!itemCard || itemCard.length === 0 || trackPlayed) {
@@ -869,10 +874,11 @@ Maestro.ItemTrack = class {
 
     /**
      * Play a playlist sound based on the given trackId
-     * @param {String} trackId 
+     * @param {*} trackId 
      */
     _playTrack(trackId) {
         //const sound = this._getPlaylistSound(trackId);
+        // @ts-ignore
         if(!(trackId instanceof Number)) {
             trackId = Number(trackId);
         }
