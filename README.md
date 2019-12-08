@@ -2,7 +2,7 @@
 
 # Maestro
 **Author**: Evan Clarke (errational#2007 on Foundry discord)    
-**Features code by**: KaKaRoTo#4756
+
 
 [Installation](#Installation)    
 [Module Manifest](https://raw.githubusercontent.com/death-save/maestro/master/module.json)
@@ -12,6 +12,7 @@ A quality of life audio-focused module for Foundry Virtual Tabletop.
 **Maestro** adds the following features:
 * **Scene Playlist** - Select a playlist to play automatically when the Scene is activated.
 * **Hype Track** - Set a track to play each time that Actor has a turn in Combat
+* **Item Track** - Set a track to play when that Item is rolled
 
 ## Usage
 ### Scene Playlist
@@ -29,6 +30,13 @@ Add Hype Tracks to the **Hype Tracks** Playlist that is automatically created by
 Set a Hype Track on the desired Actor by clicking the Hype button then selecting the track    
 ![Hype Track Form](https://i.imgur.com/qJTHqg6.png)
 
+### Item Track
+Add Item Tracks to the **Item Tracks** Playlist that is automatically created by the module.    
+![Item Tracks Playlist](https://i.imgur.com/pKi7Cd1.png)
+
+Set an Item Track on the desired Item by clicking the Item Track button then selecting the track    
+![Item Track Form](https://i.imgur.com/LyQwkDE.png)
+
 ## Installation
 
 1. Navigate to the Foundry Setup screen and click on the Modules tab
@@ -40,3 +48,6 @@ You can create an issue here: [Issue Log](https://github.com/death-save/maestro/
 
 ## Donations
 Paypal: [![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.me/evanc)
+
+## Attributions
+**Formerly Featured code by**: KaKaRoTo#4756
