@@ -758,10 +758,14 @@ Maestro.ItemTrack = class {
         
         let item;
         const itemId = itemCard.attr("data-item-id");
-        const hasActor = itemCard.find("data-actor-id");
+        const actorId = itemCard.attr("data-actor-id");
+        const sceneTokenId = itemCard.attr("data-token-id");
 
-        if (hasActor) {
-            let actorId = itemCard.attr("data-actor-id");
+        if (sceneTokenId) {
+            const tokenId = sceneTokenId.split(".")[1];
+            const token = canvas.tokens.get(tokenId);
+            item = token.actor.getOwnedItem(itemId);
+        } else if (!sceneTokenId && actorId) {
             item = await game.actors.get(actorId).getOwnedItem(itemId);
         } else {
             item = await game.items.get(itemId);
