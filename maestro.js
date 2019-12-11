@@ -52,7 +52,8 @@ Maestro.Stage = class {
                 aTitle: "Change Item Track",
                 flagNames: {
                     track: "track",
-                    played: "item-track-played"
+                    played: "item-track-played",
+                    playlist: "playlist"
                 },
                 templatePath: "./modules/maestro/templates/item-track-form.html"
             }
@@ -190,7 +191,7 @@ Maestro.Conductor = class {
      */
     static _hookOnRenderChatMessage() {
         Hooks.on("renderChatMessage", (message, html, data) => {
-            maestro.itemTrack._checkItemTrack(message, html, data);
+            maestro.itemTrack.chatMessageHandler(message, html, data);
         })
     }
 
@@ -743,12 +744,12 @@ Maestro.ItemTrack = class {
     }
 
     /**
-     * Checks for the existence of the Item Track flag, then plays the track
-     * @param {Object} message  the chat message object
-     * @param {Object} html  the jQuery html object for the message
-     * @param {Object} data  the data payload
+     * Handles logic for class methods
+     * @param {*} message 
+     * @param {*} html 
+     * @param {*} data 
      */
-    async _checkItemTrack(message, html, data) {
+    async chatMessageHandler(message, html, data) {
         const itemCard = html.find("[data-item-id]");
         const trackPlayed = message.getFlag(Maestro.Stage.MODULE_NAME, Maestro.Stage.DEFAULT_CONFIG.ItemTrack.flagNames.played);
         
@@ -771,14 +772,32 @@ Maestro.ItemTrack = class {
             item = await game.items.get(itemId);
         }
 
-        const itemTrack = await this._getItemTrack(item);
-    
-        if(!itemTrack) {
+        let track = await this._getItemTrack(item);
+        let playlist = await this._getItemPlaylist(item) || this.playlist;
+
+        if (track) {
+            await this._playTrack(track, playlist);
+            return this._setChatMessageFlag(message);
+        } else {
+            await this._playPlaylist(playlist);
+            return this._setChatMessageFlag(message);            
+        }
+    }
+
+    /**
+     * Returns a playlist flag based on a given item
+     * @param {Object} item  the item to check for a flag
+     */
+    async _getItemPlaylist(item) {
+        let itemPlaylist;
+
+        try {
+            itemPlaylist = await item.getFlag(Maestro.Stage.MODULE_NAME, Maestro.Stage.DEFAULT_CONFIG.ItemTrack.flagNames.playlist);
+            return itemPlaylist;
+        } catch (e) {
+            console.log(e);
             return;
         }
-
-        await this._playTrack(itemTrack);
-        return this._setChatMessageFlag(message);
     }
     
 
@@ -803,9 +822,23 @@ Maestro.ItemTrack = class {
      * Sets the Item Track
      * @param {Number} trackId - Id of the track in the playlist 
      */
-    async _setItemTrack(item, trackId) {
+    async setItemTrack(item, trackId) {
         try {
             await item.setFlag(Maestro.Stage.MODULE_NAME, Maestro.Stage.DEFAULT_CONFIG.ItemTrack.flagNames.track, trackId);
+        } catch (e) {
+            //we should do something with this in the future, eg. if the flag can't be found
+            throw e
+        }
+    }
+
+    /**
+     * Sets the Item Playlist
+     * @param {Object} item  the item to set the flag on
+     * @param {String} playlistId  the playlist's id
+     */
+    async setItemPlaylist(item, playlistId) {
+        try {
+            await item.setFlag(Maestro.Stage.MODULE_NAME, Maestro.Stage.DEFAULT_CONFIG.ItemTrack.flagNames.playlist, playlistId);
         } catch (e) {
             //we should do something with this in the future, eg. if the flag can't be found
             throw e
@@ -849,8 +882,9 @@ Maestro.ItemTrack = class {
          * Register a click listener that opens the Hype Track form
          */
         itemTrackButton.click(async ev => {
-            const actorTrack = await this._getItemTrack(app.entity);
-            this._openTrackForm(app.entity, actorTrack, {closeOnSubmit: true});
+            const track = await this._getItemTrack(app.entity);
+            const playlist = await this._getItemPlaylist(app.entity) || this.playlist.id;
+            this._openTrackForm(app.entity, track, playlist, {closeOnSubmit: true});
         });
     }
     
@@ -860,10 +894,10 @@ Maestro.ItemTrack = class {
      * @param {*} track  any existing track
      * @param {*} options  form options
      */
-    _openTrackForm(item, track, options){
+    _openTrackForm(item, track, playlist, options){
         const data = {
             "track": track,
-            "playlist": this.playlist
+            "playlist": playlist
         }
         new Maestro.ItemTrackForm(item, data, options).render(true);
     }
@@ -877,17 +911,37 @@ Maestro.ItemTrack = class {
     }
 
     /**
+     * Play a playlist using its playback method
+     * @param {*} playlistId
+     */
+    _playPlaylist(playlistId) {
+        if (!playlistId) {
+            return;
+        }
+
+        game.playlists.get(playlistId).playAll();
+    }
+
+    /**
      * Play a playlist sound based on the given trackId
+     * @param {String} playlistId
      * @param {*} trackId 
      */
-    _playTrack(trackId) {
+    async _playTrack(trackId, playlistId) {
+        let playlist;
+
+        if (!playlistId) {
+            playlist = this.playlist;
+        } else {
+            playlist = await game.playlists.get(playlistId);
+        }
         //const sound = this._getPlaylistSound(trackId);
         // @ts-ignore
-        if(!(trackId instanceof Number)) {
+        if(trackId && !(trackId instanceof Number)) {
             trackId = Number(trackId);
         }
 
-        this.playlist.updateSound({id: trackId, playing: true});
+        playlist.updateSound({id: trackId, playing: true});
     }
 
     /**
@@ -911,6 +965,7 @@ Maestro.ItemTrackForm = class extends FormApplication {
         super(data, options);
         this.item = item;
         this.data = data;
+        this.data.playlists = this.getPlaylists();
     }
     
     /**
@@ -927,11 +982,29 @@ Maestro.ItemTrackForm = class extends FormApplication {
     }
 
     /**
+     * Get all the playlists in the world.
+     */
+    async getPlaylists() {
+        return await game.playlists.entities;
+    }
+
+    /**
+     * Get a specific playlist's tracks
+     */
+    async getPlaylistSounds(playlistId) {
+        return await game.playlists.get(playlistId).sounds;
+    } 
+
+    /**
      * Provide data to the handlebars template
      */
     async getData() {
+
+
         const data = {
-            playlistTracks: this.data.playlist.sounds,
+            playlist: this.data.playlist,
+            playlists: await this.getPlaylists(),
+            playlistTracks: await this.getPlaylistSounds(this.data.playlist),
             track: this.data.track
         }
         return data;
@@ -944,7 +1017,22 @@ Maestro.ItemTrackForm = class extends FormApplication {
      * @param {Object} formData - the form data
      */
     async _updateObject(event, formData) {
-        await maestro.itemTrack._setItemTrack(this.item, formData.track);  
+        await maestro.itemTrack.setItemPlaylist(this.item, formData.playlist);
+        await maestro.itemTrack.setItemTrack(this.item, formData.track);  
+        
+    }
+
+    activateListeners(html) {
+        super.activateListeners(html);
+
+        const playlistSelect = html.find(".playlist-select");
+
+        if (playlistSelect.length > 0) {
+            playlistSelect.on("change", event => {
+                this.data.playlist = event.target.value;
+                this.render(true);
+            });
+        }
     }
 
 }

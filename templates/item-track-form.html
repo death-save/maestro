@@ -1,6 +1,18 @@
 <form autocomplete="off" onsubmit="event.preventDefault();">
 
     <div class="form-group">
+        <label>Item Playlist</label>
+        <select name="playlist" class="playlist-select" title="Playlist selection">
+            {{#select playlist}}
+                {{#each playlists}}
+                <option value="{{this.id}}">{{this.name}}</option>
+                {{/each}}
+            {{/select}}
+        </select>
+        <p class="hint">Select a playlist to play when this item is rolled, or to select a track from</p> 
+    </div>
+
+    <div class="form-group">
         <label>Item Track</label>
         <select name="track" class="track-select" title="Track selection">
             {{#select track}}
@@ -13,7 +25,13 @@
         <p class="hint">Select the existing track to play when this item is rolled</p> 
     </div>
 
-    <button type="submit" name="submit">
-        <i class="far fa-save"></i> Save Track
-    </button>
+    <span>
+        <button type="button" name="cancel">
+            <i class="fas fa-times"></i> Cancel
+        </button>
+        <button type="submit" name="submit">
+            <i class="far fa-save"></i> Save Track
+        </button>
+    </span>
+    
 </form>
