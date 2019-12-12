@@ -16,7 +16,8 @@
         <label>Item Track</label>
         <select name="track" class="track-select" title="Track selection">
             {{#select track}}
-                <option value=""></option>
+                <option value="shuffle-once">--Shuffle Single Track--</option>
+                <!--<option value=""></option>-->
                 {{#each playlistTracks}}
                 <option value="{{this.id}}">{{this.name}}</option>
                 {{/each}}

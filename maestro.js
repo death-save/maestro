@@ -720,12 +720,12 @@ Maestro.ItemTrack = class {
     /**
      * Checks for the presence of the Hype Tracks playlist, creates one if none exist
      */
-    _checkForItemTracksPlaylist() {
+    async _checkForItemTracksPlaylist() {
         if(!game.user.isGM) return;
 
         const itemPlaylist = game.playlists.entities.find(p => p.name == Maestro.Stage.DEFAULT_CONFIG.ItemTrack.playlistName);
         if(!itemPlaylist) {
-            this.playlist = this._createItemTracksPlaylist(true);
+            this.playlist = await this._createItemTracksPlaylist(true);
         } else {
             this.playlist = itemPlaylist;
         }
@@ -937,7 +937,12 @@ Maestro.ItemTrack = class {
         }
         //const sound = this._getPlaylistSound(trackId);
         // @ts-ignore
+        if (trackId && trackId === "shuffle-once") {
+            trackId = playlist._getShuffleOrder();
+        }
+
         if(trackId && !(trackId instanceof Number)) {
+
             trackId = Number(trackId);
         }
 
