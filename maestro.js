@@ -882,9 +882,21 @@ Maestro.ItemTrack = class {
          * Register a click listener that opens the Hype Track form
          */
         itemTrackButton.click(async ev => {
-            const track = await this._getItemTrack(app.entity);
-            const playlist = await this._getItemPlaylist(app.entity) || this.playlist.id;
-            this._openTrackForm(app.entity, track, playlist, {closeOnSubmit: true});
+            const actorId = app.id.split("-")[1];
+            const itemId = app.id.split("-")[3];
+            const tokenId = app.entity.actor.token.id;
+            let item;
+
+            if (app.entity.actor.isToken) {
+                item = canvas.tokens.get(tokenId).actor.getOwnedItem(itemId);
+            } else {
+                item = game.actors.get(actorId).getOwnedItem(itemId);
+            }
+            //const item = canvas.tokens.get(app.entity.actor.token.id);
+            //const ownedItem = token.actor.getOwnedItem(app.entity.id));
+            const track = await this._getItemTrack(item);
+            const playlist = await this._getItemPlaylist(item) || this.playlist.id;
+            this._openTrackForm(item, track, playlist, {closeOnSubmit: true});
         });
     }
     
@@ -894,10 +906,11 @@ Maestro.ItemTrack = class {
      * @param {*} track  any existing track
      * @param {*} options  form options
      */
-    _openTrackForm(item, track, playlist, options){
+    async _openTrackForm(item, track, playlist, options){
         const data = {
-            "track": track,
-            "playlist": playlist
+            "currentTrack": track,
+            "currentPlaylist": playlist,
+            "playlists": await game.playlists.entities
         }
         new Maestro.ItemTrackForm(item, data, options).render(true);
     }
@@ -938,7 +951,7 @@ Maestro.ItemTrack = class {
         //const sound = this._getPlaylistSound(trackId);
         // @ts-ignore
         if (trackId && trackId === "shuffle-once") {
-            trackId = playlist._getShuffleOrder();
+            trackId = playlist._getShuffleOrder()[0];
         }
 
         if(trackId && !(trackId instanceof Number)) {
@@ -970,7 +983,6 @@ Maestro.ItemTrackForm = class extends FormApplication {
         super(data, options);
         this.item = item;
         this.data = data;
-        this.data.playlists = this.getPlaylists();
     }
     
     /**
@@ -987,13 +999,6 @@ Maestro.ItemTrackForm = class extends FormApplication {
     }
 
     /**
-     * Get all the playlists in the world.
-     */
-    async getPlaylists() {
-        return await game.playlists.entities;
-    }
-
-    /**
      * Get a specific playlist's tracks
      */
     async getPlaylistSounds(playlistId) {
@@ -1004,13 +1009,11 @@ Maestro.ItemTrackForm = class extends FormApplication {
      * Provide data to the handlebars template
      */
     async getData() {
-
-
         const data = {
-            playlist: this.data.playlist,
-            playlists: await this.getPlaylists(),
-            playlistTracks: await this.getPlaylistSounds(this.data.playlist),
-            track: this.data.track
+            playlist: this.data.currentPlaylist,
+            playlists: this.data.playlists,
+            playlistTracks: await this.getPlaylistSounds(this.data.currentPlaylist),
+            track: this.data.currentTrack
         }
         return data;
     }
@@ -1021,10 +1024,9 @@ Maestro.ItemTrackForm = class extends FormApplication {
      * @param {Object} event - the form submission event
      * @param {Object} formData - the form data
      */
-    async _updateObject(event, formData) {
-        await maestro.itemTrack.setItemPlaylist(this.item, formData.playlist);
-        await maestro.itemTrack.setItemTrack(this.item, formData.track);  
-        
+    _updateObject(event, formData) {
+        maestro.itemTrack.setItemPlaylist(this.item, formData.playlist);
+        maestro.itemTrack.setItemTrack(this.item, formData.track);      
     }
 
     activateListeners(html) {
@@ -1034,8 +1036,8 @@ Maestro.ItemTrackForm = class extends FormApplication {
 
         if (playlistSelect.length > 0) {
             playlistSelect.on("change", event => {
-                this.data.playlist = event.target.value;
-                this.render(true);
+                this.data.currentPlaylist = event.target.value;
+                this.render();
             });
         }
     }
