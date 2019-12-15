@@ -61,7 +61,8 @@ Maestro.Stage = class {
                     all: "play-all"
                 },
                 templatePath: "./modules/maestro/templates/item-track-form.html"
-            }
+            },
+            "PLAYLIST.Mode.SequentialOnce": "Sequential Playback (no loop)"
         }
     }
 
@@ -130,6 +131,8 @@ Maestro.Conductor = class {
             //Set a timeout to allow the sheets to register correctly before we try to hook on them
             window.setTimeout(Maestro.Conductor._readyHookRegistrations, 500);
             //Maestro.Conductor._readyHookRegistrations();
+
+            Maestro.StageHand._monkeyPatchCore();
         });
     }
 
@@ -137,7 +140,7 @@ Maestro.Conductor = class {
      * Init Hook Registrations
      */
     static _initHookRegistrations() {
-        Maestro.Conductor._hookOnRenderPlaylistDirectory();
+        //Maestro.Conductor._hookOnRenderPlaylistDirectory();
     }
 
     /**
@@ -155,7 +158,7 @@ Maestro.Conductor = class {
 
         //Update Hooks
         Maestro.Conductor._hookOnUpdateCombat();
-        Maestro.Conductor._hookOnUpdatePlaylist();
+        //Maestro.Conductor._hookOnUpdatePlaylist();
         
         
     }
@@ -407,6 +410,164 @@ Maestro.StageHand = class {
         }
         return newSettingValue;
     }
+
+    static _monkeyPatchCore() {
+        Maestro.StageHand._addNewPlaylistMode();
+        PlaylistDirectory.prototype._getModeIcon = Maestro.Rigger._getModeIcon;
+        PlaylistDirectory.prototype._getModeTooltip = Maestro.Rigger._getModeTooltip;
+
+        Playlist.prototype.playAll = Maestro.Rigger.playAll;
+        Playlist.prototype._onEnd = Maestro.Rigger._onEnd;
+
+    }
+
+    static _addNewPlaylistMode() {
+        CONST.PLAYLIST_MODES.SEQUENTIAL_ONCE = 3;
+    }
+
+    
+    
+}
+
+/**
+ * Holds any patches for core functionality
+ */
+Maestro.Rigger = class {
+
+    /**
+   * Given a constant playback mode, provide the FontAwesome icon used to display it
+   * patch: add SEQUENTIAL_ONCE
+   * @param {Number} mode
+   * @return {String}
+   * @private
+   */
+  static _getModeIcon(mode) {
+    return {
+      [CONST.PLAYLIST_MODES.DISABLED]: '<i class="fas fa-ban"></i>',
+      [CONST.PLAYLIST_MODES.SEQUENTIAL]: '<i class="far fa-arrow-alt-circle-right"></i>',
+      [CONST.PLAYLIST_MODES.SHUFFLE]: '<i class="fas fa-random"></i>',
+      [CONST.PLAYLIST_MODES.SIMULTANEOUS]: '<i class="fas fa-compress-arrows-alt"></i>',
+      [CONST.PLAYLIST_MODES.SEQUENTIAL_ONCE]: 
+        `<span class="fa-stack" style="font-size: 0.55em">
+            <i class="far fa-circle fa-stack-2x"></i>
+            1
+        </span>`
+    }[mode];
+  }
+
+  /**
+   * MONKEYPATCH: Given a constant playback mode, provide the string tooltip used to describe it
+   * patch: add SEQUENTIAL_ONCE
+   * @param {Number} mode
+   * @return {String}
+   * @private
+   */
+  static _getModeTooltip(mode) {
+    return {
+      [CONST.PLAYLIST_MODES.DISABLED]: game.i18n.localize("PLAYLIST.ModeDisabled"),
+      [CONST.PLAYLIST_MODES.SEQUENTIAL]: game.i18n.localize("PLAYLIST.ModeSequential"),
+      [CONST.PLAYLIST_MODES.SHUFFLE]: game.i18n.localize("PLAYLIST.ModeShuffle"),
+      [CONST.PLAYLIST_MODES.SIMULTANEOUS]: game.i18n.localize("PLAYLIST.ModeSimultaneous"),
+      [CONST.PLAYLIST_MODES.SEQUENTIAL_ONCE]: game.i18n.localize(Maestro.Stage.DEFAULT_CONFIG["PLAYLIST.Mode.SequentialOnce"])
+    }[mode];
+  }
+
+  /**
+   * This callback triggers whenever a sound concludes playback
+   * Mark the concluded sound as no longer playing and possibly trigger playback for a subsequent sound depending on
+   * the playlist mode.
+   * Patch: add SEQUENTIAL_ONCE
+   *
+   * @param {Object} soundId  The sound ID of the track which is ending playback
+   * @param {Number} howlId   The howl ID which has concluded playback
+   * @private
+   */
+  static _onEnd(soundId, howlId) {
+    if ( !game.user.isGM ) return;
+
+    // Retrieve the sound object whose reference may have changed
+    let sound = this.sounds.find(s => s.id === soundId);
+    if ( sound.repeat ) return;
+
+    // Conclude playback for the current sound
+    let isPlaying = this.data.playing;
+    this.updateSound({id: sound.id, playing: false});
+
+    // Sequential or shuffled playback -- begin playing the next sound
+    if ( isPlaying && [CONST.PLAYLIST_MODES.SEQUENTIAL, CONST.PLAYLIST_MODES.SHUFFLE].includes(this.mode) ) {
+      let next = this._getNextSound(sound.id);
+      if ( next ) this.updateSound({id: next.id, playing: true});
+      else this.update({playing: false});
+    }
+
+    // Sequential Once playback - check if the last sound in the list has finished
+    else if ( isPlaying && this.mode === CONST.PLAYLIST_MODES.SEQUENTIAL_ONCE) {
+        let next = this._getNextSound(sound.id);
+        if ( next.id === 1 ) this.update({playing: false});
+        else this.updateSound({id: next.id, playing: true});
+    }
+
+    // Simultaneous playback - check if all have finished
+    else if ( isPlaying && this.mode === CONST.PLAYLIST_MODES.SIMULTANEOUS ) {
+      let isComplete = !this.sounds.some(s => s.playing);
+      if ( isComplete ) {
+        this.update({playing: false});
+      }
+    }
+  }
+
+  /**
+   * Begin simultaneous playback for all sounds in the Playlist
+   * @return {Promise}    A Promise which resolves once the Playlist update is complete
+   */
+  static async playAll() {
+    const updateData = {};
+
+    // Handle different playback modes
+    switch (this.mode) {
+
+      // Soundboard Only
+      case CONST.PLAYLIST_MODES.DISABLED:
+        updateData.playing = false;
+        break;
+
+      // Sequential Once - play tracks in order but do not loop
+      case CONST.PLAYLIST_MODES.SEQUENTIAL_ONCE:  
+      // Sequential Playback
+      case CONST.PLAYLIST_MODES.SEQUENTIAL:
+        updateData.sounds = duplicate(this.data.sounds).map((s, i) => {
+          s.playing = i === 0;
+          return s;
+        });
+        updateData.playing = updateData.sounds.length > 0;
+        break;
+
+      // Simultaneous - play all tracks
+      case CONST.PLAYLIST_MODES.SIMULTANEOUS:
+        updateData.sounds = duplicate(this.data.sounds).map(s => {
+          s.playing = true;
+          return s;
+        });
+        updateData.playing = updateData.sounds.length > 0;
+        break;
+
+
+      // Shuffle - play random track
+      case CONST.PLAYLIST_MODES.SHUFFLE:
+        this.shuffleOrder = this._getShuffleOrder();
+        updateData.sounds = duplicate(this.data.sounds).map(s => {
+          s.playing = s.id === this.shuffleOrder[0];
+          return s;
+        });
+        updateData.playing = updateData.sounds.length > 0;
+        break;
+
+    }
+
+    // Update the Playlist
+    return this.update(updateData);
+  }
+
 }
 
 /**
