@@ -2,34 +2,35 @@
 
     <div class="form-group">
         <label>Item Playlist</label>
-        <select name="playlist" class="playlist-select" title="Playlist selection">
+        <select name="playlist" class="playlist-select" title="Playlist selection" default="">
             {{#select playlist}}
+                <option value="">--None--</option>
                 {{#each playlists}}
                 <option value="{{this.id}}">{{this.name}}</option>
                 {{/each}}
             {{/select}}
         </select>
-        <p class="hint">Select a playlist to play when this item is rolled, or to select a track from</p> 
+        <p class="hint">Select a playlist in order to select a track</p> 
     </div>
 
     <div class="form-group">
         <label>Item Track</label>
-        <select name="track" class="track-select" title="Track selection">
+        <select name="track" class="track-select" title="Track selection" default="">
             {{#select track}}
-                <option value="shuffle-once">--Shuffle Single Track--</option>
-                <!--<option value=""></option>-->
+                <option value="">--None--</option>
+                {{#if playlistTracks}}
+                <option value="random-track">--Play Random Track--</option>
+                <option value="play-all">--Play All Tracks--</option>
+                {{/if}}
                 {{#each playlistTracks}}
                 <option value="{{this.id}}">{{this.name}}</option>
                 {{/each}}
             {{/select}}
         </select>
-        <p class="hint">Select the existing track to play when this item is rolled</p> 
+        <p class="hint">Select a track to play when this item is rolled</p> 
     </div>
 
     <span>
-        <button type="button" name="cancel">
-            <i class="fas fa-times"></i> Cancel
-        </button>
         <button type="submit" name="submit">
             <i class="far fa-save"></i> Save Track
         </button>

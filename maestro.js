@@ -55,6 +55,11 @@ Maestro.Stage = class {
                     played: "item-track-played",
                     playlist: "playlist"
                 },
+                playbackModes: {
+                    single: "single",
+                    random: "random-track",
+                    all: "play-all"
+                },
                 templatePath: "./modules/maestro/templates/item-track-form.html"
             }
         }
@@ -92,7 +97,17 @@ Maestro.Stage = class {
  */
 Maestro.Conductor = class {
     static begin() {
+        Maestro.Conductor._hookOnInit();
         Maestro.Conductor._hookOnReady();
+    }
+
+    /**
+     * Init Hook
+     */
+    static async _hookOnInit() {
+        Hooks.on("init", () =>{
+            Maestro.Conductor._initHookRegistrations();
+        });
     }
 
     /**
@@ -119,15 +134,65 @@ Maestro.Conductor = class {
     }
 
     /**
+     * Init Hook Registrations
+     */
+    static _initHookRegistrations() {
+        Maestro.Conductor._hookOnRenderPlaylistDirectory();
+    }
+
+    /**
      * Ready Hook Registrations
      */
     static _readyHookRegistrations() {
+        //Sheet/App Render Hooks
         Maestro.Conductor._hookOnRenderActorSheets();
         Maestro.Conductor._hookOnRenderSceneSheet();
-        Maestro.Conductor._hookOnPreUpdateScene();
-        Maestro.Conductor._hookOnUpdateCombat();
-        Maestro.Conductor._hookOnRenderChatMessage();
         Maestro.Conductor._hookOnRenderItemSheets();
+        Maestro.Conductor._hookOnRenderChatMessage();
+
+        //Pre-update Hooks
+        Maestro.Conductor._hookOnPreUpdateScene();
+
+        //Update Hooks
+        Maestro.Conductor._hookOnUpdateCombat();
+        Maestro.Conductor._hookOnUpdatePlaylist();
+        
+        
+    }
+
+    /**
+     * Render Playlist Directory
+     */
+    static _hookOnRenderPlaylistDirectory() {
+        Hooks.on("renderPlaylistDirectory", (app, html, data) => {
+            const playlistMode = html.find("a[data-action='playlist-mode']");
+
+            const loopModeButtonLoop = `
+                <a class="sound-control" data-action="loop-mode" title="Loop Mode">
+                    <i class="fas fa-sync"></i>
+                </a>
+            `
+
+            const loopModeButtonSingle = `
+                <a class="sound-control" data-action="loop-mode">
+                <div class="fa-stack fa-3x">
+                    <i class="fa fa-circle-o fa-stack-2x"></i>
+                    <span class="fa-stack-1x">1</span>
+                </div>
+                </a>
+            `
+            let loopModeButton = $(loopModeButtonLoop);
+
+            playlistMode.after(loopModeButton);
+
+            loopModeButton.click(event => {
+                event.preventDefault();
+                //get playlist
+                //set playlist loop mode
+                loopModeButton.addClass("disabled");
+                this.render();
+            });
+        });
     }
 
     /**
@@ -739,12 +804,11 @@ Maestro.ItemTrack = class {
         if (!create) {
             return;
         }
-
         return await Playlist.create({"name": Maestro.Stage.DEFAULT_CONFIG.ItemTrack.playlistName});
     }
 
     /**
-     * Handles logic for class methods
+     * Handles module logic for chat message card
      * @param {*} message 
      * @param {*} html 
      * @param {*} data 
@@ -772,79 +836,52 @@ Maestro.ItemTrack = class {
             item = await game.items.get(itemId);
         }
 
-        let track = await this._getItemTrack(item);
-        let playlist = await this._getItemPlaylist(item) || this.playlist;
+        const flags = await this.getItemFlags(item)
+        const track = flags.track || "";
+        const playlist = flags.playlist || "";
 
-        if (track) {
-            await this._playTrack(track, playlist);
-            return this._setChatMessageFlag(message);
-        } else {
-            await this._playPlaylist(playlist);
-            return this._setChatMessageFlag(message);            
+        switch (track) {
+            case Maestro.Stage.DEFAULT_CONFIG.ItemTrack.playbackModes.all:
+                await this._playPlaylist(playlist);
+                return this._setChatMessageFlag(message);
+            
+            case Maestro.Stage.DEFAULT_CONFIG.ItemTrack.playbackModes.random:
+                await this._playTrack(track, playlist)
+                return this._setChatMessageFlag(message);
+        
+            default:
+                if (!track) {
+                    break;
+                }
+
+                await this._playTrack(track, playlist);
+                return this._setChatMessageFlag(message);      
         }
+    }    
+
+    /**
+     * Gets the Item Track flags on an Item
+     * @param {Object} item - the item to get flags from
+     * @returns {Promise} flags - an object containing the flags
+     */
+    async getItemFlags(item) {
+        return await item.data.flags[Maestro.Stage.MODULE_NAME];
     }
 
     /**
-     * Returns a playlist flag based on a given item
-     * @param {Object} item  the item to check for a flag
+     * Sets the Item Track flags on an Item instance
+     * Handled as an update so all flags can be set at once
+     * @param {Object} item - the item to set flags on
+     * @param {String} playlistId - the playlist id to set
+     * @param {String} trackId - the trackId or playback mode to set
      */
-    async _getItemPlaylist(item) {
-        let itemPlaylist;
-
-        try {
-            itemPlaylist = await item.getFlag(Maestro.Stage.MODULE_NAME, Maestro.Stage.DEFAULT_CONFIG.ItemTrack.flagNames.playlist);
-            return itemPlaylist;
-        } catch (e) {
-            console.log(e);
-            return;
-        }
+    async setItemFlags(item, playlistId, trackId) {
+        return await item.update({
+            [`flags.${Maestro.Stage.MODULE_NAME}.${Maestro.Stage.DEFAULT_CONFIG.ItemTrack.flagNames.playlist}`]: playlistId,
+            [`flags.${Maestro.Stage.MODULE_NAME}.${Maestro.Stage.DEFAULT_CONFIG.ItemTrack.flagNames.track}`]: trackId
+        });
     }
-    
-
-    /**
-     * Get the Item Track flag if it exists on an item
-     * @param {*} item
-     */
-    async _getItemTrack(item) {
-        let itemTrack;
-
-        try {
-            itemTrack = await item.getFlag(Maestro.Stage.MODULE_NAME, Maestro.Stage.DEFAULT_CONFIG.ItemTrack.flagNames.track);
-            return itemTrack;
-        } catch (e) {
-            console.log(e);
-            return;
-        }
-
-    }
-    
-    /**
-     * Sets the Item Track
-     * @param {Number} trackId - Id of the track in the playlist 
-     */
-    async setItemTrack(item, trackId) {
-        try {
-            await item.setFlag(Maestro.Stage.MODULE_NAME, Maestro.Stage.DEFAULT_CONFIG.ItemTrack.flagNames.track, trackId);
-        } catch (e) {
-            //we should do something with this in the future, eg. if the flag can't be found
-            throw e
-        }
-    }
-
-    /**
-     * Sets the Item Playlist
-     * @param {Object} item  the item to set the flag on
-     * @param {String} playlistId  the playlist's id
-     */
-    async setItemPlaylist(item, playlistId) {
-        try {
-            await item.setFlag(Maestro.Stage.MODULE_NAME, Maestro.Stage.DEFAULT_CONFIG.ItemTrack.flagNames.playlist, playlistId);
-        } catch (e) {
-            //we should do something with this in the future, eg. if the flag can't be found
-            throw e
-        }
-    }
-    
+     
     /**
      * Adds a button to the Item sheet to open the Item Track form
      * @param {Object} app 
@@ -853,7 +890,7 @@ Maestro.ItemTrack = class {
      */
     async _addItemTrackButton (app, html, data) {
         /**
-         * Hype Button html literal
+         * Item Track Button html literal
          * @todo replace with a template instead
          */
         const itemTrackButton = $(
@@ -863,7 +900,7 @@ Maestro.ItemTrack = class {
             </a>`
         );
         
-        if (html.find(`.${Maestro.Stage.DEFAULT_CONFIG.ItemTrack.name}`).length > 0) {
+        if (html.find(`.${Maestro.Stage.DEFAULT_CONFIG.ItemTrack.name}`).length > 0 || !app.isEditable) {
             return;
         }
 
@@ -882,26 +919,36 @@ Maestro.ItemTrack = class {
          * Register a click listener that opens the Hype Track form
          */
         itemTrackButton.click(async ev => {
-            const actorId = app.id.split("-")[1];
-            const itemId = app.id.split("-")[3];
-            const tokenId = app.entity.actor.token.id;
-            let item;
 
-            if (app.entity.actor.isToken) {
-                item = canvas.tokens.get(tokenId).actor.getOwnedItem(itemId);
+            let item;
+            
+            //Scenario 1 - owned item 
+            if (app.entity.isOwned) {
+                const itemId = app.entity.data.id;
+                const actor = app.entity.actor;
+
+                if (actor.isToken) {
+                    item = canvas.tokens.get(actor.token.id).actor.getOwnedItem(itemId);
+                } else {
+                    item = game.actors.get(actor.id).getOwnedItem(itemId);
+                }
+
+            //Scenario 2 - world item
             } else {
-                item = game.actors.get(actorId).getOwnedItem(itemId);
+                if (app.entity.id) {
+                    item = app.entity;
+                }
             }
-            //const item = canvas.tokens.get(app.entity.actor.token.id);
-            //const ownedItem = token.actor.getOwnedItem(app.entity.id));
-            const track = await this._getItemTrack(item);
-            const playlist = await this._getItemPlaylist(item) || this.playlist.id;
+            
+            const flags = await this.getItemFlags(item);
+            const track = flags.track || "";
+            const playlist = flags.playlist || "";
             this._openTrackForm(item, track, playlist, {closeOnSubmit: true});
         });
     }
     
     /**
-     * Opens the Item Track form
+     * Builds data object and opens the Item Track form
      * @param {Object} item  the reference item
      * @param {*} track  any existing track
      * @param {*} options  form options
@@ -924,38 +971,73 @@ Maestro.ItemTrack = class {
     }
 
     /**
-     * Play a playlist using its playback method
-     * @param {*} playlistId
+     * Play a playlist using its default playback method
+     * @param {String} playlistId
      */
-    _playPlaylist(playlistId) {
+    async _playPlaylist(playlistId) {
         if (!playlistId) {
             return;
         }
 
-        game.playlists.get(playlistId).playAll();
+        const playlist = await game.playlists.get(playlistId);
+
+        if (!playlist) {
+            return;
+        }
+
+        if (playlist.mode === CONST.PLAYLIST_MODES.SEQUENTIAL) {
+            //count the number of sounds
+            //play all tracks
+            //wait for the last sound to play then stop
+            this._watchPlaylist(playlist);
+            playlist.playAll();
+        }
+
+
+        playlist.playAll();
+    }
+
+    /**
+     * Watch a playlist and after the last sound has played, stop it from playing
+     * @param {Object} playlist - the playlist to watch
+     */
+    _watchPlaylist(playlist) {
+        const soundCount = playlist.sounds.length;
+        let loops = 0;
+        
+        Hooks.on("updatePlaylist", (playlist, update, options, userId) => {
+            if (!update.sounds) {
+                return;
+            }
+
+            if (loops === 1) {
+                playlist.stopAll();
+            }
+
+            const playingTrack = update.sounds.find(s => s.playing);
+            if (update.sounds.indexOf(playingTrack) === (soundCount - 1)) {
+                return loops = 1;
+            }
+        });    
     }
 
     /**
      * Play a playlist sound based on the given trackId
-     * @param {String} playlistId
-     * @param {*} trackId 
+     * @param {String} playlistId - the playlist id
+     * @param {String} trackId - the track Id or playback mode
      */
     async _playTrack(trackId, playlistId) {
-        let playlist;
-
         if (!playlistId) {
-            playlist = this.playlist;
-        } else {
-            playlist = await game.playlists.get(playlistId);
+            return;
         }
-        //const sound = this._getPlaylistSound(trackId);
-        // @ts-ignore
-        if (trackId && trackId === "shuffle-once") {
+
+        const playlist = await game.playlists.get(playlistId);
+
+        if (trackId === Maestro.Stage.DEFAULT_CONFIG.ItemTrack.playbackModes.random) {
             trackId = playlist._getShuffleOrder()[0];
         }
 
         if(trackId && !(trackId instanceof Number)) {
-
             trackId = Number(trackId);
         }
 
@@ -963,7 +1045,8 @@ Maestro.ItemTrack = class {
     }
 
     /**
-     * Sets a flag on a chat 
+     * Sets a flag on a chat message
+     * @param {Object} message - the message to set a flag on
      */
     _setChatMessageFlag(message) {
         if (!message) {
@@ -1002,6 +1085,9 @@ Maestro.ItemTrackForm = class extends FormApplication {
      * Get a specific playlist's tracks
      */
     async getPlaylistSounds(playlistId) {
+        if (!playlistId) {
+            return;
+        }
         return await game.playlists.get(playlistId).sounds;
     } 
 
@@ -1012,7 +1098,7 @@ Maestro.ItemTrackForm = class extends FormApplication {
         const data = {
             playlist: this.data.currentPlaylist,
             playlists: this.data.playlists,
-            playlistTracks: await this.getPlaylistSounds(this.data.currentPlaylist),
+            playlistTracks: await this.getPlaylistSounds(this.data.currentPlaylist) || [],
             track: this.data.currentTrack
         }
         return data;
@@ -1025,8 +1111,7 @@ Maestro.ItemTrackForm = class extends FormApplication {
      * @param {Object} formData - the form data
      */
     _updateObject(event, formData) {
-        maestro.itemTrack.setItemPlaylist(this.item, formData.playlist);
-        maestro.itemTrack.setItemTrack(this.item, formData.track);      
+        maestro.itemTrack.setItemFlags(this.item, formData.playlist, formData.track)  
     }
 
     activateListeners(html) {
