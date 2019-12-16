@@ -87,7 +87,9 @@ Maestro.Stage = class {
             },
             ItemTrack: {
                 EnableN: "Enable Item Track",
-                EnableH: "Assign a track to be played when item is rolled"
+                EnableH: "Assign a track to be played when item is rolled",
+                CreatePlaylistN: "Create Item Tracks Playlist",
+                CreatePlaylistH: "When enabled, playlist will be created if it is not found"
             }
         }
     }
@@ -161,41 +163,6 @@ Maestro.Conductor = class {
         //Maestro.Conductor._hookOnUpdatePlaylist();
         
         
-    }
-
-    /**
-     * Render Playlist Directory
-     */
-    static _hookOnRenderPlaylistDirectory() {
-        Hooks.on("renderPlaylistDirectory", (app, html, data) => {
-            const playlistMode = html.find("a[data-action='playlist-mode']");
-
-            const loopModeButtonLoop = `
-                <a class="sound-control" data-action="loop-mode" title="Loop Mode">
-                    <i class="fas fa-sync"></i>
-                </a>
-            `
-
-            const loopModeButtonSingle = `
-                <a class="sound-control" data-action="loop-mode">
-                <div class="fa-stack fa-3x">
-                    <i class="fa fa-circle-o fa-stack-2x"></i>
-                    <span class="fa-stack-1x">1</span>
-                </div>
-                </a>
-            `
-            let loopModeButton = $(loopModeButtonLoop);
-
-            playlistMode.after(loopModeButton);
-
-            loopModeButton.click(event => {
-                event.preventDefault();
-                //get playlist
-                //set playlist loop mode
-                loopModeButton.addClass("disabled");
-                this.render();
-            });
-        });
     }
 
     /**
@@ -411,8 +378,15 @@ Maestro.StageHand = class {
         return newSettingValue;
     }
 
+    /**
+     * Executes monkey patches from the Rigger class
+     */
     static _monkeyPatchCore() {
-        Maestro.StageHand._addNewPlaylistMode();
+        const addMode = Maestro.StageHand._addNewPlaylistMode();
+
+        if (!addMode) {
+            return;
+        }
         PlaylistDirectory.prototype._getModeIcon = Maestro.Rigger._getModeIcon;
         PlaylistDirectory.prototype._getModeTooltip = Maestro.Rigger._getModeTooltip;
 
@@ -422,7 +396,7 @@ Maestro.StageHand = class {
     }
 
     static _addNewPlaylistMode() {
-        CONST.PLAYLIST_MODES.SEQUENTIAL_ONCE = 3;
+        return CONST.PLAYLIST_MODES.SEQUENTIAL_ONCE = 3;
     }
 
     
@@ -430,13 +404,13 @@ Maestro.StageHand = class {
 }
 
 /**
- * Holds any patches for core functionality
+ * Holds any monkey patches for core functionality
  */
 Maestro.Rigger = class {
 
     /**
+   * Patch: add SEQUENTIAL_ONCE
    * Given a constant playback mode, provide the FontAwesome icon used to display it
-   * patch: add SEQUENTIAL_ONCE
    * @param {Number} mode
    * @return {String}
    * @private
@@ -456,8 +430,8 @@ Maestro.Rigger = class {
   }
 
   /**
-   * MONKEYPATCH: Given a constant playback mode, provide the string tooltip used to describe it
-   * patch: add SEQUENTIAL_ONCE
+   * Patch: add SEQUENTIAL_ONCE
+   * Given a constant playback mode, provide the string tooltip used to describe it
    * @param {Number} mode
    * @return {String}
    * @private
@@ -473,10 +447,10 @@ Maestro.Rigger = class {
   }
 
   /**
+   * Patch: add SEQUENTIAL_ONCE
    * This callback triggers whenever a sound concludes playback
    * Mark the concluded sound as no longer playing and possibly trigger playback for a subsequent sound depending on
    * the playlist mode.
-   * Patch: add SEQUENTIAL_ONCE
    *
    * @param {Object} soundId  The sound ID of the track which is ending playback
    * @param {Number} howlId   The howl ID which has concluded playback
@@ -517,6 +491,7 @@ Maestro.Rigger = class {
   }
 
   /**
+   * Patch: add SEQUENTIAL_ONCE
    * Begin simultaneous playback for all sounds in the Playlist
    * @return {Promise}    A Promise which resolves once the Playlist update is complete
    */
@@ -626,6 +601,9 @@ Maestro.SceneMusic = class {
      * @param {Object} sceneData 
      */
     async _injectPlaylistSelector(app, html, sceneData) {
+        if (!maestro.scenePlaylist && !getProperty(maestro, "sceneMusic.settings.enable")) {
+            return;
+        }
         const data = this._getAdditionalData(app.object);
         const submitButton = html.find('button[name="submit"]');
         const playlistSelector = await renderTemplate(Maestro.Stage.DEFAULT_CONFIG.SceneMusic.templatePath, data);
@@ -715,7 +693,9 @@ Maestro.HypeTrack = class {
      * Checks for the presence of the Hype Tracks playlist, creates one if none exist
      */
     _checkForHypeTracksPlaylist() {
-        if(!game.user.isGM) return;
+        if(!game.user.isGM || !getProperty(maestro, "hypeTrack.settings.enable")) {
+            return;
+        } 
 
         const hypePlaylist = game.playlists.entities.find(p => p.name == Maestro.Stage.DEFAULT_CONFIG.HypeTrack.playlistName);
         if(!hypePlaylist) {
@@ -794,6 +774,9 @@ Maestro.HypeTrack = class {
      * @param {Object} data 
      */
     async _addHypeButton (app, html, data) {
+        if (!getProperty(maestro, "hypeTrack.settings.enable")) {
+            return;
+        }
         /**
          * Hype Button html literal
          * @todo replace with a template instead
@@ -920,18 +903,27 @@ Maestro.ItemTrack = class {
         this.playlist = null;
 
         this.settings = {
-            enable: Maestro.StageHand.initSetting(Maestro.Stage.DEFAULT_CONFIG.ItemTrack.name + "_" + Maestro.Stage.SETTINGS_DESCRIPTORS.ItemTrack.EnableN, Maestro.ItemTrack.SETTINGS_META.enable)
+            enable: Maestro.StageHand.initSetting(Maestro.Stage.DEFAULT_CONFIG.ItemTrack.name + "_" + Maestro.Stage.SETTINGS_DESCRIPTORS.ItemTrack.EnableN, Maestro.ItemTrack.SETTINGS_META.enable),
+            createPlaylist: Maestro.StageHand.initSetting(Maestro.Stage.DEFAULT_CONFIG.ItemTrack.name + "_" + Maestro.Stage.SETTINGS_DESCRIPTORS.ItemTrack.CreatePlaylistN, Maestro.ItemTrack.SETTINGS_META.createPlaylist)
         };
     }
 
+    /**
+     * Handles anything that needs to occur when settings change
+     */
     static get SETTINGS_ONCHANGE() {
         return {
             enable: s => {
                 if (maestro.itemTrack) {
-                    maestro.itemTrack.settings.enable = s
+                    maestro.itemTrack.settings.enable = s;
+                }
+            },
+            createPlaylist: s => {
+                if (maestro.itemTrack) {
+                    maestro.itemTrack.settings.createPlaylist = s;
                 }
             }
-        }
+        };
     }
 
     /**
@@ -939,15 +931,18 @@ Maestro.ItemTrack = class {
      */
     static get SETTINGS_META() {
         return {
-            enable: Maestro.StageHand.buildSetting(Maestro.Stage.SETTINGS_DESCRIPTORS.ItemTrack.EnableN, Maestro.Stage.SETTINGS_DESCRIPTORS.ItemTrack.EnableH, Boolean, "World", false, true, Maestro.ItemTrack.SETTINGS_ONCHANGE.enable )
-        }
+            enable: Maestro.StageHand.buildSetting(Maestro.Stage.SETTINGS_DESCRIPTORS.ItemTrack.EnableN, Maestro.Stage.SETTINGS_DESCRIPTORS.ItemTrack.EnableH, Boolean, "World", false, true, Maestro.ItemTrack.SETTINGS_ONCHANGE.enable ),
+            createPlaylist: Maestro.StageHand.buildSetting(Maestro.Stage.SETTINGS_DESCRIPTORS.ItemTrack.CreatePlaylistN, Maestro.Stage.SETTINGS_DESCRIPTORS.ItemTrack.CreatePlaylistH, Boolean, "world", true, true, Maestro.ItemTrack.SETTINGS_ONCHANGE.createPlaylist )
+        };
     }
 
     /**
      * Checks for the presence of the Hype Tracks playlist, creates one if none exist
      */
     async _checkForItemTracksPlaylist() {
-        if(!game.user.isGM) return;
+        if(!game.user.isGM || !getProperty(maestro, "itemTrack.settings.enable") || !getProperty(maestro, "itemTrack.settings.createPlaylist")) {
+            return;
+        }
 
         const itemPlaylist = game.playlists.entities.find(p => p.name == Maestro.Stage.DEFAULT_CONFIG.ItemTrack.playlistName);
         if(!itemPlaylist) {
@@ -970,11 +965,15 @@ Maestro.ItemTrack = class {
 
     /**
      * Handles module logic for chat message card
-     * @param {*} message 
-     * @param {*} html 
-     * @param {*} data 
+     * @param {Object} message - the chat message object
+     * @param {Object} html - the jquery object
+     * @param {Object} data - the data in the message update
      */
     async chatMessageHandler(message, html, data) {
+        if (!getProperty(maestro, "itemTrack.settings.enable")) {
+            return;
+        }
+
         const itemCard = html.find("[data-item-id]");
         const trackPlayed = message.getFlag(Maestro.Stage.MODULE_NAME, Maestro.Stage.DEFAULT_CONFIG.ItemTrack.flagNames.played);
         
@@ -1050,6 +1049,10 @@ Maestro.ItemTrack = class {
      * @param {Object} data 
      */
     async _addItemTrackButton (app, html, data) {
+        if (!getProperty(maestro, "itemTrack.settings.enable")) {
+            return;
+        }
+
         /**
          * Item Track Button html literal
          * @todo replace with a template instead
@@ -1110,9 +1113,9 @@ Maestro.ItemTrack = class {
     
     /**
      * Builds data object and opens the Item Track form
-     * @param {Object} item  the reference item
-     * @param {*} track  any existing track
-     * @param {*} options  form options
+     * @param {Object} item - the reference item
+     * @param {String} track - any existing track
+     * @param {Object} options - form options
      */
     async _openTrackForm(item, track, playlist, options){
         const data = {
@@ -1128,6 +1131,9 @@ Maestro.ItemTrack = class {
      * @param {String} trackId 
      */
     _getPlaylistSound(trackId) {
+        if (!this.playlist) {
+            return;
+        }
         return this.playlist.sounds.find(s => s.id == trackId);
     }
 
@@ -1146,40 +1152,7 @@ Maestro.ItemTrack = class {
             return;
         }
 
-        if (playlist.mode === CONST.PLAYLIST_MODES.SEQUENTIAL) {
-            //count the number of sounds
-            //play all tracks
-            //wait for the last sound to play then stop
-            this._watchPlaylist(playlist);
-            playlist.playAll();
-        }
-
-
         playlist.playAll();
-    }
-
-    /**
-     * Watch a playlist and after the last sound has played, stop it from playing
-     * @param {Object} playlist - the playlist to watch
-     */
-    _watchPlaylist(playlist) {
-        const soundCount = playlist.sounds.length;
-        let loops = 0;
-        
-        Hooks.on("updatePlaylist", (playlist, update, options, userId) => {
-            if (!update.sounds) {
-                return;
-            }
-
-            if (loops === 1) {
-                playlist.stopAll();
-            }
-
-            const playingTrack = update.sounds.find(s => s.playing);
-            if (update.sounds.indexOf(playingTrack) === (soundCount - 1)) {
-                return loops = 1;
-            }
-        });    
     }
 
     /**
@@ -1193,6 +1166,10 @@ Maestro.ItemTrack = class {
         }
 
         const playlist = await game.playlists.get(playlistId);
+
+        if (!playlist) {
+            return;
+        }
 
         if (trackId === Maestro.Stage.DEFAULT_CONFIG.ItemTrack.playbackModes.random) {
             trackId = playlist._getShuffleOrder()[0];
@@ -1249,6 +1226,12 @@ Maestro.ItemTrackForm = class extends FormApplication {
         if (!playlistId) {
             return;
         }
+        const playlist = game.playlists.get(playlistId);
+
+        if (!playlist) {
+            return;
+        }
+
         return await game.playlists.get(playlistId).sounds;
     } 
 

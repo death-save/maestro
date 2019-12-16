@@ -1,7 +1,7 @@
 {
     "name":"maestro",
     "title":"Maestro",
-    "description":"Adds new sound related features such as Scene Playlists and Hype Tracks",
+    "description":"Adds new sound-related features such as Scene Playlists, Hype Tracks, and Item Tracks",
     "author":"Evan Clarke (errational#2007)",
     "version":"0.3.3",
     "minimumCoreVersion":"0.4.1",
