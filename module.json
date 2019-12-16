@@ -1,9 +1,9 @@
 {
     "name":"maestro",
     "title":"Maestro",
-    "description":"Adds new sound related features such as Scene Playlists and Hype Tracks",
+    "description":"Adds new sound-related features such as Scene Playlists, Hype Tracks, and Item Tracks",
     "author":"Evan Clarke (errational#2007)",
-    "version":"0.3.2",
+    "version":"0.3.5",
     "minimumCoreVersion":"0.4.1",
     "scripts":["./maestro.js"],
     "manifest":"https://raw.githubusercontent.com/death-save/maestro/master/module.json",

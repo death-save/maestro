@@ -52,10 +52,17 @@ Maestro.Stage = class {
                 aTitle: "Change Item Track",
                 flagNames: {
                     track: "track",
-                    played: "item-track-played"
+                    played: "item-track-played",
+                    playlist: "playlist"
+                },
+                playbackModes: {
+                    single: "single",
+                    random: "random-track",
+                    all: "play-all"
                 },
                 templatePath: "./modules/maestro/templates/item-track-form.html"
-            }
+            },
+            "PLAYLIST.Mode.SequentialOnce": "Sequential Playback (no loop)"
         }
     }
 
@@ -80,7 +87,9 @@ Maestro.Stage = class {
             },
             ItemTrack: {
                 EnableN: "Enable Item Track",
-                EnableH: "Assign a track to be played when item is rolled"
+                EnableH: "Assign a track to be played when item is rolled",
+                CreatePlaylistN: "Create Item Tracks Playlist",
+                CreatePlaylistH: "When enabled, playlist will be created if it is not found"
             }
         }
     }
@@ -91,7 +100,17 @@ Maestro.Stage = class {
  */
 Maestro.Conductor = class {
     static begin() {
+        Maestro.Conductor._hookOnInit();
         Maestro.Conductor._hookOnReady();
+    }
+
+    /**
+     * Init Hook
+     */
+    static async _hookOnInit() {
+        Hooks.on("init", () =>{
+            Maestro.Conductor._initHookRegistrations();
+        });
     }
 
     /**
@@ -114,19 +133,36 @@ Maestro.Conductor = class {
             //Set a timeout to allow the sheets to register correctly before we try to hook on them
             window.setTimeout(Maestro.Conductor._readyHookRegistrations, 500);
             //Maestro.Conductor._readyHookRegistrations();
+
+            Maestro.StageHand._monkeyPatchCore();
         });
+    }
+
+    /**
+     * Init Hook Registrations
+     */
+    static _initHookRegistrations() {
+        //Maestro.Conductor._hookOnRenderPlaylistDirectory();
     }
 
     /**
      * Ready Hook Registrations
      */
     static _readyHookRegistrations() {
+        //Sheet/App Render Hooks
         Maestro.Conductor._hookOnRenderActorSheets();
         Maestro.Conductor._hookOnRenderSceneSheet();
-        Maestro.Conductor._hookOnPreUpdateScene();
-        Maestro.Conductor._hookOnUpdateCombat();
-        Maestro.Conductor._hookOnRenderChatMessage();
         Maestro.Conductor._hookOnRenderItemSheets();
+        Maestro.Conductor._hookOnRenderChatMessage();
+
+        //Pre-update Hooks
+        Maestro.Conductor._hookOnPreUpdateScene();
+
+        //Update Hooks
+        Maestro.Conductor._hookOnUpdateCombat();
+        //Maestro.Conductor._hookOnUpdatePlaylist();
+        
+        
     }
 
     /**
@@ -190,7 +226,7 @@ Maestro.Conductor = class {
      */
     static _hookOnRenderChatMessage() {
         Hooks.on("renderChatMessage", (message, html, data) => {
-            maestro.itemTrack._checkItemTrack(message, html, data);
+            maestro.itemTrack.chatMessageHandler(message, html, data);
         })
     }
 
@@ -341,6 +377,172 @@ Maestro.StageHand = class {
         }
         return newSettingValue;
     }
+
+    /**
+     * Executes monkey patches from the Rigger class
+     */
+    static _monkeyPatchCore() {
+        const addMode = Maestro.StageHand._addNewPlaylistMode();
+
+        if (!addMode) {
+            return;
+        }
+        PlaylistDirectory.prototype._getModeIcon = Maestro.Rigger._getModeIcon;
+        PlaylistDirectory.prototype._getModeTooltip = Maestro.Rigger._getModeTooltip;
+
+        Playlist.prototype.playAll = Maestro.Rigger.playAll;
+        Playlist.prototype._onEnd = Maestro.Rigger._onEnd;
+
+    }
+
+    static _addNewPlaylistMode() {
+        return CONST.PLAYLIST_MODES.SEQUENTIAL_ONCE = 3;
+    }
+
+    
+    
+}
+
+/**
+ * Holds any monkey patches for core functionality
+ */
+Maestro.Rigger = class {
+
+    /**
+   * Patch: add SEQUENTIAL_ONCE
+   * Given a constant playback mode, provide the FontAwesome icon used to display it
+   * @param {Number} mode
+   * @return {String}
+   * @private
+   */
+  static _getModeIcon(mode) {
+    return {
+      [CONST.PLAYLIST_MODES.DISABLED]: '<i class="fas fa-ban"></i>',
+      [CONST.PLAYLIST_MODES.SEQUENTIAL]: '<i class="far fa-arrow-alt-circle-right"></i>',
+      [CONST.PLAYLIST_MODES.SHUFFLE]: '<i class="fas fa-random"></i>',
+      [CONST.PLAYLIST_MODES.SIMULTANEOUS]: '<i class="fas fa-compress-arrows-alt"></i>',
+      [CONST.PLAYLIST_MODES.SEQUENTIAL_ONCE]: 
+        `<span class="fa-stack" style="font-size: 0.55em">
+            <i class="far fa-circle fa-stack-2x"></i>
+            1
+        </span>`
+    }[mode];
+  }
+
+  /**
+   * Patch: add SEQUENTIAL_ONCE
+   * Given a constant playback mode, provide the string tooltip used to describe it
+   * @param {Number} mode
+   * @return {String}
+   * @private
+   */
+  static _getModeTooltip(mode) {
+    return {
+      [CONST.PLAYLIST_MODES.DISABLED]: game.i18n.localize("PLAYLIST.ModeDisabled"),
+      [CONST.PLAYLIST_MODES.SEQUENTIAL]: game.i18n.localize("PLAYLIST.ModeSequential"),
+      [CONST.PLAYLIST_MODES.SHUFFLE]: game.i18n.localize("PLAYLIST.ModeShuffle"),
+      [CONST.PLAYLIST_MODES.SIMULTANEOUS]: game.i18n.localize("PLAYLIST.ModeSimultaneous"),
+      [CONST.PLAYLIST_MODES.SEQUENTIAL_ONCE]: game.i18n.localize(Maestro.Stage.DEFAULT_CONFIG["PLAYLIST.Mode.SequentialOnce"])
+    }[mode];
+  }
+
+  /**
+   * Patch: add SEQUENTIAL_ONCE
+   * This callback triggers whenever a sound concludes playback
+   * Mark the concluded sound as no longer playing and possibly trigger playback for a subsequent sound depending on
+   * the playlist mode.
+   *
+   * @param {Object} soundId  The sound ID of the track which is ending playback
+   * @param {Number} howlId   The howl ID which has concluded playback
+   * @private
+   */
+  static _onEnd(soundId, howlId) {
+    if ( !game.user.isGM ) return;
+
+    // Retrieve the sound object whose reference may have changed
+    let sound = this.sounds.find(s => s.id === soundId);
+    if ( sound.repeat ) return;
+
+    // Conclude playback for the current sound
+    let isPlaying = this.data.playing;
+    this.updateSound({id: sound.id, playing: false});
+
+    // Sequential or shuffled playback -- begin playing the next sound
+    if ( isPlaying && [CONST.PLAYLIST_MODES.SEQUENTIAL, CONST.PLAYLIST_MODES.SHUFFLE].includes(this.mode) ) {
+      let next = this._getNextSound(sound.id);
+      if ( next ) this.updateSound({id: next.id, playing: true});
+      else this.update({playing: false});
+    }
+
+    // Sequential Once playback - check if the last sound in the list has finished
+    else if ( isPlaying && this.mode === CONST.PLAYLIST_MODES.SEQUENTIAL_ONCE) {
+        let next = this._getNextSound(sound.id);
+        if ( next.id === 1 ) this.update({playing: false});
+        else this.updateSound({id: next.id, playing: true});
+    }
+
+    // Simultaneous playback - check if all have finished
+    else if ( isPlaying && this.mode === CONST.PLAYLIST_MODES.SIMULTANEOUS ) {
+      let isComplete = !this.sounds.some(s => s.playing);
+      if ( isComplete ) {
+        this.update({playing: false});
+      }
+    }
+  }
+
+  /**
+   * Patch: add SEQUENTIAL_ONCE
+   * Begin simultaneous playback for all sounds in the Playlist
+   * @return {Promise}    A Promise which resolves once the Playlist update is complete
+   */
+  static async playAll() {
+    const updateData = {};
+
+    // Handle different playback modes
+    switch (this.mode) {
+
+      // Soundboard Only
+      case CONST.PLAYLIST_MODES.DISABLED:
+        updateData.playing = false;
+        break;
+
+      // Sequential Once - play tracks in order but do not loop
+      case CONST.PLAYLIST_MODES.SEQUENTIAL_ONCE:  
+      // Sequential Playback
+      case CONST.PLAYLIST_MODES.SEQUENTIAL:
+        updateData.sounds = duplicate(this.data.sounds).map((s, i) => {
+          s.playing = i === 0;
+          return s;
+        });
+        updateData.playing = updateData.sounds.length > 0;
+        break;
+
+      // Simultaneous - play all tracks
+      case CONST.PLAYLIST_MODES.SIMULTANEOUS:
+        updateData.sounds = duplicate(this.data.sounds).map(s => {
+          s.playing = true;
+          return s;
+        });
+        updateData.playing = updateData.sounds.length > 0;
+        break;
+
+
+      // Shuffle - play random track
+      case CONST.PLAYLIST_MODES.SHUFFLE:
+        this.shuffleOrder = this._getShuffleOrder();
+        updateData.sounds = duplicate(this.data.sounds).map(s => {
+          s.playing = s.id === this.shuffleOrder[0];
+          return s;
+        });
+        updateData.playing = updateData.sounds.length > 0;
+        break;
+
+    }
+
+    // Update the Playlist
+    return this.update(updateData);
+  }
+
 }
 
 /**
@@ -399,6 +601,9 @@ Maestro.SceneMusic = class {
      * @param {Object} sceneData 
      */
     async _injectPlaylistSelector(app, html, sceneData) {
+        if (!maestro.scenePlaylist && !getProperty(maestro, "sceneMusic.settings.enable")) {
+            return;
+        }
         const data = this._getAdditionalData(app.object);
         const submitButton = html.find('button[name="submit"]');
         const playlistSelector = await renderTemplate(Maestro.Stage.DEFAULT_CONFIG.SceneMusic.templatePath, data);
@@ -488,7 +693,9 @@ Maestro.HypeTrack = class {
      * Checks for the presence of the Hype Tracks playlist, creates one if none exist
      */
     _checkForHypeTracksPlaylist() {
-        if(!game.user.isGM) return;
+        if(!game.user.isGM || !getProperty(maestro, "hypeTrack.settings.enable")) {
+            return;
+        } 
 
         const hypePlaylist = game.playlists.entities.find(p => p.name == Maestro.Stage.DEFAULT_CONFIG.HypeTrack.playlistName);
         if(!hypePlaylist) {
@@ -567,6 +774,9 @@ Maestro.HypeTrack = class {
      * @param {Object} data 
      */
     async _addHypeButton (app, html, data) {
+        if (!getProperty(maestro, "hypeTrack.settings.enable")) {
+            return;
+        }
         /**
          * Hype Button html literal
          * @todo replace with a template instead
@@ -693,18 +903,27 @@ Maestro.ItemTrack = class {
         this.playlist = null;
 
         this.settings = {
-            enable: Maestro.StageHand.initSetting(Maestro.Stage.DEFAULT_CONFIG.ItemTrack.name + "_" + Maestro.Stage.SETTINGS_DESCRIPTORS.ItemTrack.EnableN, Maestro.ItemTrack.SETTINGS_META.enable)
+            enable: Maestro.StageHand.initSetting(Maestro.Stage.DEFAULT_CONFIG.ItemTrack.name + "_" + Maestro.Stage.SETTINGS_DESCRIPTORS.ItemTrack.EnableN, Maestro.ItemTrack.SETTINGS_META.enable),
+            createPlaylist: Maestro.StageHand.initSetting(Maestro.Stage.DEFAULT_CONFIG.ItemTrack.name + "_" + Maestro.Stage.SETTINGS_DESCRIPTORS.ItemTrack.CreatePlaylistN, Maestro.ItemTrack.SETTINGS_META.createPlaylist)
         };
     }
 
+    /**
+     * Handles anything that needs to occur when settings change
+     */
     static get SETTINGS_ONCHANGE() {
         return {
             enable: s => {
                 if (maestro.itemTrack) {
-                    maestro.itemTrack.settings.enable = s
+                    maestro.itemTrack.settings.enable = s;
+                }
+            },
+            createPlaylist: s => {
+                if (maestro.itemTrack) {
+                    maestro.itemTrack.settings.createPlaylist = s;
                 }
             }
-        }
+        };
     }
 
     /**
@@ -712,19 +931,22 @@ Maestro.ItemTrack = class {
      */
     static get SETTINGS_META() {
         return {
-            enable: Maestro.StageHand.buildSetting(Maestro.Stage.SETTINGS_DESCRIPTORS.ItemTrack.EnableN, Maestro.Stage.SETTINGS_DESCRIPTORS.ItemTrack.EnableH, Boolean, "World", false, true, Maestro.ItemTrack.SETTINGS_ONCHANGE.enable )
-        }
+            enable: Maestro.StageHand.buildSetting(Maestro.Stage.SETTINGS_DESCRIPTORS.ItemTrack.EnableN, Maestro.Stage.SETTINGS_DESCRIPTORS.ItemTrack.EnableH, Boolean, "World", false, true, Maestro.ItemTrack.SETTINGS_ONCHANGE.enable ),
+            createPlaylist: Maestro.StageHand.buildSetting(Maestro.Stage.SETTINGS_DESCRIPTORS.ItemTrack.CreatePlaylistN, Maestro.Stage.SETTINGS_DESCRIPTORS.ItemTrack.CreatePlaylistH, Boolean, "world", true, true, Maestro.ItemTrack.SETTINGS_ONCHANGE.createPlaylist )
+        };
     }
 
     /**
      * Checks for the presence of the Hype Tracks playlist, creates one if none exist
      */
-    _checkForItemTracksPlaylist() {
-        if(!game.user.isGM) return;
+    async _checkForItemTracksPlaylist() {
+        if(!game.user.isGM || !getProperty(maestro, "itemTrack.settings.enable") || !getProperty(maestro, "itemTrack.settings.createPlaylist")) {
+            return;
+        }
 
         const itemPlaylist = game.playlists.entities.find(p => p.name == Maestro.Stage.DEFAULT_CONFIG.ItemTrack.playlistName);
         if(!itemPlaylist) {
-            this.playlist = this._createItemTracksPlaylist(true);
+            this.playlist = await this._createItemTracksPlaylist(true);
         } else {
             this.playlist = itemPlaylist;
         }
@@ -738,17 +960,20 @@ Maestro.ItemTrack = class {
         if (!create) {
             return;
         }
-
         return await Playlist.create({"name": Maestro.Stage.DEFAULT_CONFIG.ItemTrack.playlistName});
     }
 
     /**
-     * Checks for the existence of the Item Track flag, then plays the track
-     * @param {Object} message  the chat message object
-     * @param {Object} html  the jQuery html object for the message
-     * @param {Object} data  the data payload
+     * Handles module logic for chat message card
+     * @param {Object} message - the chat message object
+     * @param {Object} html - the jquery object
+     * @param {Object} data - the data in the message update
      */
-    async _checkItemTrack(message, html, data) {
+    async chatMessageHandler(message, html, data) {
+        if (!getProperty(maestro, "itemTrack.settings.enable")) {
+            return;
+        }
+
         const itemCard = html.find("[data-item-id]");
         const trackPlayed = message.getFlag(Maestro.Stage.MODULE_NAME, Maestro.Stage.DEFAULT_CONFIG.ItemTrack.flagNames.played);
         
@@ -771,47 +996,52 @@ Maestro.ItemTrack = class {
             item = await game.items.get(itemId);
         }
 
-        const itemTrack = await this._getItemTrack(item);
-    
-        if(!itemTrack) {
-            return;
-        }
+        const flags = await this.getItemFlags(item)
+        const track = flags.track || "";
+        const playlist = flags.playlist || "";
 
-        await this._playTrack(itemTrack);
-        return this._setChatMessageFlag(message);
-    }
-    
+        switch (track) {
+            case Maestro.Stage.DEFAULT_CONFIG.ItemTrack.playbackModes.all:
+                await this._playPlaylist(playlist);
+                return this._setChatMessageFlag(message);
+            
+            case Maestro.Stage.DEFAULT_CONFIG.ItemTrack.playbackModes.random:
+                await this._playTrack(track, playlist)
+                return this._setChatMessageFlag(message);
+        
+            default:
+                if (!track) {
+                    break;
+                }
+
+                await this._playTrack(track, playlist);
+                return this._setChatMessageFlag(message);      
+        }
+    }    
 
     /**
-     * Get the Item Track flag if it exists on an item
-     * @param {*} item
+     * Gets the Item Track flags on an Item
+     * @param {Object} item - the item to get flags from
+     * @returns {Promise} flags - an object containing the flags
      */
-    async _getItemTrack(item) {
-        let itemTrack;
-
-        try {
-            itemTrack = await item.getFlag(Maestro.Stage.MODULE_NAME, Maestro.Stage.DEFAULT_CONFIG.ItemTrack.flagNames.track);
-            return itemTrack;
-        } catch (e) {
-            console.log(e);
-            return;
-        }
-
+    async getItemFlags(item) {
+        return await item.data.flags[Maestro.Stage.MODULE_NAME];
     }
-    
+
     /**
-     * Sets the Item Track
-     * @param {Number} trackId - Id of the track in the playlist 
+     * Sets the Item Track flags on an Item instance
+     * Handled as an update so all flags can be set at once
+     * @param {Object} item - the item to set flags on
+     * @param {String} playlistId - the playlist id to set
+     * @param {String} trackId - the trackId or playback mode to set
      */
-    async _setItemTrack(item, trackId) {
-        try {
-            await item.setFlag(Maestro.Stage.MODULE_NAME, Maestro.Stage.DEFAULT_CONFIG.ItemTrack.flagNames.track, trackId);
-        } catch (e) {
-            //we should do something with this in the future, eg. if the flag can't be found
-            throw e
-        }
+    async setItemFlags(item, playlistId, trackId) {
+        return await item.update({
+            [`flags.${Maestro.Stage.MODULE_NAME}.${Maestro.Stage.DEFAULT_CONFIG.ItemTrack.flagNames.playlist}`]: playlistId,
+            [`flags.${Maestro.Stage.MODULE_NAME}.${Maestro.Stage.DEFAULT_CONFIG.ItemTrack.flagNames.track}`]: trackId
+        });
     }
-    
+     
     /**
      * Adds a button to the Item sheet to open the Item Track form
      * @param {Object} app 
@@ -819,8 +1049,12 @@ Maestro.ItemTrack = class {
      * @param {Object} data 
      */
     async _addItemTrackButton (app, html, data) {
+        if (!getProperty(maestro, "itemTrack.settings.enable")) {
+            return;
+        }
+
         /**
-         * Hype Button html literal
+         * Item Track Button html literal
          * @todo replace with a template instead
          */
         const itemTrackButton = $(
@@ -830,7 +1064,7 @@ Maestro.ItemTrack = class {
             </a>`
         );
         
-        if (html.find(`.${Maestro.Stage.DEFAULT_CONFIG.ItemTrack.name}`).length > 0) {
+        if (html.find(`.${Maestro.Stage.DEFAULT_CONFIG.ItemTrack.name}`).length > 0 || !app.isEditable) {
             return;
         }
 
@@ -849,21 +1083,45 @@ Maestro.ItemTrack = class {
          * Register a click listener that opens the Hype Track form
          */
         itemTrackButton.click(async ev => {
-            const actorTrack = await this._getItemTrack(app.entity);
-            this._openTrackForm(app.entity, actorTrack, {closeOnSubmit: true});
+
+            let item;
+            
+            //Scenario 1 - owned item 
+            if (app.entity.isOwned) {
+                const itemId = app.entity.data.id;
+                const actor = app.entity.actor;
+
+                if (actor.isToken) {
+                    item = canvas.tokens.get(actor.token.id).actor.getOwnedItem(itemId);
+                } else {
+                    item = game.actors.get(actor.id).getOwnedItem(itemId);
+                }
+
+            //Scenario 2 - world item
+            } else {
+                if (app.entity.id) {
+                    item = app.entity;
+                }
+            }
+            
+            const flags = await this.getItemFlags(item);
+            const track = flags.track || "";
+            const playlist = flags.playlist || "";
+            this._openTrackForm(item, track, playlist, {closeOnSubmit: true});
         });
     }
     
     /**
-     * Opens the Item Track form
-     * @param {Object} item  the reference item
-     * @param {*} track  any existing track
-     * @param {*} options  form options
+     * Builds data object and opens the Item Track form
+     * @param {Object} item - the reference item
+     * @param {String} track - any existing track
+     * @param {Object} options - form options
      */
-    _openTrackForm(item, track, options){
+    async _openTrackForm(item, track, playlist, options){
         const data = {
-            "track": track,
-            "playlist": this.playlist
+            "currentTrack": track,
+            "currentPlaylist": playlist,
+            "playlists": await game.playlists.entities
         }
         new Maestro.ItemTrackForm(item, data, options).render(true);
     }
@@ -873,25 +1131,60 @@ Maestro.ItemTrack = class {
      * @param {String} trackId 
      */
     _getPlaylistSound(trackId) {
+        if (!this.playlist) {
+            return;
+        }
         return this.playlist.sounds.find(s => s.id == trackId);
     }
 
     /**
-     * Play a playlist sound based on the given trackId
-     * @param {*} trackId 
+     * Play a playlist using its default playback method
+     * @param {String} playlistId
      */
-    _playTrack(trackId) {
-        //const sound = this._getPlaylistSound(trackId);
-        // @ts-ignore
-        if(!(trackId instanceof Number)) {
-            trackId = Number(trackId);
+    async _playPlaylist(playlistId) {
+        if (!playlistId) {
+            return;
         }
 
-        this.playlist.updateSound({id: trackId, playing: true});
+        const playlist = await game.playlists.get(playlistId);
+
+        if (!playlist) {
+            return;
+        }
+
+        playlist.playAll();
     }
 
     /**
-     * Sets a flag on a chat 
+     * Play a playlist sound based on the given trackId
+     * @param {String} playlistId - the playlist id
+     * @param {String} trackId - the track Id or playback mode
+     */
+    async _playTrack(trackId, playlistId) {
+        if (!playlistId) {
+            return;
+        }
+
+        const playlist = await game.playlists.get(playlistId);
+
+        if (!playlist) {
+            return;
+        }
+
+        if (trackId === Maestro.Stage.DEFAULT_CONFIG.ItemTrack.playbackModes.random) {
+            trackId = playlist._getShuffleOrder()[0];
+        }
+
+        if(trackId && !(trackId instanceof Number)) {
+            trackId = Number(trackId);
+        }
+
+        playlist.updateSound({id: trackId, playing: true});
+    }
+
+    /**
+     * Sets a flag on a chat message
+     * @param {Object} message - the message to set a flag on
      */
     _setChatMessageFlag(message) {
         if (!message) {
@@ -927,12 +1220,30 @@ Maestro.ItemTrackForm = class extends FormApplication {
     }
 
     /**
+     * Get a specific playlist's tracks
+     */
+    async getPlaylistSounds(playlistId) {
+        if (!playlistId) {
+            return;
+        }
+        const playlist = game.playlists.get(playlistId);
+
+        if (!playlist) {
+            return;
+        }
+
+        return await game.playlists.get(playlistId).sounds;
+    } 
+
+    /**
      * Provide data to the handlebars template
      */
     async getData() {
         const data = {
-            playlistTracks: this.data.playlist.sounds,
-            track: this.data.track
+            playlist: this.data.currentPlaylist,
+            playlists: this.data.playlists,
+            playlistTracks: await this.getPlaylistSounds(this.data.currentPlaylist) || [],
+            track: this.data.currentTrack
         }
         return data;
     }
@@ -943,8 +1254,21 @@ Maestro.ItemTrackForm = class extends FormApplication {
      * @param {Object} event - the form submission event
      * @param {Object} formData - the form data
      */
-    async _updateObject(event, formData) {
-        await maestro.itemTrack._setItemTrack(this.item, formData.track);  
+    _updateObject(event, formData) {
+        maestro.itemTrack.setItemFlags(this.item, formData.playlist, formData.track)  
+    }
+
+    activateListeners(html) {
+        super.activateListeners(html);
+
+        const playlistSelect = html.find(".playlist-select");
+
+        if (playlistSelect.length > 0) {
+            playlistSelect.on("change", event => {
+                this.data.currentPlaylist = event.target.value;
+                this.render();
+            });
+        }
     }
 
 }
