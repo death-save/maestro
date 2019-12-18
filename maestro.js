@@ -1105,8 +1105,8 @@ Maestro.ItemTrack = class {
             }
             
             const flags = await this.getItemFlags(item);
-            const track = flags.track || "";
-            const playlist = flags.playlist || "";
+            const track = flags ? flags.track : "";
+            const playlist = flags ? flags.playlist : "";
             this._openTrackForm(item, track, playlist, {closeOnSubmit: true});
         });
     }
