@@ -93,6 +93,13 @@ Maestro.Stage = class {
             }
         }
     }
+
+    static get SCENE_PLAYLIST() {
+        return {
+            migrationTitle: `Migrate Maestro Scene Playlists?`,
+            migrationContent: `Migrate Maestro Scene Playlists to the core (Scene) Audio Playlist?`
+        }
+    }
 }
 
 /**
@@ -134,7 +141,13 @@ Maestro.Conductor = class {
             window.setTimeout(Maestro.Conductor._readyHookRegistrations, 500);
             //Maestro.Conductor._readyHookRegistrations();
 
-            Maestro.StageHand._monkeyPatchCore();
+            //Maestro.StageHand._monkeyPatchCore();
+
+            if (game.data.version >= "0.4.4") {
+                Maestro.StageHand._migratePlaylists();
+            }
+
+            //Maestro.StageHand._addPlaylistRepeatToggle();
         });
     }
 
@@ -142,7 +155,7 @@ Maestro.Conductor = class {
      * Init Hook Registrations
      */
     static _initHookRegistrations() {
-        //Maestro.Conductor._hookOnRenderPlaylistDirectory();
+        Maestro.Conductor._hookOnRenderPlaylistDirectory();
     }
 
     /**
@@ -153,7 +166,10 @@ Maestro.Conductor = class {
         Maestro.Conductor._hookOnRenderActorSheets();
         Maestro.Conductor._hookOnRenderSceneSheet();
         Maestro.Conductor._hookOnRenderItemSheets();
+
         Maestro.Conductor._hookOnRenderChatMessage();
+
+        
 
         //Pre-update Hooks
         Maestro.Conductor._hookOnPreUpdateScene();
@@ -231,6 +247,15 @@ Maestro.Conductor = class {
     }
 
     /**
+     * RenderPlaylistDirectory Hook
+     */
+    static _hookOnRenderPlaylistDirectory() {
+        Hooks.on("renderPlaylistDirectory", (app, html, data) => {
+            Maestro.StageHand._addPlaylistRepeatToggle(app, html, data);
+        });
+    }
+
+    /**
      * Render Item Sheets Hook
      * Walks the registered Sheet classes for Item and registers a Hook on render of each
      */
@@ -261,7 +286,6 @@ Maestro.Conductor = class {
  * A static helper class
  */
 Maestro.StageHand = class {
-
     /**
      * Builds a setting metadata object from provided params
      * @param {String} name -- the name of the setting
@@ -399,6 +423,61 @@ Maestro.StageHand = class {
         return CONST.PLAYLIST_MODES.SEQUENTIAL_ONCE = 3;
     }
 
+    // Migrate playlists on scenes to the new core playlist
+    static _migratePlaylists() {
+        const maestroPlaylists = game.scenes.entities.filter(s => !!s.getFlag("maestro", "playlistId"));
+        if ( maestroPlaylists.length ) {
+          Dialog.confirm({
+            title: Maestro.Stage.SCENE_PLAYLIST.migrationTitle,
+            content: Maestro.Stage.SCENE_PLAYLIST.migrationContent,
+            yes: () => {
+              const updates = maestroPlaylists.map(s => {
+                return {_id: s.id, playlist: s.getFlag("maestro", "playlistId"), "flags.-=maestro": null};
+              });
+              Scene.updateMany(updates);
+            }
+          });
+        } 
+    }
+    
+    /**
+     * 
+     * @param {*} app 
+     * @param {*} html 
+     * @param {*} data 
+     */
+    static _addPlaylistRepeatToggle(app, html, data) {
+        const playlistModeButtons = html.find('[data-action="playlist-mode"]');
+        const repeatToggleHtml = `<a class="sound-control" data-action="playlist-repeat" title="Toggle Playlist Repeat"><i class="fas fa-sync"></i></a>`;
+        playlistModeButtons.after(repeatToggleHtml);
+
+        const repeatToggleButtons = html.find('[data-action="playlist-repeat"]');
+
+        repeatToggleButtons.on("click", event => {
+            const repeatToggleButton = event.currentTarget;
+            const buttonClass = event.currentTarget.getAttribute("class");
+
+            if (!buttonClass) {
+                return;
+            }
+
+            const playlistDiv = event.currentTarget.closest(".entity");
+            const playlistId = playlistDiv.getAttribute("data-entity-id");
+
+            if (!playlistId) {
+                return;
+            }
+            if (buttonClass.includes("inactive")) {
+                game.playlists.get(playlistId).unsetFlag(Maestro.Stage.MODULE_NAME, "playlist-repeat");
+                repeatToggleButton.setAttribute("class", buttonClass.replace(" inactive", ""));
+            } else { 
+                game.playlists.get(playlistId).setFlag(Maestro.Stage.MODULE_NAME, "playlist-repeat", false);
+                repeatToggleButton.setAttribute("class", buttonClass.concat(" inactive"));
+            }
+        });
+
+    }
+
     
     
 }
@@ -456,36 +535,36 @@ Maestro.Rigger = class {
    * @param {Number} howlId   The howl ID which has concluded playback
    * @private
    */
-  static _onEnd(soundId, howlId) {
+  static async _onEnd(soundId, howlId) {
     if ( !game.user.isGM ) return;
 
     // Retrieve the sound object whose reference may have changed
-    let sound = this.sounds.find(s => s.id === soundId);
+    const sound = this.getEmbeddedEntity("PlaylistSound", soundId);
     if ( sound.repeat ) return;
 
     // Conclude playback for the current sound
-    let isPlaying = this.data.playing;
-    this.updateSound({id: sound.id, playing: false});
+    const isPlaying = this.data.playing;
+    await this.updateEmbeddedEntity("PlaylistSound", {_id: sound._id, playing: false});
 
     // Sequential or shuffled playback -- begin playing the next sound
     if ( isPlaying && [CONST.PLAYLIST_MODES.SEQUENTIAL, CONST.PLAYLIST_MODES.SHUFFLE].includes(this.mode) ) {
       let next = this._getNextSound(sound.id);
-      if ( next ) this.updateSound({id: next.id, playing: true});
-      else this.update({playing: false});
+      if (next) await this.updateEmbeddedEntity("PlaylistSound", {_id: next._id, playing: true});
+      else await this.update({playing: false});
     }
 
     // Sequential Once playback - check if the last sound in the list has finished
     else if ( isPlaying && this.mode === CONST.PLAYLIST_MODES.SEQUENTIAL_ONCE) {
         let next = this._getNextSound(sound.id);
-        if ( next.id === 1 ) this.update({playing: false});
-        else this.updateSound({id: next.id, playing: true});
+        if ( next.id === 1 ) await this.update({playing: false});
+        else await this.updateSound({id: next.id, playing: true});
     }
 
     // Simultaneous playback - check if all have finished
     else if ( isPlaying && this.mode === CONST.PLAYLIST_MODES.SIMULTANEOUS ) {
       let isComplete = !this.sounds.some(s => s.playing);
       if ( isComplete ) {
-        this.update({playing: false});
+        await this.update({playing: false});
       }
     }
   }
@@ -1088,7 +1167,7 @@ Maestro.ItemTrack = class {
             
             //Scenario 1 - owned item 
             if (app.entity.isOwned) {
-                const itemId = app.entity.data.id;
+                const itemId = app.entity.data._id;
                 const actor = app.entity.actor;
 
                 if (actor.isToken) {
