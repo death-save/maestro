@@ -2,32 +2,32 @@
 
     <div class="form-group">
         <label>Item Playlist</label>
-        <select name="playlist" class="playlist-select" title="Playlist selection" default="">
+        <select name="playlist" class="playlist-select" title="{{localize "ITEM-TRACK.FormPlaylistTooltip"}}" default="">
             {{#select playlist}}
-                <option value="">--None--</option>
+                <option value="">{{localize "ITEM-TRACK.FormSelectNone"}}</option>
                 {{#each playlists}}
-                <option value="{{this.id}}">{{this.name}}</option>
+                <option value="{{this._id}}">{{this.name}}</option>
                 {{/each}}
             {{/select}}
         </select>
-        <p class="hint">Select a playlist in order to select a track</p> 
+        <p class="notes">{{localize "ITEM-TRACK.FormPlaylistNotes"}}</p> 
     </div>
 
     <div class="form-group">
         <label>Item Track</label>
-        <select name="track" class="track-select" title="Track selection" default="">
+        <select name="track" class="track-select" title="{{localize "ITEM-TRACK.FormTrackTooltip"}}" default="">
             {{#select track}}
-                <option value="">--None--</option>
+                <option value="">{{localize "ITEM-TRACK.FormSelectNone"}}</option>
                 {{#if playlistTracks}}
-                <option value="random-track">--Play Random Track--</option>
-                <option value="play-all">--Play All Tracks--</option>
+                <option value="random-track">{{localize "ITEM-TRACK.FormPlayRandom"}}</option>
+                <option value="play-all">{{localize "ITEM-TRACK.FormPlayAll"}}</option>
                 {{/if}}
                 {{#each playlistTracks}}
-                <option value="{{this.id}}">{{this.name}}</option>
+                <option value="{{this._id}}">{{this.name}}</option>
                 {{/each}}
             {{/select}}
         </select>
-        <p class="hint">Select a track to play when this item is rolled</p> 
+        <p class="notes">{{localize "ITEM-TRACK.FormTrackNotes"}}</p> 
     </div>
 
     <span>

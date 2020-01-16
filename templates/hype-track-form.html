@@ -2,18 +2,18 @@
 
     <div class="form-group">
         <label>Actor Hype Track</label>
-        <select name="track" class="track-select" title="Track selection">
+        <select name="track" class="track-select" title="{{localize "HYPE-TRACK.FormTrackSelection"}}">
             {{#select track}}
                 <option value=""></option>
                 {{#each playlistTracks}}
-                <option value="{{this.id}}">{{this.name}}</option>
+                <option value="{{this._id}}">{{this.name}}</option>
                 {{/each}}
             {{/select}}
         </select>
-        <p class="hint">Select the audio file to use as this actor's Hype Track</p> 
+        <p class="notes">{{localize "HYPE-TRACK.FormNotes"}}</p> 
     </div>
 
     <button type="submit" name="submit">
-        <i class="far fa-save"></i> Save Track
+        <i class="far fa-save"></i> {{localize "HYPE-TRACK.FormSaveTrack"}}
     </button>
 </form>

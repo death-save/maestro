@@ -1,0 +1,36 @@
+{
+    "MAESTRO": "Maestro",
+
+    "MAESTRO.MODULE_LABEL": "Maestro",
+
+    "SETTINGS.HypeTrackEnableN": "Enable Hype Track",
+    "SETTINGS.HypeTrackEnableH": "Enable the ability to set a Track for an Actor",
+    "SETTINGS.ItemTrackEnableN": "Enable Item Track",
+    "SETTINGS.ItemTrackEnableH": "Assign a track to be played when item is rolled",
+    "SETTINGS.ItemTrackCreatePlaylistN": "Create Item Tracks Playlist",
+    "SETTINGS.ItemTrackCreatePlaylistH": "When enabled, playlist will be created if it is not found",
+    "SETTINGS.MigrationCurrentVersionN": "Current Migration Version",
+    "SETTINGS.MigrationCurrentVersionH": "Holds the version of Maestro that was last migrated",
+
+    "NOTIFICATIONS.MigrationStarting": "Maestro | Data migration starting...",
+    "NOTIFICATIONS.MigrationSucceeded": "Maestro | Data migration succeeded!",
+    "NOTIFICATIONS.MigrationFailed": "Maestro | Data migration finished with errors. Please see console for additional details.",
+
+    "HYPE-TRACK.FormTrackSelection": "Select a Track",
+    "HYPE-TRACK.FormNotes": "Select the audio file to use as this actor's Hype Track",
+    "HYPE-TRACK.FormSaveTrack": "Save Track",
+
+    "ITEM-TRACK.FormPlaylistTooltip": "Select a Playlist",
+    "ITEM-TRACK.FormTrackTooltip": "Select a Track",
+    "ITEM-TRACK.FormSelectNone": "--None--",
+    "ITEM-TRACK.FormPlaylistNotes": "Select a playlist in order to select a track",
+    "ITEM-TRACK.FormTrackNotes": "Select a track to play when this item is rolled",
+    "ITEM-TRACK.FormPlayRandom": "--Play Random Track--",
+    "ITEM-TRACK.FormPlayAll": "--Play All Tracks",
+
+    "PLAYLIST-LOOP.ButtonTooltipLoop": "Loop Playlist",
+    "PLAYLIST-LOOP.ButtonTooltipNoLoop": "Don't Loop Playlist",
+    "PLAYLIST-LOOP.ButtonToolTipDisabled": "Loop Disabled"
+
+
+}
