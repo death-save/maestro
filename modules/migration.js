@@ -2,7 +2,7 @@ import * as MAESTRO from "./config.js";
 
 // Migrate data post Foundry 0.4.4
 export function migrationHandler() {
-    const targetMigrationVersion = "0.5"; //TESTING
+    const targetMigrationVersion = "0.4";
     const currentMigrationVersion = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.Migration.currentVersion);
 
     if (currentMigrationVersion >= targetMigrationVersion) {
