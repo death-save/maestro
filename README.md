@@ -4,9 +4,12 @@
 **Author**: Evan Clarke (errational#2007 on Foundry discord)    
 
 
-[Installation](#Installation)    
+[Installation](#Installation)
+
 [Module Manifest](https://raw.githubusercontent.com/death-save/maestro/master/module.json)
+
 [Changelog](https://github.com/death-save/maestro/blob/master/CHANGELOG.md)
+
 
 A quality of life audio-focused module for Foundry Virtual Tabletop.
 
