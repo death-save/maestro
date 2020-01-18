@@ -47,7 +47,7 @@ async function _migrateScenePlaylists() {
         return;
     }
 
-    console.log("Maestro | Found Scenes with Playlist flags. Attempting to migrate...")
+    console.log(game.i18n.localize("LOGS.MigrationSceneFlagsFound"));
 
     for (let s of scenePlaylists) {
         const playlist = s.getFlag(MAESTRO.MODULE_NAME, MAESTRO.DEFAULT_CONFIG.SceneMusic.flagNames.playlist);
@@ -55,9 +55,10 @@ async function _migrateScenePlaylists() {
         const sceneUpdate = await s.update({playlist: playlist, ["flags.-=" + MAESTRO.MODULE_NAME]: null});
 
         if (!sceneUpdate) {
-            console.warn("Maestro | Failed to migrate Scene Playlist " + playlist + " for scene " + s._id);
+
+            console.warn(game.i18n.localize("LOGS.MigrationSceneFlagsFailed"), s._id, playlist);
         } else {
-            console.log("Maestro | Successfully migrated Scene Playlist " + playlist + " for scene " + s._id);
+            console.log(game.i18n.localize("LOGS.MigrationSceneFlagsSuccessful"), s._id, playlist);
         }
     }
 
@@ -125,25 +126,25 @@ async function _migrateActorFlags() {
     const hypePlaylist = game.playlists.entities.find(p => p.name === "Hype Tracks");
 
     if (!hypePlaylist) {
-        throw "Maestro | Hype Tracks playlist not found, Hype Track migration cannot continue.";
+        console.warn(game.i18n.localize("LOGS.MigrationHypeNoPlaylist"));
     }
 
     if (hypePlaylist.sounds.length === 0) {
-        throw "Maestro | Hype Tracks playlist has no sounds, Hype Track migration cannot continue.";
+        console.warn(game.i18n.localize("LOGS.MigrationHypeNoSounds"));
     }
-    console.log("Maestro | Found the following Actors with incompatible Hype Tracks:", actorHypeMap);
-    console.log("Maestro | Attempting to match the old sound selections to the new format...");
+    console.log(game.i18n.localize("LOGS.MigrationHypeFoundActors"), actorHypeMap);
+    console.log(game.i18n.localize("LOGS.MigrationHypeAttemptingMatch"));
 
     for (const a of actorHypeMap) {
         const actor = game.actors.get(a._id);
         const newTrack = hypePlaylist.sounds[Number(a.track)-1];
         if (!newTrack) {
-            console.warn("Maestro | Cannot find a matching sound for the following Actor:", actor);
+            console.warn(game.i18n.localize("LOGS.MigrationHypeNoMatch"), actor);
             game.maestro.migration.errors += 1;
         }
         
         await actor.setFlag(MAESTRO.MODULE_NAME, MAESTRO.DEFAULT_CONFIG.HypeTrack.flagNames.track, newTrack._id);
-        return console.log("Maestro | Successfully mapped Actor: " + actor._id + " to Hype Track: " + newTrack.name);
+        return console.log(game.i18n.localize("LOGS.MigrationHypeSuccessful"), actor._id, newTrack._id);
     }
 
 }
@@ -169,15 +170,15 @@ async function _migrateItemFlags() {
         return;
     }
 
-    console.log("Maestro | Found the following Items with incompatible Item Tracks:", itemTrackMap);
-    console.log("Maestro | Attempting to match the Item Track to the new format...");
+    console.log(game.i18n.localize("LOGS.MigrationItemFound"), itemTrackMap);
+    console.log(game.i18n.localize("LOGS.MigrationItemAttemptingMatch"));
 
     for (const i of itemTrackMap) {
         const item = game.items.get(i._id);
         const playlist = game.playlists.get(i.playlist);
 
         if (!playlist) {
-            console.warn("Maestro | Cannot find Playlist " + i.playlist + " this Item Track will not be migrated.");
+            console.warn(game.i18n.localize("LOGS.MigrationItemNoPlaylist"), i.playlist);
             game.maestro.migration.errors += 1;
             continue;
         }
@@ -185,13 +186,13 @@ async function _migrateItemFlags() {
         const newTrack = playlist.sounds[Number(i.track)-1];
 
         if (!newTrack) {
-            console.warn("Maestro | Cannot find a matching sound for the following Item:", item);
+            console.warn(game.i18n.localize("LOGS.MigrationItemNoSound"), item);
             game.maestro.migration.errors += 1;
             continue;
         }
         
-        item.setFlag(MAESTRO.MODULE_NAME, MAESTRO.DEFAULT_CONFIG.HypeTrack.flagNames.track, newTrack._id);
-        return console.log("Maestro | Successfully mapped Item: " + i._id + " to Item Track: " + newTrack.name);
+        item.setFlag(MAESTRO.MODULE_NAME, MAESTRO.DEFAULT_CONFIG.ItemTrack.flagNames.track, newTrack._id);
+        return console.log(game.i18n.localize("LOGS.MigrationItemSuccess"), i._id, newTrack._id);
     }
 
 }
@@ -228,16 +229,16 @@ async function _migrateActorOwnedItemFlags() {
             }
         });
 
-        console.log("Maestro | Found the following OwnedItems for Actor " + a._id + " with incompatible Item Tracks:", ownedItems);
-        console.log("Maestro | Attempting to match the old sound selections to the new format...");
+        console.log(game.i18n.localize("LOGS.MigrationOwnedItemFound"), a._id, ownedItems);
+        console.log(game.i18n.localize("LOGS.MigrationOwnedItemAttemptingMatch"));
 
         // Migrate the flags logging success or failure
         const itemUpdates = await a.updateManyEmbeddedEntities("OwnedItem", updates)
         
         if (!itemUpdates) {
-            console.warn("Maestro | Failed to map Tracks for OwnedItems:", updates);
+            console.warn(game.i18n.localize("LOGS.MigrationOwnedItemFailed"), updates);
         } else {
-            console.log("Maestro | Successfully mapped Tracks for OwnedItems:", updates)
+            console.log(game.i18n.localize("LOGS.MigrationOwnedItemSuccess"), updates);
         }
     }
 
@@ -285,7 +286,7 @@ async function _migrateTokenOwnedItemFlags() {
                 continue;
             }
 
-            console.log("Maestro | Found the following OwnedItems for TokenActor " + t.actorId +"." + t._id + " on Scene " + s._id + " with incompatible Item Tracks:", badFlagItems);
+            console.log(game.i18n.localize("LOGS.MigrationTokenOwnedItemsFound"), t.actorId, t._id, s._id, badFlagItems);
             
 
             const itemUpdates = await duplicate(ownedItems);
@@ -303,10 +304,10 @@ async function _migrateTokenOwnedItemFlags() {
                 
                 if (playlist.sounds[Number(trackFlag)-1]) {
                     i.flags.maestro.track = playlist.sounds[Number(trackFlag)-1]._id;
-                    console.log("Maestro | Matched flag " + trackFlag + " to track " + i.flags.maestro.track + " in Playlist " + playlistFlag);
+                    console.log(game.i18n.localize("LOGS.MigrationTokenOwnedItemsMatched"), playlistFlag, i.flags.maestro.track);
                 } else {
                     i.flags.maestro.track = "";
-                    console.warn("Maestro | Unable to match flag " + trackFlag + " to track in Playlist " + playlistFlag);
+                    console.warn(game.i18n.localize("LOGS.MigrationTokenOwnedItemsNotMatched"), trackFlag, playlistFlag);
                     game.maestro.errors += 1;
                 }
             });
@@ -328,11 +329,11 @@ async function _migrateTokenOwnedItemFlags() {
         const sceneUpdate = await s.updateManyEmbeddedEntities("Token", updates);
         
         if (!sceneUpdate) {
-            console.warn("Maestro | Failed to map Tracks for Token OwnedItems:", updates);
+            console.warn(game.i18n.localize("LOGS.MigrationTokenOwnedItemFailed"), updates);
             game.maestro.migration.errors += 1;
             continue;
         }
 
-        console.log("Maestro | Successfully mapped Tracks for Token OwnedItems:", updates) 
+        console.log(game.i18n.localize("LOGS.MigrationTokenOwnedItemSuccess"), updates);
     }
 }

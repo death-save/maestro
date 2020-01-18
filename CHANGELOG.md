@@ -4,6 +4,15 @@
 - Critical hit sounds
 - Soundboard for SFX
 
+## [0.4.2] - 2020-01-18
+### Added
+- Additional localization strings for Migration logging
+
+### Changed
+- Fixed bug with Item Tracks not playing
+- Enabling the Hype Track Enable setting now correctly creates the Playlist without a reload
+- Enabling the Item Track Create Playlist setting now correctly creates the Playlist without a reload
+
 ## [0.4.1] - 2020-01-18
 ### Added
 - Japanese language translation (Thanks `Brother Sharp

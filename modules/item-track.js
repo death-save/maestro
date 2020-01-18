@@ -248,7 +248,7 @@ export default class ItemTrack {
             return;
         }
 
-        if (trackId === Maestro.Stage.DEFAULT_CONFIG.ItemTrack.playbackModes.random) {
+        if (trackId === MAESTRO.DEFAULT_CONFIG.ItemTrack.playbackModes.random) {
             trackId = playlist._getPlaybackOrder()[0];
         }
 

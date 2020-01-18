@@ -10,7 +10,11 @@ export const registerModuleSettings = function() {
         default: false,
         config: true,
         onChange: s => {
+            if (!game.maestro.HypeTrack) {
+                return;
+            }
 
+            game.maestro.HypeTrack._checkForHypeTracksPlaylist();
         }
     }),
 
@@ -34,7 +38,11 @@ export const registerModuleSettings = function() {
         default: false,
         config: true,
         onChange: s => {
-            
+            if (!game.maestro.ItemTrack) {
+                return;
+            }
+
+            game.maestro.ItemTrack._checkForItemTracksPlaylist();
         }
     }),
 
