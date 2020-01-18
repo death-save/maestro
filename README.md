@@ -1,4 +1,4 @@
-![https://img.shields.io/badge/Foundry%20VTT-0.4.0%2B-green](https://img.shields.io/badge/Foundry%20VTT-0.4.0%2B-green)
+![https://img.shields.io/badge/Foundry%20VTT-0.4.4%2B-green](https://img.shields.io/badge/Foundry%20VTT-0.4.4%2B-green)
 
 # Maestro
 **Author**: Evan Clarke (errational#2007 on Foundry discord)    
@@ -6,22 +6,16 @@
 
 [Installation](#Installation)    
 [Module Manifest](https://raw.githubusercontent.com/death-save/maestro/master/module.json)
+[Changelog](https://github.com/death-save/maestro/blob/master/CHANGELOG.md)
 
 A quality of life audio-focused module for Foundry Virtual Tabletop.
 
 **Maestro** adds the following features:
-* **Scene Playlist** - Select a playlist to play automatically when the Scene is activated.
+* **DEPRECATED Scene Playlist** - DEPRECATED -- Use native Foundry functionality instead ~~Select a playlist to play automatically when the Scene is activated~~.
 * **Hype Track** - Set a track to play each time that Actor has a turn in Combat
 * **Item Track** - Set a track to play when that Item is rolled
 
 ## Usage
-### Scene Playlist
-Set a Playlist on the Scene Configuration page    
-![Scene Config](https://i.imgur.com/4EZgdBe.png)
-
-The **Scene Playlist** will automatically play when the Scene is **activated**. Any playback settings (shuffle, play all etc) for the Playlist will be respected.
-
-If you select the **"Stop on Scene Change"** option, any previous Scene Playlists that are playing will stop when the Scene changes.
 
 ### Hype Track
 Add Hype Tracks to the **Hype Tracks** Playlist that is automatically created by the module.    
