@@ -4,6 +4,10 @@
 - Critical hit sounds
 - Soundboard for SFX
 
+## [0.4.3] - 2020-01-19
+### Changed
+- Fixed migration issues for tracks with no playlist set
+
 ## [0.4.2] - 2020-01-18
 ### Added
 - Additional localization strings for Migration logging

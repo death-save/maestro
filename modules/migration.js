@@ -2,7 +2,7 @@ import * as MAESTRO from "./config.js";
 
 // Migrate data post Foundry 0.4.4
 export function migrationHandler() {
-    const targetMigrationVersion = "0.4";
+    const targetMigrationVersion = "0.4.3";
     const currentMigrationVersion = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.Migration.currentVersion);
 
     if (currentMigrationVersion >= targetMigrationVersion) {
@@ -82,7 +82,9 @@ async function _migrateScenePlaylists() {
     */
 }
 
-// Migrate Playlist Mode if Sequential Once
+/**
+ * 
+ */
 async function _migratePlaylistMode() {
     const playlists = game.playlists.entities.filter(p => p.mode === 3);
 
@@ -101,7 +103,9 @@ async function _migratePlaylistMode() {
     await Playlist.updateMany(updates);
 }
 
-// Migrate PlaylistSound flags on Actors and Items using a "best guess" methodology for the correct track
+/**
+ * 
+ */
 async function _migrateActorFlags() {
     const worldActors = game.actors.entities;
     const tokenActors = Object.values(game.actors.tokens);
@@ -123,7 +127,7 @@ async function _migrateActorFlags() {
         return;
     }
     
-    const hypePlaylist = game.playlists.entities.find(p => p.name === "Hype Tracks");
+    const hypePlaylist = game.playlists.entities.find(p => p.name === MAESTRO.DEFAULT_CONFIG.HypeTrack.playlistName);
 
     if (!hypePlaylist) {
         console.warn(game.i18n.localize("LOGS.MigrationHypeNoPlaylist"));
@@ -175,7 +179,7 @@ async function _migrateItemFlags() {
 
     for (const i of itemTrackMap) {
         const item = game.items.get(i._id);
-        const playlist = game.playlists.get(i.playlist);
+        const playlist = i.playlist ? game.playlists.get(i.playlist) : game.playlists.entities.find(p => p.name === MAESTRO.DEFAULT_CONFIG.HypeTrack.playlistName);
 
         if (!playlist) {
             console.warn(game.i18n.localize("LOGS.MigrationItemNoPlaylist"), i.playlist);
@@ -191,8 +195,9 @@ async function _migrateItemFlags() {
             continue;
         }
         
+        item.setFlag(MAESTRO.MODULE_NAME, MAESTRO.DEFAULT_CONFIG.ItemTrack.flagNames.playlist, playlist._id);
         item.setFlag(MAESTRO.MODULE_NAME, MAESTRO.DEFAULT_CONFIG.ItemTrack.flagNames.track, newTrack._id);
-        return console.log(game.i18n.localize("LOGS.MigrationItemSuccess"), i._id, newTrack._id);
+        return console.log(game.i18n.localize("LOGS.MigrationItemSuccess"), i._id, playlist._id, newTrack._id);
     }
 
 }
@@ -211,9 +216,20 @@ async function _migrateActorOwnedItemFlags() {
                 return true
             }
         }).map(i => {
+            const playlistFlag = i.getFlag(MAESTRO.MODULE_NAME, MAESTRO.DEFAULT_CONFIG.ItemTrack.flagNames.playlist);
+            let playlist;
+
+            if (!playlistFlag) {
+                playlist = game.playlists.entities.find(p => p.name === MAESTRO.DEFAULT_CONFIG.ItemTrack.playlistName);
+            }
+
+            if (!playlist) {
+                return;
+            }
+
             return {
                 _id: i._id, 
-                playlist: i.getFlag(MAESTRO.MODULE_NAME, MAESTRO.DEFAULT_CONFIG.ItemTrack.flagNames.playlist),
+                playlist: playlist._id,
                 track: i.getFlag(MAESTRO.MODULE_NAME, MAESTRO.DEFAULT_CONFIG.ItemTrack.flagNames.track)
             }
         });
@@ -225,7 +241,8 @@ async function _migrateActorOwnedItemFlags() {
         const updates = ownedItems.map(i => {
             return {
                 _id: i._id,
-                ["flags."+[MAESTRO.MODULE_NAME]+"."+[MAESTRO.DEFAULT_CONFIG.ItemTrack.flagNames.track]]: game.playlists.get(i.playlist).sounds[Number(i.track)-1]._id
+                ["flags."+[MAESTRO.MODULE_NAME]+"."+[MAESTRO.DEFAULT_CONFIG.ItemTrack.flagNames.track]]: game.playlists.get(i.playlist).sounds[Number(i.track)-1]._id,
+                ["flags."+[MAESTRO.MODULE_NAME]+"."+[MAESTRO.DEFAULT_CONFIG.ItemTrack.flagNames.playlist]]: i.playlist
             }
         });
 
@@ -245,6 +262,9 @@ async function _migrateActorOwnedItemFlags() {
     
 }
 
+/**
+ * 
+ */
 async function _migrateTokenOwnedItemFlags() {
     const scenes = game.scenes.entities.filter(s =>
         s.data.tokens.length > 0 && s.data.tokens.filter(t => t.isLinked === false && t.actorData.items && t.actorData.items.length > 0)
@@ -300,11 +320,25 @@ async function _migrateTokenOwnedItemFlags() {
 
                 const playlistFlag = i.flags[MAESTRO.MODULE_NAME][MAESTRO.DEFAULT_CONFIG.ItemTrack.flagNames.playlist];
                 const trackFlag = i.flags[MAESTRO.MODULE_NAME][MAESTRO.DEFAULT_CONFIG.ItemTrack.flagNames.track];
-                const playlist = game.playlists.get(playlistFlag);
                 
+                let playlist;
+
+                if (!playlistFlag) {
+                    playlist = game.playlists.entities.find(i => i.name === "Item Tracks");     
+                } else {
+                    playlist = game.playlists.get(playlistFlag);
+                }
+                
+                if (!playlist) {
+                    console.warn(game.i18n.localize("LOGS.MigrationItemNoPlaylist"));
+                    game.maestro.errors += 1;
+                    return;
+                }
+                                
                 if (playlist.sounds[Number(trackFlag)-1]) {
                     i.flags.maestro.track = playlist.sounds[Number(trackFlag)-1]._id;
-                    console.log(game.i18n.localize("LOGS.MigrationTokenOwnedItemsMatched"), playlistFlag, i.flags.maestro.track);
+                    i.flags.maestro.playlist = playlist._id;
+                    console.log(game.i18n.localize("LOGS.MigrationTokenOwnedItemsMatched"), i.flags.maestro.playlist, i.flags.maestro.track);
                 } else {
                     i.flags.maestro.track = "";
                     console.warn(game.i18n.localize("LOGS.MigrationTokenOwnedItemsNotMatched"), trackFlag, playlistFlag);
