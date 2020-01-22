@@ -4,6 +4,10 @@
 - Critical hit sounds
 - Soundboard for SFX
 
+## [0.4.4] - 2020-01-19
+### Changed
+- Fixed issue with items that had no Item Track set (thanks `@tposney#1462` for finding this!)
+
 ## [0.4.3] - 2020-01-19
 ### Changed
 - Fixed migration issues for tracks with no playlist set

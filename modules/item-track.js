@@ -72,10 +72,16 @@ export default class ItemTrack {
             item = await game.items.get(itemId);
         }
 
-        const flags = await this.getItemFlags(item)
+        const flags = await this.getItemFlags(item);
+
+        if (!flags) {
+            return;
+        }
+
         const track = flags.track || "";
         const playlist = flags.playlist || "";
 
+        // Depending on the track flag determine how and what to play
         switch (track) {
             case MAESTRO.DEFAULT_CONFIG.ItemTrack.playbackModes.all:
                 await this._playPlaylist(playlist);
@@ -101,7 +107,7 @@ export default class ItemTrack {
      * @returns {Promise} flags - an object containing the flags
      */
     async getItemFlags(item) {
-        return await item.data.flags[MAESTRO.MODULE_NAME];
+        return item.data.flags[MAESTRO.MODULE_NAME];
     }
 
     /**
