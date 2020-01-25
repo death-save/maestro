@@ -11,12 +11,16 @@
 [Changelog](https://github.com/death-save/maestro/blob/master/CHANGELOG.md)
 
 
-A quality of life audio-focused module for Foundry Virtual Tabletop.
+Adds some sound-focused features to Foundry Virtual Tabletop!
 
 **Maestro** adds the following features:
-* **DEPRECATED Scene Playlist** - DEPRECATED -- Use native Foundry functionality instead ~~Select a playlist to play automatically when the Scene is activated~~.
 * **Hype Track** - Set a track to play each time that Actor has a turn in Combat
 * **Item Track** - Set a track to play when that Item is rolled
+* **Combat Track** - Set a playlist or track to play when the Combat encounter begins
+* **Miscellaneous** - Playlist loop toggling, disable dice sound setting
+
+* **DEPRECATED Scene Playlist** - DEPRECATED -- Use native Foundry functionality instead ~~Select a playlist to play automatically when the Scene is activated~~.
+
 
 ## Usage
 
@@ -34,6 +38,9 @@ Add Item Tracks to the **Item Tracks** Playlist that is automatically created by
 Set an Item Track on the desired Item by clicking the Item Track button then selecting the track    
 ![Item Track Form](https://i.imgur.com/LyQwkDE.png)
 
+## Combat Track
+Set a playlist or track to play when the Combat encounter begins.
+
 ## Installation
 
 1. Navigate to the Foundry Setup screen and click on the Modules tab
@@ -44,7 +51,7 @@ Set an Item Track on the desired Item by clicking the Item Track button then sel
 You can create an issue here: [Issue Log](https://github.com/death-save/maestro/issues) or contact me on Discord (@errational#2007)
 
 ## Donations
-Paypal: [![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.me/evanc)
+Click the Sponsor button at the top of the Github repo!
 
 ## Attributions
 **Formerly Featured code by**: KaKaRoTo#4756
