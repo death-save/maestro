@@ -46,12 +46,52 @@ export const registerModuleSettings = function() {
         }
     }),
 
+    game.settings.register(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.CombatTrack.enable, {
+        name: "SETTINGS.CombatTrackEnableN",
+        hint: "SETTINGS.CombatTrackEnableH",
+        scope: "world",
+        type: Boolean,
+        default: false,
+        config: true,
+        onChange: s => {
+            
+        }
+    }),
+
+    game.settings.register(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.CombatTrack.createPlaylist, {
+        name: "SETTINGS.CombatTrackCreatePlaylistN",
+        hint: "SETTINGS.CombatTrackCreatePlaylistH",
+        scope: "world",
+        type: Boolean,
+        default: false,
+        config: true,
+        onChange: s => {
+            if (!game.maestro.CombatTrack) {
+                return;
+            }
+
+            game.maestro.CombatTrack._checkForCombatTracksPlaylist();
+        }
+    }),
+
     game.settings.register(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.Migration.currentVersion, {
         name: "SETTINGS.MigrateCurrentVersionN",
         hint: "SETTINGS.MigrateCurrentVersionH",
         scope: "world",
         type: String,
         default: "",
+        onChange: s => {
+
+        }
+    }),
+
+    game.settings.register(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.Misc.disableDiceSound, {
+        name: "SETTINGS.DisableDiceSoundN",
+        hint: "SETTINGS.DisableDiceSoundH",
+        scope: "world",
+        type: Boolean,
+        default: "",
+        config: true,
         onChange: s => {
 
         }

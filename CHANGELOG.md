@@ -4,6 +4,11 @@
 - Critical hit sounds
 - Soundboard for SFX
 
+## [0.5.0] - 2020-01-24
+### Added
+- Added Combat Tracks -- set a playlist or track to play when a Combat encounter begins!
+- Added Setting to disable the default dice roll sound on Chat Messages
+
 ## [0.4.4] - 2020-01-19
 ### Changed
 - Fixed issue with items that had no Item Track set (thanks `@tposney#1462` for finding this!)

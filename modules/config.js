@@ -50,6 +50,26 @@ export const DEFAULT_CONFIG = {
         }
     },
 
+    get CombatTrack() {
+        return {
+            name: "combat-track",
+            playlistName: "Combat Tracks",
+            buttonIcon: "fas fa-music",
+            buttonText: "",
+            aTitle: "Change Combat Track",
+            flagNames: {
+                track: "track",
+                playlist: "playlist"
+            },
+            playbackModes: {
+                single: "single",
+                random: "random-track",
+                all: "play-all"
+            },
+            templatePath: "./modules/maestro/templates/combat-track-form.html"
+        }
+    },
+
     get PlaylistLoop() {
         return {
             flagNames: {
@@ -75,9 +95,22 @@ export const SETTINGS_KEYS = {
         }
     },
 
+    get CombatTrack() {
+        return {
+            enable: "enableCombatTrack",
+            createPlaylist: "createCombatTrackPlaylist"
+        }
+    },
+
     get Migration() {
         return {
             currentVersion: "currentMigrationVersion"
+        }
+    },
+
+    get Misc() {
+        return {
+            disableDiceSound: "disableDiceSound"
         }
     }
 

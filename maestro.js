@@ -1,10 +1,10 @@
 // @ts-check
-import * as MAESTRO from "./modules/config.js";
-import { registerModuleSettings } from "./modules/settings.js";
-import { migrationHandler } from "./modules/migration.js";
+import CombatTrack from "./modules/combat-track.js";
 import HypeTrack from "./modules/hype-track.js";
 import ItemTrack from "./modules/item-track.js";
-import { _onPreUpdatePlaylistSound, _addPlaylistLoopToggle } from "./modules/playlist-loop.js";
+import { migrationHandler } from "./modules/migration.js";
+import { _addPlaylistLoopToggle, _onPreUpdatePlaylistSound } from "./modules/misc.js";
+import { registerModuleSettings } from "./modules/settings.js";
 
 /**
  * Orchestrates (pun) module functionality
@@ -33,6 +33,7 @@ export default class Conductor {
 
             game.maestro.hypeTrack = new HypeTrack();
             game.maestro.itemTrack = new ItemTrack();
+            game.maestro.combatTrack = new CombatTrack();
 
             if (game.maestro.hypeTrack) {
                 game.maestro.hypeTrack._checkForHypeTracksPlaylist();
@@ -40,6 +41,10 @@ export default class Conductor {
 
             if (game.maestro.itemTrack) {
                 game.maestro.itemTrack._checkForItemTracksPlaylist();
+            }
+
+            if (game.maestro.combatTrack) {
+                game.maestro.combatTrack._checkForCombatTracksPlaylist();
             }
 
             //Set a timeout to allow the sheets to register correctly before we try to hook on them
@@ -59,6 +64,7 @@ export default class Conductor {
     static _initHookRegistrations() {
         registerModuleSettings();
         Conductor._hookOnRenderPlaylistDirectory();
+        Conductor._hookOnRenderCombatTracker();
     }
 
     /**
@@ -68,7 +74,7 @@ export default class Conductor {
         //Sheet/App Render Hooks
         Conductor._hookOnRenderActorSheet();
         Conductor._hookOnRenderItemSheet();
-
+        
         Conductor._hookOnRenderChatMessage();
 
         
@@ -80,10 +86,16 @@ export default class Conductor {
         //Update Hooks
         Conductor._hookOnUpdateCombat();
         //Conductor._hookOnUpdatePlaylist();
+
+        // Delete hooks
+        Conductor._hookOnDeleteCombat();
         
         
     }
 
+    /**
+     * PreUpdate Playlist Hook
+     */
     static _hookOnPreUpdatePlaylist() {
         Hooks.on("preUpdatePlaylist", (playlist, update) => {
         });
@@ -99,11 +111,30 @@ export default class Conductor {
     }
 
     /**
+     * PreCreate Chat Message Hook
+     */
+    static _hookOnPreCreateChatMessage() {
+        Hooks.on("preCreateChatMessage", (messages, update, options) => {
+            _onPreCreateChatMessage(messages, update, options);
+        });
+    }
+
+    /**
      * Update Combat Hook
      */
     static _hookOnUpdateCombat() {
         Hooks.on("updateCombat", (combat, update) => {
+            game.maestro.combatTrack._checkCombatTrack(combat, update);
             game.maestro.hypeTrack._checkHype(combat, update);
+        });
+    }
+
+    /**
+     * Delete Combat Hook
+     */
+    static _hookOnDeleteCombat() {
+        Hooks.on("deleteCombat", (combat, combatId, options, userId) => {
+            game.maestro.combatTrack._stopCombatTrack(combat);
         });
     }
     
@@ -136,6 +167,15 @@ export default class Conductor {
     static _hookOnRenderPlaylistDirectory() {
         Hooks.on("renderPlaylistDirectory", (app, html, data) => {
             _addPlaylistLoopToggle(app, html, data);
+        });
+    }
+
+    /**
+     * RenderCombatTracker Hook
+     */
+    static _hookOnRenderCombatTracker() {
+        Hooks.on("renderCombatTracker", (app, html, data) => {
+            CombatTrack._addCombatTrackButton(app, html, data);
         });
     }
 

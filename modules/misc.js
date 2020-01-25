@@ -113,3 +113,16 @@ export function _onPreUpdatePlaylistSound(playlist, update) {
         playlist.data.playing = false;
     }        
 }
+
+/**
+ * Replace dice sounds
+ */
+export function _onPreCreateChatMessage(messages, update, options) {
+    const enabled = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.Misc.disableDiceSounds);
+
+    if (!enabled || (!update.sound && !update.sound === "sounds/dice.wav")) {
+        return;
+    }
+
+    update.sound = "";
+}
