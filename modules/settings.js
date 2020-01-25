@@ -74,6 +74,28 @@ export const registerModuleSettings = function() {
         }
     }),
 
+    game.settings.register(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.CombatTrack.defaultPlaylist, {
+        name: "SETTINGS.CombatTrackDefaultPlaylistN",
+        hint: "SETTINGS.CombatTrackDefaultPlaylistH",
+        scope: "world",
+        type: String,
+        default: "",
+        onChange: s => {
+            
+        }
+    }),
+
+    game.settings.register(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.CombatTrack.defaultTrack, {
+        name: "SETTINGS.CombatTrackDefaultTrackN",
+        hint: "SETTINGS.CombatTrackDefaultTrackH",
+        scope: "world",
+        type: String,
+        default: "",
+        onChange: s => {
+            
+        }
+    }),
+
     game.settings.register(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.Migration.currentVersion, {
         name: "SETTINGS.MigrateCurrentVersionN",
         hint: "SETTINGS.MigrateCurrentVersionH",

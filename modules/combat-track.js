@@ -52,15 +52,17 @@ export default class CombatTrack {
             return;
         }
 
-        const flags = await CombatTrack.getCombatFlags(combat);
+        const flags = CombatTrack.getCombatFlags(combat);
+        const defaultPlaylist = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.CombatTrack.defaultPlaylist);
+        const defaultTrack = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.CombatTrack.defaultTrack);
 
-        if (!flags) {
+        if (!flags && !defaultPlaylist) {
             return;
         }
 
-        const track = flags.track || "";
-        const playlist = flags.playlist || "";
-
+        const playlist = flags ? flags.playlist : defaultPlaylist ? defaultPlaylist : "";
+        const track = flags ? flags.track : defaultTrack ? defaultTrack : "";
+        
         // Depending on the track flag determine how and what to play
         switch (track) {
             case MAESTRO.DEFAULT_CONFIG.CombatTrack.playbackModes.all:
@@ -83,33 +85,50 @@ export default class CombatTrack {
      * Stops any playing combat tracks
      * @param {*} combat 
      */
-    _stopCombatTrack(combat) {
+    async _stopCombatTrack(combat) {
         const enabled = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.CombatTrack.enable);
         if (!game.user.isGM || !enabled) {
             return;
         }
 
         const flags = CombatTrack.getCombatFlags(combat);
+        const defaultPlaylist = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.CombatTrack.defaultPlaylist);
 
-        if (!flags) {
+        if (!flags && !defaultPlaylist) {
             return;
         }
 
-        const playlist = flags.playlist;
+        const playlistId = flags ? flags.playlist : defaultPlaylist ? defaultPlaylist : "";
 
-        if (!playlist) {
+        if (!playlistId) {
             return;
         }
 
-        game.playlists.get(playlist).stopAll();
+        const playlist = game.playlists.get(playlistId);
 
+        if (playlist.playing) {
+            await playlist.stopAll();
+            ui.playlists.render();
+        }
 
+        const playingSounds = playlist.sounds.filter(s => s.playing);
+        const updates = playingSounds.map(s => {
+            return {
+                _id: s._id,
+                playing: false
+            }
+        });
+
+        await playlist.updateManyEmbeddedEntities("PlaylistSound", updates);
+        ui.playlists.render();
+
+        
     }
 
     /**
      * Gets the combat Track flags on an combat
      * @param {Object} combat - the combat to get flags from
-     * @returns {Promise} flags - an object containing the flags
+     * @returns {Object} flags - an object containing the flags
      */
     static getCombatFlags(combat) {
         return combat.data.flags[MAESTRO.MODULE_NAME];
@@ -145,11 +164,6 @@ export default class CombatTrack {
             return;
         }
 
-        const existingButton = html.find(`.${MAESTRO.DEFAULT_CONFIG.CombatTrack.name}`);
-        if (existingButton.length > 0 || !game.combat) {
-            return existingButton.remove();
-        }
-
         /**
          * Combat Track Button html literal
          * @todo replace with a template instead
@@ -168,20 +182,19 @@ export default class CombatTrack {
         const settingsButton = combatHeader.find(".combat-settings");
     
         /**
-         * Create an instance of the hypeButton before the close button
+         * Create an instance of the combat track Button before the settings button
          */
         settingsButton.before(combatTrackButton);
     
         /**
-         * Register a click listener that opens the Hype Track form
+         * Register a click listener that opens the Combat Track form
          */
         combatTrackButton.click(async ev => {
+            const combat = game.combat || null,
+                  flags = combat ? await CombatTrack.getCombatFlags(combat) : null,
+                  track = flags ? flags.track : "",
+                  playlist = flags ? flags.playlist : "";
 
-            const combat = game.combat;
-            
-            const flags = await CombatTrack.getCombatFlags(combat);
-            const track = flags ? flags.track : "";
-            const playlist = flags ? flags.playlist : "";
             CombatTrack._openTrackForm(combat, track, playlist, {closeOnSubmit: true});
         });
     }
@@ -194,10 +207,13 @@ export default class CombatTrack {
      */
     static _openTrackForm(combat, track, playlist, options){
         const data = {
+            "defaultPlaylist": game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.CombatTrack.defaultPlaylist),
+            "defaultTrack": game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.CombatTrack.defaultTrack),
             "currentTrack": track,
             "currentPlaylist": playlist,
             "playlists": game.playlists.entities
         }
+
         new CombatTrackForm(combat, data, options).render(true);
     }
 
@@ -255,7 +271,16 @@ export default class CombatTrack {
         }
 
         await playlist.updateEmbeddedEntity("PlaylistSound", {_id: trackId, playing: true});
-    }    
+    }
+    
+    /**
+     * 
+     * @param {*} defaults 
+     */
+    async _setDefaultCombatTrack(defaults) {
+        await game.settings.set(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.CombatTrack.defaultPlaylist, defaults.playlist);
+        await game.settings.set(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.CombatTrack.defaultTrack, defaults.track);
+    }
 }
 
 /**
@@ -282,9 +307,26 @@ class CombatTrackForm extends FormApplication {
     }
 
     /**
+     * Provide data to the handlebars template
+     */
+    async getData() {
+        const data = {
+            combat: this.combat,
+            defaultPlaylist: this.data.defaultPlaylist,
+            defaultTrack: this.data.defaultTrack,
+            defaultPlaylistTracks: this.getPlaylistSounds(this.data.defaultPlaylist) || [],
+            playlist: this.data.currentPlaylist || "default",
+            playlists: this.data.playlists,
+            playlistTracks: this.getPlaylistSounds(this.data.currentPlaylist) || [],
+            track: this.data.currentTrack || "default"
+        }
+        return data;
+    }
+
+    /**
      * Get a specific playlist's tracks
      */
-    async getPlaylistSounds(playlistId) {
+    getPlaylistSounds(playlistId) {
         if (!playlistId) {
             return;
         }
@@ -294,21 +336,8 @@ class CombatTrackForm extends FormApplication {
             return;
         }
 
-        return await game.playlists.get(playlistId).sounds;
+        return playlist.sounds;
     } 
-
-    /**
-     * Provide data to the handlebars template
-     */
-    async getData() {
-        const data = {
-            playlist: this.data.currentPlaylist,
-            playlists: this.data.playlists,
-            playlistTracks: await this.getPlaylistSounds(this.data.currentPlaylist) || [],
-            track: this.data.currentTrack
-        }
-        return data;
-    }
 
     /**
      * Executes on form submission.
@@ -316,9 +345,22 @@ class CombatTrackForm extends FormApplication {
      * @param {Object} event - the form submission event
      * @param {Object} formData - the form data
      */
-    _updateObject(event, formData) {
-        game.maestro.combatTrack.setCombatFlags(this.combat, formData.playlist, formData.track)  
+    async _updateObject(event, formData) {
+        await game.settings.set(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.CombatTrack.defaultPlaylist, formData["default-playlist"]);
+        await game.settings.set(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.CombatTrack.defaultTrack, formData["default-track"]);
+        
+        if (this.combat) {
+            if (formData.playlist === "default" && formData.track === "default") {
+                return;
+            }
+
+            const playlist = formData.playlist === "default" ? this.data.defaultPlaylist : formData.playlist;
+
+            await game.maestro.combatTrack.setCombatFlags(this.combat, playlist, formData.track);
+        }        
     }
+
+
 
     /**
      * Activates listeners on the form html
@@ -327,7 +369,25 @@ class CombatTrackForm extends FormApplication {
     activateListeners(html) {
         super.activateListeners(html);
 
+        
+        // Activate tabs
+        new Tabs(html.find(".tabs"), {
+            initial: this["_sheetTab"],
+            callback: clicked => {
+                this["_sheetTab"] = clicked.data("tab");
+            }
+        });
+        
+
+        const defaultPlaylistSelect = html.find(".default-playlist-select");
         const playlistSelect = html.find(".playlist-select");
+
+        if (defaultPlaylistSelect.length > 0) {
+            defaultPlaylistSelect.on("change", event => {
+                this.data.defaultPlaylist = event.target.value;
+                this.render();
+            });
+        }
 
         if (playlistSelect.length > 0) {
             playlistSelect.on("change", event => {
@@ -335,6 +395,7 @@ class CombatTrackForm extends FormApplication {
                 this.render();
             });
         }
+        
     }
 
 }

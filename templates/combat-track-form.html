@@ -1,38 +1,81 @@
 <form autocomplete="off" onsubmit="event.preventDefault();">
+    <nav class="sheet-tabs tabs" data-group="primary">
+        <a class="item active" data-tab="defaults"><i class="fas fa-cog"></i> {{ localize "COMBAT-TRACK.FormDefaultsHeading" }}</a>
+        {{#if combat}}<a class="item" data-tab="encounter"><i class="fas fa-fist-raised"></i> {{ localize "COMBAT-TRACK.FormEncounterHeading" }}</a>{{/if}}
+    </nav>
 
-    <div class="form-group">
-        <label>Combat Playlist</label>
-        <select name="playlist" class="playlist-select" title="{{localize "COMBAT-TRACK.FormPlaylistTooltip"}}" default="">
-            {{#select playlist}}
-                <option value="">{{localize "COMBAT-TRACK.FormSelectNone"}}</option>
-                {{#each playlists}}
-                <option value="{{this._id}}">{{this.name}}</option>
-                {{/each}}
-            {{/select}}
-        </select>
-        <p class="notes">{{localize "COMBAT-TRACK.FormPlaylistNotes"}}</p> 
+    <div class="tab defaults flexcol" data-group="primary" data-tab="defaults">
+        <div class="form-group">
+            <label>{{localize "COMBAT-TRACK.FormDefaultPlaylistLabel"}}</label>
+            <select name="default-playlist" class="default-playlist-select" title="{{localize "COMBAT-TRACK.FormDefaultPlaylistTooltip"}}" default="">
+                {{#select defaultPlaylist}}
+                    <option value="">{{localize "COMBAT-TRACK.FormSelectNone"}}</option>
+                    {{#each playlists}}
+                    <option value="{{this._id}}">{{this.name}}</option>
+                    {{/each}}
+                {{/select}}
+            </select>
+            <p class="notes">{{localize "COMBAT-TRACK.FormDefaultPlaylistNotes"}}</p> 
+        </div>
+    
+
+        <div class="form-group">
+            <label>{{localize "COMBAT-TRACK.FormDefaultTrackLabel"}}</label>
+            <select name="default-track" class="default-track-select" title="{{localize "COMBAT-TRACK.FormDefaultTrackTooltip"}}" default="">
+                {{#select defaultTrack}}
+                    <option value="">{{localize "COMBAT-TRACK.FormSelectNone"}}</option>
+                    {{#if defaultPlaylistTracks}}
+                    <option value="random-track">{{localize "COMBAT-TRACK.FormPlayRandom"}}</option>
+                    <option value="play-all">{{localize "COMBAT-TRACK.FormPlayAll"}}</option>
+                    {{/if}}
+                    {{#each defaultPlaylistTracks}}
+                    <option value="{{this._id}}">{{this.name}}</option>
+                    {{/each}}
+                {{/select}}
+            </select>
+            <p class="notes">{{localize "COMBAT-TRACK.FormDefaultTrackNotes"}}</p> 
+        </div>
     </div>
 
-    <div class="form-group">
-        <label>Combat Track</label>
-        <select name="track" class="track-select" title="{{localize "COMBAT-TRACK.FormTrackTooltip"}}" default="">
-            {{#select track}}
-                <option value="">{{localize "COMBAT-TRACK.FormSelectNone"}}</option>
-                {{#if playlistTracks}}
-                <option value="random-track">{{localize "COMBAT-TRACK.FormPlayRandom"}}</option>
-                <option value="play-all">{{localize "COMBAT-TRACK.FormPlayAll"}}</option>
-                {{/if}}
-                {{#each playlistTracks}}
-                <option value="{{this._id}}">{{this.name}}</option>
-                {{/each}}
-            {{/select}}
-        </select>
-        <p class="notes">{{localize "COMBAT-TRACK.FormTrackNotes"}}</p> 
+    {{#if combat}}
+    <div class="tab encounter flexcol" data-group="primary" data-tab="encounter">
+        <div class="form-group">
+            <label>{{localize "COMBAT-TRACK.FormPlaylistLabel"}}</label>
+            <select name="playlist" class="playlist-select" title="{{localize "COMBAT-TRACK.FormPlaylistTooltip"}}" default="default">
+                {{#select playlist}}
+                    <option value="default">{{localize "COMBAT-TRACK.FormSelectUseDefault"}}</option>
+                    <option value="">{{localize "COMBAT-TRACK.FormSelectNone"}}</option>
+                    {{#each playlists}}
+                    <option value="{{this._id}}">{{this.name}}</option>
+                    {{/each}}
+                {{/select}}
+            </select>
+            <p class="notes">{{localize "COMBAT-TRACK.FormPlaylistNotes"}}</p> 
+        </div>
+
+        <div class="form-group">
+            <label>{{localize "COMBAT-TRACK.FormTrackLabel"}}</label>
+            <select name="track" class="track-select" title="{{localize "COMBAT-TRACK.FormTrackTooltip"}}" default="default">
+                {{#select track}}
+                    <option value="default">{{localize "COMBAT-TRACK.FormSelectUseDefault"}}</option>
+                    <option value="">{{localize "COMBAT-TRACK.FormSelectNone"}}</option>
+                    {{#if playlistTracks}}
+                    <option value="random-track">{{localize "COMBAT-TRACK.FormPlayRandom"}}</option>
+                    <option value="play-all">{{localize "COMBAT-TRACK.FormPlayAll"}}</option>
+                    {{/if}}
+                    {{#each playlistTracks}}
+                    <option value="{{this._id}}">{{this.name}}</option>
+                    {{/each}}
+                {{/select}}
+            </select>
+            <p class="notes">{{localize "COMBAT-TRACK.FormTrackNotes"}}</p> 
+        </div>
     </div>
+    {{/if}}
 
     <span>
         <button type="submit" name="submit">
-            <i class="far fa-save"></i> Save Track
+            <i class="far fa-save"></i> Save
         </button>
     </span>
     
