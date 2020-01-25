@@ -56,7 +56,7 @@ export const DEFAULT_CONFIG = {
             playlistName: "Combat Tracks",
             buttonIcon: "fas fa-music",
             buttonText: "",
-            aTitle: "Change Combat Track",
+            aTitle: "Combat Track",
             flagNames: {
                 track: "track",
                 playlist: "playlist"
@@ -98,7 +98,9 @@ export const SETTINGS_KEYS = {
     get CombatTrack() {
         return {
             enable: "enableCombatTrack",
-            createPlaylist: "createCombatTrackPlaylist"
+            createPlaylist: "createCombatTrackPlaylist",
+            defaultPlaylist: "defaultCombatTrackPlaylist",
+            defaultTrack: "defaultCombatTrackTrack"
         }
     },
 

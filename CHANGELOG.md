@@ -4,6 +4,10 @@
 - Critical hit sounds
 - Soundboard for SFX
 
+## [0.5.1] - 2020-01-25
+### Added
+- Added option to set default Combat Track (or playlist)
+
 ## [0.5.0] - 2020-01-24
 ### Added
 - Added Combat Tracks -- set a playlist or track to play when a Combat encounter begins!

@@ -1,0 +1,6 @@
+#combat-track-form nav.tabs {
+    flex: 0 0 32px;
+    line-height: 32px;
+    font-size: 16px;
+    border-bottom: 1px solid #000;
+  }
