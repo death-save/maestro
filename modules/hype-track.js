@@ -40,16 +40,17 @@ export default class HypeTrack {
      * @param {*} update - the update data
      */
     async _checkHype(combat, update) {
-        if(update.turn || update.round) {
-            //const actorTrack = combat.combatant.actor.getFlag(MAESTRO.MODULE_NAME, MAESTRO.DEFAULT_CONFIG.HypeTrack.flagNames.track);
-            const actorTrack = await this._getActorHypeTrack(combat.combatant.actor);
-
-            this.playlist.stopAll();
-    
-            if(actorTrack) {
-                this._playTrack(actorTrack);
-            }
+        if (!update.turn || !update.round || !combat.combatants.length) {
+            return;
         }
+        const actorTrack = await this._getActorHypeTrack(combat.combatant.actor);
+
+        if (!actorTrack) {
+            return;
+        }
+
+        this.playlist.stopAll();
+        this._playTrack(actorTrack);
     }
     
 
