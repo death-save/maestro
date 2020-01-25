@@ -2,4 +2,6 @@
 .gitignore export-ignore
 .gitattributes export-ignore
 .gitmodules export-ignore
+.github export-ignore
 tsconfig export-ignore
+package-lock.json export-ignore
