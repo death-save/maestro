@@ -44,11 +44,9 @@ export default class CombatTrack {
      * @param update
      */
     async _checkCombatTrack(combat, update) {
-        if (!game.user.isGM) {
-            return;
-        }
+        const combatStart = combat.round === 0 && update.round === 1;
 
-        if (update.round !== 1 && update.turn !== 0) {
+        if (!game.user.isGM || !combatStart) {
             return;
         }
 

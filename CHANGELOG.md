@@ -4,6 +4,11 @@
 - Critical hit sounds
 - Soundboard for SFX
 
+## [0.5.2] - 2020-01-25
+### Changed
+- Fixed issue with Item Tracks causing warning for non-GMs
+- Fixed issue with Combat Tracks playing at the wrong time
+
 ## [0.5.1] - 2020-01-25
 ### Added
 - Added option to set default Combat Track (or playlist)

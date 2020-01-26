@@ -4,7 +4,7 @@
         <label>Actor Hype Track</label>
         <select name="track" class="track-select" title="{{localize "HYPE-TRACK.FormTrackSelection"}}">
             {{#select track}}
-                <option value=""></option>
+                <option value="">{{localize "HYPE-TRACK.FormSelectNone"}}</option>
                 {{#each playlistTracks}}
                 <option value="{{this._id}}">{{this.name}}</option>
                 {{/each}}

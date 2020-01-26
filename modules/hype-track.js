@@ -40,7 +40,7 @@ export default class HypeTrack {
      * @param {*} update - the update data
      */
     async _checkHype(combat, update) {
-        if (!update.turn || !update.round || !combat.combatants.length) {
+        if (!game.user.isGM || !Number.isNumeric(update.turn) || !combat.combatants.length) {
             return;
         }
         const actorTrack = await this._getActorHypeTrack(combat.combatant.actor);
