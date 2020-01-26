@@ -2,7 +2,7 @@ import * as MAESTRO from "./config.js";
 
 // Migrate data post Foundry 0.4.4
 export function migrationHandler() {
-    const targetMigrationVersion = "0.4.3";
+    const targetMigrationVersion = MAESTRO.DEFAULT_CONFIG.Migration.targetVersion;
     const currentMigrationVersion = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.Migration.currentVersion);
 
     if (currentMigrationVersion >= targetMigrationVersion) {
@@ -221,6 +221,8 @@ async function _migrateActorOwnedItemFlags() {
 
             if (!playlistFlag) {
                 playlist = game.playlists.entities.find(p => p.name === MAESTRO.DEFAULT_CONFIG.ItemTrack.playlistName);
+            } else {
+                playlist = game.playlists.get(playlistFlag);
             }
 
             if (!playlist) {

@@ -4,6 +4,10 @@
 - Critical hit sounds
 - Soundboard for SFX
 
+## [0.5.3] - 2020-01-25
+### Changed
+- Fixed issue with Item Track Migration not working for Actor owned Items
+
 ## [0.5.2] - 2020-01-25
 ### Changed
 - Fixed issue with Item Tracks causing warning for non-GMs
