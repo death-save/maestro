@@ -77,6 +77,12 @@ export const DEFAULT_CONFIG = {
                 previousSound: "previous-sound"
             }
         }
+    },
+
+    get Migration() {
+        return {
+            targetVersion: "0.5.3"
+        }
     }
 }
         
