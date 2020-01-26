@@ -46,7 +46,7 @@ export default class ItemTrack {
      */
     async chatMessageHandler(message, html, data) {
         const enabled = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.ItemTrack.enable);
-        if (!enabled) {
+        if (!enabled || !game.user.isGM) {
             return;
         }
 

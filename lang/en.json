@@ -54,6 +54,7 @@
     "HYPE-TRACK.FormTrackSelection": "Select a Track",
     "HYPE-TRACK.FormNotes": "Select the audio file to use as this actor's Hype Track",
     "HYPE-TRACK.FormSaveTrack": "Save Track",
+    "HYPE-TRACK.FormSelectNone": "--None--",
 
     "ITEM-TRACK.FormPlaylistTooltip": "Select a Playlist",
     "ITEM-TRACK.FormTrackTooltip": "Select a Track",

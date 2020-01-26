@@ -82,6 +82,7 @@ export default class Conductor {
         //Pre-update Hooks
         Conductor._hookOnPreUpdatePlaylistSound();
         Conductor._hookOnPreUpdatePlaylist();
+        Conductor._hookOnPreUpdateCombat();
 
         //Update Hooks
         Conductor._hookOnUpdateCombat();
@@ -120,11 +121,20 @@ export default class Conductor {
     }
 
     /**
+     * PreUpdate Combat Hook
+     */
+    static _hookOnPreUpdateCombat() {
+        Hooks.on("preUpdateCombat", (combat, update, options, userId) => {
+            game.maestro.combatTrack._checkCombatTrack(combat, update);
+        });
+    }
+
+    /**
      * Update Combat Hook
      */
     static _hookOnUpdateCombat() {
         Hooks.on("updateCombat", (combat, update) => {
-            game.maestro.combatTrack._checkCombatTrack(combat, update);
+            //game.maestro.combatTrack._checkCombatTrack(combat, update);
             game.maestro.hypeTrack._checkHype(combat, update);
         });
     }
