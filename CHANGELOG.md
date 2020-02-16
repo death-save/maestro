@@ -1,8 +1,16 @@
 # Changelog
 
 ## [Unreleased]
-- Critical hit sounds
+- ~~Critical hit sounds~~
 - Soundboard for SFX
+
+## [0.5.4] - 2020-02-15
+## Added
+- Added Critical/Failure Tracks -- set a track or playlist to play when a critical or failure is rolled (limited system support at this time). Some sample sounds are included in the Sounds directory under the Maestro module directory.
+- Added a new Maestro Config button (currently just used to set Critical Success/Failure Track selections)
+
+## Changed
+- Fixed an issue where the core Dice Sound was not suppressed when the relevant Maestro setting was enabled
 
 ## [0.5.3] - 2020-01-25
 ### Changed

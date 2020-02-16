@@ -1,4 +1,5 @@
 import * as MAESTRO from "./config.js";
+import * as Playback from "./playback.js";
 
 /**
  * Attach a track to an item that plays when the item is rolled
@@ -84,11 +85,11 @@ export default class ItemTrack {
         // Depending on the track flag determine how and what to play
         switch (track) {
             case MAESTRO.DEFAULT_CONFIG.ItemTrack.playbackModes.all:
-                await this._playPlaylist(playlist);
+                await Playback.playPlaylist(playlist);
                 return this._setChatMessageFlag(message);
             
             case MAESTRO.DEFAULT_CONFIG.ItemTrack.playbackModes.random:
-                await this._playTrack(track, playlist)
+                await Playback.playTrack(track, playlist)
                 return this._setChatMessageFlag(message);
         
             default:
@@ -96,7 +97,7 @@ export default class ItemTrack {
                     break;
                 }
 
-                await this._playTrack(track, playlist);
+                await Playback.playTrack(track, playlist);
                 return this._setChatMessageFlag(message);      
         }
     }    
@@ -200,70 +201,14 @@ export default class ItemTrack {
      * @param {String} track - any existing track
      * @param {Object} options - form options
      */
-    async _openTrackForm(item, track, playlist, options){
+    _openTrackForm(item, track, playlist, options){
         const data = {
             "currentTrack": track,
             "currentPlaylist": playlist,
-            "playlists": await game.playlists.entities
+            "playlists": game.playlists.entities
         }
         new ItemTrackForm(item, data, options).render(true);
-    }
-
-    /**
-     * For a given trackId get the corresponding playlist sound
-     * @param {String} trackId 
-     */
-    _getPlaylistSound(trackId) {
-        if (!this.playlist) {
-            return;
-        }
-        return this.playlist.sounds.find(s => s.id == trackId);
-    }
-
-    /**
-     * Play a playlist using its default playback method
-     * @param {String} playlistId
-     */
-    async _playPlaylist(playlistId) {
-        if (!playlistId) {
-            return;
-        }
-
-        const playlist = await game.playlists.get(playlistId);
-
-        if (!playlist) {
-            return;
-        }
-
-        playlist.playAll();
-    }
-
-    /**
-     * Play a playlist sound based on the given trackId
-     * @param {String} playlistId - the playlist id
-     * @param {String} trackId - the track Id or playback mode
-     */
-    async _playTrack(trackId, playlistId) {
-        if (!playlistId) {
-            return;
-        }
-
-        const playlist = await game.playlists.get(playlistId);
-
-        if (!playlist) {
-            return;
-        }
-
-        if (trackId === MAESTRO.DEFAULT_CONFIG.ItemTrack.playbackModes.random) {
-            trackId = playlist._getPlaybackOrder()[0];
-        }
-
-        if(!trackId) {
-            return;
-        }
-
-        await playlist.updateEmbeddedEntity("PlaylistSound", {_id: trackId, playing: true});
-    }
+    }    
 
     /**
      * Sets a flag on a chat message
@@ -300,22 +245,6 @@ class ItemTrackForm extends FormApplication {
             classes: ["sheet"],
             width: 500
         });
-    }
-
-    /**
-     * Get a specific playlist's tracks
-     */
-    async getPlaylistSounds(playlistId) {
-        if (!playlistId) {
-            return;
-        }
-        const playlist = game.playlists.get(playlistId);
-
-        if (!playlist) {
-            return;
-        }
-
-        return await game.playlists.get(playlistId).sounds;
     } 
 
     /**
@@ -325,7 +254,7 @@ class ItemTrackForm extends FormApplication {
         const data = {
             playlist: this.data.currentPlaylist,
             playlists: this.data.playlists,
-            playlistTracks: await this.getPlaylistSounds(this.data.currentPlaylist) || [],
+            playlistTracks: await Playback.getPlaylistSounds(this.data.currentPlaylist) || [],
             track: this.data.currentTrack
         }
         return data;

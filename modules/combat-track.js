@@ -1,4 +1,5 @@
 import * as MAESTRO from "./config.js";
+import * as Playback from "./playback.js";
 
 /**
  * Attach a track or playlist to combat encounters that plays when the combat begins
@@ -64,18 +65,18 @@ export default class CombatTrack {
         // Depending on the track flag determine how and what to play
         switch (track) {
             case MAESTRO.DEFAULT_CONFIG.CombatTrack.playbackModes.all:
-                return await this._playPlaylist(playlist);
+                return await Playback.playPlaylist(playlist);
                 
             
             case MAESTRO.DEFAULT_CONFIG.CombatTrack.playbackModes.random:
-                return await this._playTrack(track, playlist);
+                return await Playback.playTrack(track, playlist);
         
             default:
                 if (!track) {
                     break;
                 }
 
-                return await this._playTrack(track, playlist);     
+                return await Playback.playTrack(track, playlist);     
         }
     }
     
@@ -214,62 +215,6 @@ export default class CombatTrack {
 
         new CombatTrackForm(combat, data, options).render(true);
     }
-
-    /**
-     * For a given trackId get the corresponding playlist sound
-     * @param {String} trackId 
-     */
-    _getPlaylistSound(trackId) {
-        if (!this.playlist) {
-            return;
-        }
-        return this.playlist.sounds.find(s => s.id == trackId);
-    }
-
-    /**
-     * Play a playlist using its default playback method
-     * @param {String} playlistId
-     */
-    async _playPlaylist(playlistId) {
-        if (!playlistId) {
-            return;
-        }
-
-        const playlist = await game.playlists.get(playlistId);
-
-        if (!playlist) {
-            return;
-        }
-
-        playlist.playAll();
-    }
-
-    /**
-     * Play a playlist sound based on the given trackId
-     * @param {String} playlistId - the playlist id
-     * @param {String} trackId - the track Id or playback mode
-     */
-    async _playTrack(trackId, playlistId) {
-        if (!playlistId) {
-            return;
-        }
-
-        const playlist = await game.playlists.get(playlistId);
-
-        if (!playlist) {
-            return;
-        }
-
-        if (trackId === MAESTRO.DEFAULT_CONFIG.CombatTrack.playbackModes.random) {
-            trackId = playlist._getPlaybackOrder()[0];
-        }
-
-        if(!trackId) {
-            return;
-        }
-
-        await playlist.updateEmbeddedEntity("PlaylistSound", {_id: trackId, playing: true});
-    }
     
     /**
      * 
@@ -312,30 +257,14 @@ class CombatTrackForm extends FormApplication {
             combat: this.combat,
             defaultPlaylist: this.data.defaultPlaylist,
             defaultTrack: this.data.defaultTrack,
-            defaultPlaylistTracks: this.getPlaylistSounds(this.data.defaultPlaylist) || [],
+            defaultPlaylistTracks: Playback.getPlaylistSounds(this.data.defaultPlaylist) || [],
             playlist: this.data.currentPlaylist || "default",
             playlists: this.data.playlists,
-            playlistTracks: this.getPlaylistSounds(this.data.currentPlaylist) || [],
+            playlistTracks: Playback.getPlaylistSounds(this.data.currentPlaylist) || [],
             track: this.data.currentTrack || "default"
         }
         return data;
     }
-
-    /**
-     * Get a specific playlist's tracks
-     */
-    getPlaylistSounds(playlistId) {
-        if (!playlistId) {
-            return;
-        }
-        const playlist = game.playlists.get(playlistId);
-
-        if (!playlist) {
-            return;
-        }
-
-        return playlist.sounds;
-    } 
 
     /**
      * Executes on form submission.

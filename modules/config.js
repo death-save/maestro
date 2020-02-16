@@ -83,6 +83,15 @@ export const DEFAULT_CONFIG = {
         return {
             targetVersion: "0.5.3"
         }
+    },
+
+    get Misc() {
+        return {
+            criticalSuccessPlaylistName: "Critical Success Tracks",
+            criticalFailurePlaylistName: "Critical Failure Tracks",
+            maestroConfigTitle: "Maestro Configuration",
+            maestroConfigTemplatePath: "./modules/maestro/templates/maestro-config.html" 
+        }
     }
 }
         
@@ -118,7 +127,11 @@ export const SETTINGS_KEYS = {
 
     get Misc() {
         return {
-            disableDiceSound: "disableDiceSound"
+            disableDiceSound: "disableDiceSound",
+            enableCriticalSuccessFailureTracks: "enableCriticalSuccessFailureTracks",
+            createCriticalSuccessPlaylist: "createCriticalSuccessPlaylist",
+            criticalSuccessFailureTracks: "criticalSuccessFailureTracks",
+            createCriticalFailurePlaylist: "createFailurePlaylist"
         }
     }
 

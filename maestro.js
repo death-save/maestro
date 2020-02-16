@@ -3,7 +3,7 @@ import CombatTrack from "./modules/combat-track.js";
 import HypeTrack from "./modules/hype-track.js";
 import ItemTrack from "./modules/item-track.js";
 import { migrationHandler } from "./modules/migration.js";
-import { _addPlaylistLoopToggle, _onPreUpdatePlaylistSound } from "./modules/misc.js";
+import * as Misc from "./modules/misc.js";
 import { registerModuleSettings } from "./modules/settings.js";
 
 /**
@@ -47,6 +47,9 @@ export default class Conductor {
                 game.maestro.combatTrack._checkForCombatTracksPlaylist();
             }
 
+            Misc._checkForCriticalPlaylist();
+            Misc._checkForFailurePlaylist();
+
             //Set a timeout to allow the sheets to register correctly before we try to hook on them
             window.setTimeout(Conductor._readyHookRegistrations, 500);
             //Conductor._readyHookRegistrations();
@@ -71,20 +74,20 @@ export default class Conductor {
      * Ready Hook Registrations
      */
     static _readyHookRegistrations() {
-        //Sheet/App Render Hooks
+        // Sheet/App Render Hooks
         Conductor._hookOnRenderActorSheet();
         Conductor._hookOnRenderItemSheet();
-        
         Conductor._hookOnRenderChatMessage();
 
-        
+        // Pre-Create Hooks
+        Conductor._hookOnPreCreateChatMessage();
 
-        //Pre-update Hooks
+        // Pre-update Hooks
         Conductor._hookOnPreUpdatePlaylistSound();
         Conductor._hookOnPreUpdatePlaylist();
         Conductor._hookOnPreUpdateCombat();
 
-        //Update Hooks
+        // Update Hooks
         Conductor._hookOnUpdateCombat();
         //Conductor._hookOnUpdatePlaylist();
 
@@ -107,7 +110,7 @@ export default class Conductor {
      */
     static _hookOnPreUpdatePlaylistSound() {
         Hooks.on("preUpdatePlaylistSound", (playlist, playlistId, update) => {
-            _onPreUpdatePlaylistSound(playlist, update);
+            Misc._onPreUpdatePlaylistSound(playlist, update);
         });
     }
 
@@ -116,7 +119,7 @@ export default class Conductor {
      */
     static _hookOnPreCreateChatMessage() {
         Hooks.on("preCreateChatMessage", (messages, update, options) => {
-            _onPreCreateChatMessage(messages, update, options);
+            Misc._onPreCreateChatMessage(messages, update, options);
         });
     }
 
@@ -168,6 +171,7 @@ export default class Conductor {
     static _hookOnRenderChatMessage() {
         Hooks.on("renderChatMessage", (message, html, data) => {
             game.maestro.itemTrack.chatMessageHandler(message, html, data);
+            Misc._onRenderChatMessage(message, html, data);
         })
     }
 
@@ -176,7 +180,7 @@ export default class Conductor {
      */
     static _hookOnRenderPlaylistDirectory() {
         Hooks.on("renderPlaylistDirectory", (app, html, data) => {
-            _addPlaylistLoopToggle(app, html, data);
+            Misc._onRenderPlaylistDirectory(app, html, data);
         });
     }
 

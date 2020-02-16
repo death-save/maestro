@@ -1,4 +1,5 @@
 import * as MAESTRO from "./config.js";
+import * as Playback from "./playback.js";
 
 export default class HypeTrack {
     constructor() {
@@ -50,7 +51,7 @@ export default class HypeTrack {
         }
 
         this.playlist.stopAll();
-        this._playTrack(actorTrack);
+        Playback.playTrack(actorTrack);
     }
     
 
@@ -145,22 +146,6 @@ export default class HypeTrack {
         }
         new HypeTrackActorForm(actor, data, options).render(true);
     }
-
-    /**
-     * Returns a sound object for a given id
-     * @param {String} trackId 
-     */
-    _getPlaylistSound(trackId) {
-        return this.playlist.sounds.find(s => s._id == trackId);
-    }
-
-    /**
-     * Plays a sound based on the id
-     * @param {*} trackId 
-     */
-    async _playTrack(trackId) {
-        await this.playlist.updateEmbeddedEntity("PlaylistSound", {_id: trackId, playing: true});
-    }
 }
 
 /**
@@ -190,11 +175,10 @@ class HypeTrackActorForm extends FormApplication {
      * Provide data to the handlebars template
      */
     async getData() {
-        const data = {
+        return {
             playlistTracks: this.data.playlist.sounds,
             track: this.data.track
         }
-        return data;
     }
 
     /**
