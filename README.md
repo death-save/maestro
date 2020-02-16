@@ -17,7 +17,7 @@ Adds some sound-focused features to Foundry Virtual Tabletop!
 * **Hype Track** - Set a track to play each time that Actor has a turn in Combat
 * **Item Track** - Set a track to play when that Item is rolled
 * **Combat Track** - Set a playlist or track to play when the Combat encounter begins
-* **Miscellaneous** - Playlist loop toggling, disable dice sound setting
+* **Miscellaneous** - Playlist loop toggling, disable dice sound setting, critical/failure sounds
 
 * **DEPRECATED Scene Playlist** - DEPRECATED -- Use native Foundry functionality instead ~~Select a playlist to play automatically when the Scene is activated~~.
 
@@ -55,3 +55,5 @@ Click the Sponsor button at the top of the Github repo!
 
 ## Attributions
 **Formerly Featured code by**: KaKaRoTo#4756
+Critical sound: "Ta da" by Mike Koenig http://soundbible.com/1003-Ta-Da.html
+Failure sound: "Cartoon fail or sad trumpet 2" from https://zapsplat.com
