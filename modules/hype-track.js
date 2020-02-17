@@ -47,11 +47,11 @@ export default class HypeTrack {
         const actorTrack = await this._getActorHypeTrack(combat.combatant.actor);
 
         if (!actorTrack) {
-            return;
+            return this.playlist.stopAll();
         }
 
-        this.playlist.stopAll();
-        Playback.playTrack(actorTrack);
+        await this.playlist.stopAll();
+        Playback.playTrack(actorTrack, this.playlist._id);
     }
     
 
