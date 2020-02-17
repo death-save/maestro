@@ -1,8 +1,12 @@
 # Changelog
 
 ## [Unreleased]
-- ~~Critical hit sounds~~
 - Soundboard for SFX
+- Possible support for external audio services (YouTube etc)
+
+## [0.5.5] - 2020-02-17
+## Changed
+- Fixed an issue with Hype Tracks not playing
 
 ## [0.5.4] - 2020-02-15
 ## Added
