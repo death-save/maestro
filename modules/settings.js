@@ -133,8 +133,8 @@ export const registerModuleSettings = function() {
     }),
 
     game.settings.register(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.Misc.createCriticalSuccessPlaylist, {
-        name: "SETTINGS.CreateCriticalPlaylistN",
-        hint: "SETTINGS.CreateCriticalPlaylistH",
+        name: "SETTINGS.CreateCriticalSuccessPlaylistN",
+        hint: "SETTINGS.CreateCriticalSuccessPlaylistH",
         scope: "world",
         type: Boolean,
         default: false,
@@ -149,8 +149,8 @@ export const registerModuleSettings = function() {
     }),
 
     game.settings.register(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.Misc.createCriticalFailurePlaylist, {
-        name: "SETTINGS.CreateFailurePlaylistN",
-        hint: "SETTINGS.CreateFailurePlaylistH",
+        name: "SETTINGS.CreateCriticalFailurePlaylistN",
+        hint: "SETTINGS.CreateCriticalFailurePlaylistH",
         scope: "world",
         type: Boolean,
         default: false,
