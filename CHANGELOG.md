@@ -4,7 +4,7 @@
 - Soundboard for SFX
 - Possible support for external audio services (YouTube etc)
 
-## [0.6.2] - 2020-02-17
+## [0.6.2] - 2020-02-24
 ### Changed
 - Revised versioning for Critical Success/Failure tracks release
 
