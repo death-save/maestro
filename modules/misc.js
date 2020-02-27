@@ -240,10 +240,11 @@ export function _onRenderChatMessage(message, html, data) {
 
 /**
  * Play a sound for critical success or failure on d20 rolls
+ * Adapted from highlightCriticalSuccessFailure in the dnd5e system
  * @param {*} message
  */
 function playCriticalSuccessFailure(message) {
-    if ( !message.isRoll || !message.isRollVisible || !message.roll.parts.length ) return;
+    if ( !game.user.isGM || !message.isRoll || !message.isRollVisible || !message.roll.parts.length ) return;
   
     // Evaluate rolls where the first part is a d20 roll
     let d = message.roll.parts[0];

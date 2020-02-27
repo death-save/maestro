@@ -5,6 +5,10 @@
 - Possible support for external audio services (YouTube etc)
 
 ## [0.6.2] - 2020-02-24
+### Fixed
+- Critical Success/Failure no longer throws an error for non-GM users
+
+## [0.6.2] - 2020-02-24
 ### Changed
 - Revised versioning for Critical Success/Failure tracks release
 
