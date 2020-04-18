@@ -4,6 +4,10 @@
 - Soundboard for SFX
 - Possible support for external audio services (YouTube etc)
 
+## [0.6.4] - 2020-04-18
+### Fixed
+- Migration no longer fails to set the new migration version in Foundry v0.5.2+
+
 ## [0.6.3] - 2020-02-24
 ### Fixed
 - Critical Success/Failure no longer throws an error for non-GM users
