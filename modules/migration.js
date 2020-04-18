@@ -36,7 +36,7 @@ export function migrationHandler() {
         ui.notifications.info(migrationEndMessage);
     }
 
-    game.settings.set(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.Migration.currentVersion, game.modules.find(m => m.id === MAESTRO.MODULE_NAME).data.version);
+    game.settings.set(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.Migration.currentVersion, game.modules.get(MAESTRO.MODULE_NAME).data.version);
 }
 
 // Migrate playlists on scenes to the new core playlist
