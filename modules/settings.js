@@ -11,11 +11,11 @@ export const registerModuleSettings = function() {
         default: false,
         config: true,
         onChange: s => {
-            if (!game.maestro.HypeTrack) {
+            if (!game.maestro.hypeTrack) {
                 return;
             }
 
-            game.maestro.HypeTrack._checkForHypeTracksPlaylist();
+            game.maestro.hypeTrack._checkForHypeTracksPlaylist();
         }
     }),
 
