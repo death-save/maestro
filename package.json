@@ -1,0 +1,26 @@
+{
+  "name": "maestro",
+  "version": "0.6.5",
+  "description": "Adds new audio features to Foundry VTT",
+  "main": "maestro.js",
+  "dependencies": {
+    "eslint": "^6.8.0",
+    "fluent-ffmpeg": "^2.1.2"
+  },
+  "devDependencies": {
+    "foundry-pc-types": "gitlab:foundry-projects/foundry-pc/foundry-pc-types"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/death-save/maestro.git"
+  },
+  "author": "Evan Clarke",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/death-save/maestro/issues"
+  },
+  "homepage": "https://github.com/death-save/maestro#readme"
+}
