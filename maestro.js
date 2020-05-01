@@ -101,7 +101,7 @@ export default class Conductor {
      * PreUpdate Playlist Hook
      */
     static _hookOnPreUpdatePlaylist() {
-        Hooks.on("preUpdatePlaylist", (playlist, update) => {
+        Hooks.on("preUpdatePlaylist", (playlist, update, options, userId) => {
         });
     }
 
@@ -109,7 +109,7 @@ export default class Conductor {
      * PreUpdate Playlist Sound Hook
      */
     static _hookOnPreUpdatePlaylistSound() {
-        Hooks.on("preUpdatePlaylistSound", (playlist, playlistId, update) => {
+        Hooks.on("preUpdatePlaylistSound", (playlist, sound, update, options, userId) => {
             Misc._onPreUpdatePlaylistSound(playlist, update);
         });
     }
@@ -118,8 +118,8 @@ export default class Conductor {
      * PreCreate Chat Message Hook
      */
     static _hookOnPreCreateChatMessage() {
-        Hooks.on("preCreateChatMessage", (messages, update, options) => {
-            Misc._onPreCreateChatMessage(messages, update, options);
+        Hooks.on("preCreateChatMessage", (message, options, userId) => {
+            Misc._onPreCreateChatMessage(message, options);
         });
     }
 
@@ -136,7 +136,7 @@ export default class Conductor {
      * Update Combat Hook
      */
     static _hookOnUpdateCombat() {
-        Hooks.on("updateCombat", (combat, update) => {
+        Hooks.on("updateCombat", (combat, update, options, userId) => {
             //game.maestro.combatTrack._checkCombatTrack(combat, update);
             game.maestro.hypeTrack._checkHype(combat, update);
         });
@@ -146,7 +146,7 @@ export default class Conductor {
      * Delete Combat Hook
      */
     static _hookOnDeleteCombat() {
-        Hooks.on("deleteCombat", (combat, combatId, options, userId) => {
+        Hooks.on("deleteCombat", (combat, options, userId) => {
             game.maestro.combatTrack._stopCombatTrack(combat);
         });
     }

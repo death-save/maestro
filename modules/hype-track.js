@@ -40,18 +40,20 @@ export default class HypeTrack {
      * @param {Object} combat - the combat instance
      * @param {*} update - the update data
      */
-    async _checkHype(combat, update) {
+    async _processHype(combat, update) {
         if (!game.user.isGM || !Number.isNumeric(update.turn) || !combat.combatants.length) {
             return;
         }
-        const actorTrack = await this._getActorHypeTrack(combat.combatant.actor);
 
-        if (!actorTrack) {
-            return this.playlist.stopAll();
-        }
+        const actorTrack = this._getActorHypeTrack(combat.combatant.actor);
 
         await this.playlist.stopAll();
-        Playback.playTrack(actorTrack, this.playlist._id);
+
+        if (actorTrack) {
+            Playback.playTrack(actorTrack, this.playlist._id);
+        }
+
+        return;
     }
     
 
@@ -60,11 +62,11 @@ export default class HypeTrack {
      * @param {*} actor
      * 
      */
-    async _getActorHypeTrack(actor) {
+    _getActorHypeTrack(actor) {
         let actorTrack;
 
         try {
-            actorTrack = await actor.getFlag(MAESTRO.MODULE_NAME, MAESTRO.DEFAULT_CONFIG.HypeTrack.flagNames.track);
+            actorTrack = actor.getFlag(MAESTRO.MODULE_NAME, MAESTRO.DEFAULT_CONFIG.HypeTrack.flagNames.track);
             return actorTrack;
         } catch (e) {
             console.log(e);
@@ -98,6 +100,7 @@ export default class HypeTrack {
         if (!enabled) {
             return;
         }
+
         /**
          * Hype Button html literal
          * @todo replace with a template instead
@@ -127,8 +130,8 @@ export default class HypeTrack {
         /**
          * Register a click listener that opens the Hype Track form
          */
-        hypeButton.click(async ev => {
-            const actorTrack = await this._getActorHypeTrack(app.entity);
+        hypeButton.click(ev => {
+            const actorTrack = this._getActorHypeTrack(app.entity);
             this._openTrackForm(app.entity, actorTrack, {closeOnSubmit: true});
         });
     }

@@ -216,11 +216,11 @@ export function _onPreUpdatePlaylistSound(playlist, update) {
 /**
  * PreCreate Chat Message handler
  */
-export function _onPreCreateChatMessage(messages, update, options) {
+export function _onPreCreateChatMessage(message, options, userId) {
     const removeDiceSound = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.Misc.disableDiceSound);
 
-    if (removeDiceSound && (update.sound && update.sound === "sounds/dice.wav")) {
-        update.sound = "";
+    if (removeDiceSound && (message.sound && message.sound === "sounds/dice.wav")) {
+        message.sound = "";
     }
 }
 

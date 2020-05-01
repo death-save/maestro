@@ -4,6 +4,13 @@
 - Soundboard for SFX
 - Possible support for external audio services (YouTube etc)
 
+## [0.6.5] - 2020-04-26
+## Changed
+- Refactored hooks to use new structure
+
+## Fixed
+- Fixed bug where Hype Tracks could not be created/set when first enabled
+
 ## [0.6.4] - 2020-04-18
 ### Fixed
 - Migration no longer fails to set the new migration version in Foundry v0.5.2+
