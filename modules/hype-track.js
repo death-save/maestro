@@ -4,22 +4,23 @@ import * as Playback from "./playback.js";
 export default class HypeTrack {
     constructor() {
         this.playlist = null;
+        this.pausedSounds = [];
     }
 
     /**
      * Checks for the presence of the Hype Tracks playlist, creates one if none exist
      */
-    _checkForHypeTracksPlaylist() {
+    async _checkForHypeTracksPlaylist() {
         const enabled = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.HypeTrack.enable);
-        if(!game.user.isGM || !enabled) {
+        if(!enabled) {
             return;
         } 
 
         const hypePlaylist = game.playlists.entities.find(p => p.name == MAESTRO.DEFAULT_CONFIG.HypeTrack.playlistName);
-        if(!hypePlaylist) {
-            this.playlist = this._createHypeTracksPlaylist(true);
+        if(!hypePlaylist && game.user.isGM) {
+            this.playlist = await this._createHypeTracksPlaylist(true);
         } else {
-            this.playlist = hypePlaylist;
+            this.playlist = hypePlaylist || null;
         }
     }
 
@@ -41,19 +42,47 @@ export default class HypeTrack {
      * @param {*} update - the update data
      */
     async _processHype(combat, update) {
-        if (!game.user.isGM || !Number.isNumeric(update.turn) || !combat.combatants.length) {
+        if (!game.user.isGM || !Number.isNumeric(update.turn) || !combat.combatants.length || !this.playlist) {
             return;
         }
 
-        const actorTrack = this._getActorHypeTrack(combat.combatant.actor);
-
-        await this.playlist.stopAll();
-
-        if (actorTrack) {
-            Playback.playTrack(actorTrack, this.playlist._id);
+        // Stop any active hype tracks
+        if (this?.playlist?.playing) {
+            this.playlist.stopAll();
         }
 
-        return;
+        // Find the hype track
+        const hypeTrack = this._getActorHypeTrack(combat.combatant.actor);
+        const pauseOthers = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.HypeTrack.pauseOthers);
+
+        if (!hypeTrack) {
+            if (this.pausedSounds.length) {
+                // Resume any previously paused sounds
+                Playback.resumeSounds(this.pausedSounds);
+                this.pausedSounds = [];
+            }
+            
+            return;
+        }
+
+        if (pauseOthers) {
+            // pause active playlists
+            this.pausedSounds = Playback.pauseAll();
+        }
+        
+
+        // Find the hype track's playlist sound and play it
+        const hypeTrackSound = this.playlist.sounds.find(s => s._id === hypeTrack);
+        await this.playHype(combat.combatant.actor, {warn: false});
+        const howl = game.audio.sounds[hypeTrackSound.path].howl;
+
+        if (this.pausedSounds.length) {
+                // Defer the resumption of paused sounds after hype track finishes
+            howl.on("end", () => {
+                Playback.resumeSounds(this.pausedSounds);
+                this.pausedSounds = [];
+            });
+        }
     }
     
 
@@ -95,6 +124,10 @@ export default class HypeTrack {
      * @param {Object} data 
      */
     async _addHypeButton (app, html, data) {
+        if(!game.user.isGM && !app?.entity?.owner) {
+            return;
+        }
+
         const enabled = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.HypeTrack.enable);
 
         if (!enabled) {
@@ -148,6 +181,57 @@ export default class HypeTrack {
             "playlist": this.playlist
         }
         new HypeTrackActorForm(actor, data, options).render(true);
+    }
+
+    /**
+     * Plays a hype track for the provided actor
+     * @param {*} actor 
+     */
+    async playHype(actor, {warn=true, pauseOthers=false}={}) {
+        if (typeof(actor) === "string") {
+            actor = game.actors.getName(actor) || null;
+        } else if (actor instanceof Object) {
+            actor = game.actors.getName(actor.name) || null;
+        }
+
+        if (!actor) {
+            if (warn) ui.notifications.warn(game.i18n.localize("HYPE-TRACK.PlayHype.NoActor"));
+            return;
+        }
+
+        const hypeTrack = this._getActorHypeTrack(actor);
+
+        if (!hypeTrack) {
+            if (warn) ui.notifications.warn(game.i18n.localize("HYPE-TRACK.PlayHype.NoTrack"));
+            return;
+        }
+
+        const playlist = this.playlist || game.playlists.entities.find(p => p.name === MAESTRO.DEFAULT_CONFIG.HypeTrack.playlistName || p.sounds.find(s => s._id === hypeTrack)) || null;
+
+        if (!playlist) {
+            if (warn) ui.notifications.warn(game.i18n.localize("HYPE-TRACK.PlayHype.NoPlaylist"));
+        }
+
+        if (playlist.playing) {
+            await playlist.stopAll();
+        }
+
+        let pausedSounds = [];
+
+        if (pauseOthers) {
+            pausedSounds = Playback.pauseAll();
+        }
+
+        const playedTrack = await Playback.playTrack(hypeTrack, playlist.id);
+
+        if (pauseOthers && pausedSounds.length) {
+            const playlistSound = playlist.sounds.find(s => s._id === playedTrack._id);
+            const howl = game.audio.sounds[playlistSound.path].howl;
+
+            howl.on("end", () => Playback.resumeSounds(pausedSounds));
+        }
+
+        return playedTrack;
     }
 }
 

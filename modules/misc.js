@@ -31,7 +31,7 @@ function _addMaestroConfig(html) {
     });
 }
 
-class MaestroConfigForm extends FormApplication {
+export class MaestroConfigForm extends FormApplication {
     constructor(data, options) {
         super(data, options);
         this.data = data;
@@ -327,4 +327,3 @@ async function _createFailurePlaylist(create) {
     }
     return await Playlist.create({"name": MAESTRO.DEFAULT_CONFIG.Misc.criticalFailurePlaylistName});
 }
-
