@@ -54,6 +54,12 @@ export class MaestroConfigForm extends FormApplication {
      * Provide data to the template
      */
     getData() {
+        const criticalSuccessFailureTracks = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.Misc.criticalSuccessFailureTracks);
+
+        if (!this.data && criticalSuccessFailureTracks) {
+            this.data = criticalSuccessFailureTracks;
+        }
+        
         return {
             playlists: game.playlists.entities,
             criticalSuccessPlaylist: this.data.criticalSuccessPlaylist,
