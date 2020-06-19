@@ -6,6 +6,14 @@
 - Pausing functionality in native Foundry playlist controls
 - Pausing functionality for Combat Tracks
 
+## [0.7.1] - 2020-06-19
+## Added
+- 한국어 (Korean) translation (thanks KLO!)
+
+## Fixed
+- Fixed bug where Combat Tracks playlist was not created when first enabled
+- Maestro additional config now opens from the Module Settings menu
+
 ## [0.7.0] - 2020-06-19
 ## Added
 - New macro methods:
