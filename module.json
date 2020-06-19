@@ -18,6 +18,11 @@
         "lang": "ja",
         "name": "日本語",
         "path": "lang/ja.json"
+      },
+      {
+        "lang": "ko",
+        "name": "한국어",
+        "path": "lang/ko.json"
       }
     ],
     "manifest":"https://raw.githubusercontent.com/death-save/maestro/master/module.json",
