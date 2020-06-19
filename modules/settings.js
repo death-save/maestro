@@ -57,11 +57,11 @@ export const registerModuleSettings = function() {
         default: false,
         config: true,
         onChange: s => {
-            if (!game.maestro.ItemTrack) {
+            if (!game.maestro.itemTrack) {
                 return;
             }
 
-            game.maestro.ItemTrack._checkForItemTracksPlaylist();
+            game.maestro.itemTrack._checkForItemTracksPlaylist();
         }
     }),
 
