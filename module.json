@@ -3,9 +3,9 @@
     "title":"Maestro",
     "description":"Adds new sound-related features such as Hype Tracks, and Item Tracks",
     "author":"Evan Clarke (errational#2007)",
-    "version":"0.6.5",
+    "version":"0.7.0",
     "minimumCoreVersion":"0.5.7",
-    "compatibleCoreVersion":"0.6.2",
+    "compatibleCoreVersion":"0.6.3",
     "esmodules":["./maestro.js"],
     "styles": ["./maestro.css"],
     "languages": [
