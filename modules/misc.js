@@ -31,7 +31,7 @@ function _addMaestroConfig(html) {
     });
 }
 
-class MaestroConfigForm extends FormApplication {
+export class MaestroConfigForm extends FormApplication {
     constructor(data, options) {
         super(data, options);
         this.data = data;
@@ -216,11 +216,11 @@ export function _onPreUpdatePlaylistSound(playlist, update) {
 /**
  * PreCreate Chat Message handler
  */
-export function _onPreCreateChatMessage(messages, update, options) {
+export function _onPreCreateChatMessage(message, options, userId) {
     const removeDiceSound = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.Misc.disableDiceSound);
 
-    if (removeDiceSound && (update.sound && update.sound === "sounds/dice.wav")) {
-        update.sound = "";
+    if (removeDiceSound && (message.sound && message.sound === "sounds/dice.wav")) {
+        message.sound = "";
     }
 }
 
@@ -244,14 +244,16 @@ export function _onRenderChatMessage(message, html, data) {
  * @param {*} message
  */
 function playCriticalSuccessFailure(message) {
-    if ( !game.user.isGM || !message.isRoll || !message.isRollVisible || !message.roll.parts.length ) return;
+    if ( !game.user.isGM || !message.isRoll || !message.isContentVisible || !message.roll.parts.length ) return;
   
-    // Evaluate rolls where the first part is a d20 roll
-    let d = message.roll.parts[0];
-    const isD20Roll = d instanceof Die && (d.faces === 20) && (d.results.length === 1);
-    if ( !isD20Roll ) return;
-  
-    // Ensure it is not a modified roll
+    // Highlight rolls where the first part is a d20 roll
+    const roll = message.roll;
+    if ( !roll.dice.length ) return;
+    const d = roll.dice[0];
+
+    // Ensure it is an un-modified d20 roll
+    const isD20 = (d.faces === 20) && ( d.results.length === 1 );
+    if ( !isD20 ) return;
     const isModifiedRoll = ("success" in d.rolls[0]) || d.options.marginSuccess || d.options.marginFailure;
     if ( isModifiedRoll ) return;
 
@@ -263,9 +265,9 @@ function playCriticalSuccessFailure(message) {
     const criticalFailureSound = criticalSuccessFailureTracks.criticalFailureSound;
        
     // Play relevant sound for successes and failures
-    if ((d.total >= (d.options.critical || 20)) && (criticalSuccessPlaylist && criticalSuccessSound)) {
+    if ((d.options.critical && (d.total >= d.options.critical)) && (criticalSuccessPlaylist && criticalSuccessSound)) {
         Playback.playTrack(criticalSuccessSound, criticalSuccessPlaylist);
-    } else if ((d.total <= (d.options.fumble || 1)) && (criticalFailurePlaylist && criticalFailureSound)) {
+    } else if ((d.options.fumble && (d.total <= d.options.fumble)) && (criticalFailurePlaylist && criticalFailureSound)) {
         Playback.playTrack(criticalFailureSound, criticalFailurePlaylist)
     }
 }
@@ -327,4 +329,3 @@ async function _createFailurePlaylist(create) {
     }
     return await Playlist.create({"name": MAESTRO.DEFAULT_CONFIG.Misc.criticalFailurePlaylistName});
 }
-

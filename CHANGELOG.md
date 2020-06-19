@@ -2,7 +2,31 @@
 
 ## [Unreleased]
 - Soundboard for SFX
-- Possible support for external audio services (YouTube etc)
+- ~~Possible support for external audio services (YouTube etc)~~ see the MusicAssist module instead
+- Pausing functionality in native Foundry playlist controls
+- Pausing functionality for Combat Tracks
+
+## [0.7.0] - 2020-06-19
+## Added
+- New macro methods:
+- - `game.maestro.findSound` finds a playlist sound by its name or path
+- - `game.maestro.playByName` allows playing a playlist sound using its name (best effort)
+- - `game.maestro.pause` pauses one or many sounds (or names of sounds)
+- - `game.maestro.pauseAll` pauses all active playlist sounds
+- - `game.maestro.resume` resumes playing one or many sounds
+- - `game.maestro.playHype` play an actor's hype track
+- New setting to allow Hype Tracks to pause other playing sounds (disabled by default) -- paused sounds will resume when the Hype Track finishes
+
+## Changed
+- Players can now set **Hype Tracks** for Actors they own
+- Refactored hooks to use new structure
+- Certify compatibility with Foundry VTT 0.6.3
+- Maestro Config is now also available in Module Settings
+
+## Fixed
+- Fixed bug where Hype Tracks could not be created/set when first enabled
+- Fixed bug where Hype Tracks playlist was not created when first enabled
+- Fixed bug where Item Tracks playlist was not created when first enabled
 
 ## [0.6.4] - 2020-04-18
 ### Fixed

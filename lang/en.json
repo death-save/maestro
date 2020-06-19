@@ -5,6 +5,8 @@
 
     "SETTINGS.HypeTrackEnableN": "Enable Hype Track",
     "SETTINGS.HypeTrackEnableH": "Enable the ability to set a Track for an Actor",
+    "SETTINGS.HypeTrackPauseOthersN": "Pause Other Playlist Sounds",
+    "SETTINGS.HypeTrackPauseOthersH": "Select to pause other Sounds (eg. music) while Hype Track is playing",
     "SETTINGS.ItemTrackEnableN": "Enable Item Track",
     "SETTINGS.ItemTrackEnableH": "Assign a track/playlist to be played when item is rolled",
     "SETTINGS.ItemTrackCreatePlaylistN": "Create Item Tracks Playlist",
@@ -29,6 +31,8 @@
     "SETTINGS.CriticalSuccessFailureTracksH": "Object containing the playlists and sounds for Critical Success/Failure",
     "SETTINGS.CreateCriticalFailurePlaylistN": "Create Critical Failure Tracks Playlist",
     "SETTINGS.CreateCriticalFailurePlaylistH": "Creates a playlist for Failure Sounds when enabled",
+    "SETTINGS.Config.ButtonN": "Maestro Config",
+    "SETTINGS.Config.ButtonH": "Additional Maestro Settings",
 
     "MAESTRO-CONFIG.CriticalSuccessFailureHeading": "Critical Success/Failure Tracks",
     "MAESTRO-CONFIG.CriticalSuccessPlaylist": "Critical Success Playlist",

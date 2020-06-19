@@ -7,6 +7,7 @@ import * as Playback from "./playback.js";
 export default class CombatTrack {
     constructor() {
         this.playlist = null;
+        this.pausedSounds = [];
     }
 
     /**
@@ -61,6 +62,10 @@ export default class CombatTrack {
 
         const playlist = flags ? flags.playlist : defaultPlaylist ? defaultPlaylist : "";
         const track = flags ? flags.track : defaultTrack ? defaultTrack : "";
+
+        if (!playlist) {
+            return;
+        }
         
         // Depending on the track flag determine how and what to play
         switch (track) {
@@ -118,7 +123,7 @@ export default class CombatTrack {
             }
         });
 
-        await playlist.updateManyEmbeddedEntities("PlaylistSound", updates);
+        await playlist.updateEmbeddedEntity("PlaylistSound", updates);
         ui.playlists.render();
 
         

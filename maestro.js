@@ -4,6 +4,7 @@ import HypeTrack from "./modules/hype-track.js";
 import ItemTrack from "./modules/item-track.js";
 import { migrationHandler } from "./modules/migration.js";
 import * as Misc from "./modules/misc.js";
+import * as Playback from "./modules/playback.js";
 import { registerModuleSettings } from "./modules/settings.js";
 
 /**
@@ -21,6 +22,7 @@ export default class Conductor {
     static async _hookOnInit() {
         Hooks.on("init", () =>{
             game.maestro = {};
+            registerModuleSettings();
             Conductor._initHookRegistrations();
         });
     }
@@ -37,6 +39,9 @@ export default class Conductor {
 
             if (game.maestro.hypeTrack) {
                 game.maestro.hypeTrack._checkForHypeTracksPlaylist();
+
+                // Hype Track Macro methods
+                game.maestro.playHype = game.maestro.hypeTrack.playHype.bind(game.maestro.hypeTrack);
             }
 
             if (game.maestro.itemTrack) {
@@ -49,6 +54,13 @@ export default class Conductor {
 
             Misc._checkForCriticalPlaylist();
             Misc._checkForFailurePlaylist();
+
+            // Macros/external methods
+            game.maestro.pause = Playback.pauseSounds;
+            game.maestro.playByName = Playback.playSoundByName;
+            game.maestro.findSound = Playback.findPlaylistSound;
+            game.maestro.pauseAll = Playback.pauseAll;
+            game.maestro.resume = Playback.resumeSounds;
 
             //Set a timeout to allow the sheets to register correctly before we try to hook on them
             window.setTimeout(Conductor._readyHookRegistrations, 500);
@@ -65,7 +77,6 @@ export default class Conductor {
      * Init Hook Registrations
      */
     static _initHookRegistrations() {
-        registerModuleSettings();
         Conductor._hookOnRenderPlaylistDirectory();
         Conductor._hookOnRenderCombatTracker();
     }
@@ -101,7 +112,7 @@ export default class Conductor {
      * PreUpdate Playlist Hook
      */
     static _hookOnPreUpdatePlaylist() {
-        Hooks.on("preUpdatePlaylist", (playlist, update) => {
+        Hooks.on("preUpdatePlaylist", (playlist, update, options, userId) => {
         });
     }
 
@@ -109,7 +120,7 @@ export default class Conductor {
      * PreUpdate Playlist Sound Hook
      */
     static _hookOnPreUpdatePlaylistSound() {
-        Hooks.on("preUpdatePlaylistSound", (playlist, playlistId, update) => {
+        Hooks.on("preUpdatePlaylistSound", (playlist, sound, update, options, userId) => {
             Misc._onPreUpdatePlaylistSound(playlist, update);
         });
     }
@@ -118,8 +129,8 @@ export default class Conductor {
      * PreCreate Chat Message Hook
      */
     static _hookOnPreCreateChatMessage() {
-        Hooks.on("preCreateChatMessage", (messages, update, options) => {
-            Misc._onPreCreateChatMessage(messages, update, options);
+        Hooks.on("preCreateChatMessage", (message, options, userId) => {
+            Misc._onPreCreateChatMessage(message, options);
         });
     }
 
@@ -136,9 +147,9 @@ export default class Conductor {
      * Update Combat Hook
      */
     static _hookOnUpdateCombat() {
-        Hooks.on("updateCombat", (combat, update) => {
+        Hooks.on("updateCombat", (combat, update, options, userId) => {
             //game.maestro.combatTrack._checkCombatTrack(combat, update);
-            game.maestro.hypeTrack._checkHype(combat, update);
+            game.maestro.hypeTrack._processHype(combat, update);
         });
     }
 
@@ -146,7 +157,7 @@ export default class Conductor {
      * Delete Combat Hook
      */
     static _hookOnDeleteCombat() {
-        Hooks.on("deleteCombat", (combat, combatId, options, userId) => {
+        Hooks.on("deleteCombat", (combat, options, userId) => {
             game.maestro.combatTrack._stopCombatTrack(combat);
         });
     }
@@ -155,10 +166,6 @@ export default class Conductor {
      * Render Actor SheetsHook
      */
     static _hookOnRenderActorSheet() {
-        if(!game.user.isGM) {
-            return;
-        }
-
         Hooks.on("renderActorSheet", (app, html, data) => {
             game.maestro.hypeTrack._addHypeButton(app, html, data);
         });

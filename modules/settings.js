@@ -1,7 +1,11 @@
 import * as MAESTRO from "./config.js";
-import { _checkForCriticalPlaylist, _checkForFailurePlaylist } from "./misc.js";
+import { _checkForCriticalPlaylist, _checkForFailurePlaylist, MaestroConfigForm } from "./misc.js";
 
 export const registerModuleSettings = function() {
+
+    /* -------------------------------------------- */
+    /*                  Hype Track                  */
+    /* -------------------------------------------- */
 
     game.settings.register(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.HypeTrack.enable, {
         name: "SETTINGS.HypeTrackEnableN",
@@ -10,14 +14,28 @@ export const registerModuleSettings = function() {
         type: Boolean,
         default: false,
         config: true,
-        onChange: s => {
-            if (!game.maestro.HypeTrack) {
+        onChange: async s => {
+            if (!game.maestro.hypeTrack) {
                 return;
             }
 
-            game.maestro.HypeTrack._checkForHypeTracksPlaylist();
+            await game.maestro.hypeTrack._checkForHypeTracksPlaylist();
         }
     }),
+
+    game.settings.register(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.HypeTrack.pauseOthers, {
+        name: "SETTINGS.HypeTrackPauseOthersN",
+        hint: "SETTINGS.HypeTrackPauseOthersH",
+        scope: "world",
+        type: Boolean,
+        default: false,
+        config: true,
+        onChange: async s => {}
+    }),
+
+    /* -------------------------------------------- */
+    /*                  Item Track                  */
+    /* -------------------------------------------- */
 
     game.settings.register(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.ItemTrack.enable, {
         name: "SETTINGS.ItemTrackEnableN",
@@ -39,13 +57,17 @@ export const registerModuleSettings = function() {
         default: false,
         config: true,
         onChange: s => {
-            if (!game.maestro.ItemTrack) {
+            if (!game.maestro.itemTrack) {
                 return;
             }
 
-            game.maestro.ItemTrack._checkForItemTracksPlaylist();
+            game.maestro.itemTrack._checkForItemTracksPlaylist();
         }
     }),
+
+    /* -------------------------------------------- */
+    /*                 Combat Track                 */
+    /* -------------------------------------------- */
 
     game.settings.register(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.CombatTrack.enable, {
         name: "SETTINGS.CombatTrackEnableN",
@@ -97,6 +119,10 @@ export const registerModuleSettings = function() {
         }
     }),
 
+    /* -------------------------------------------- */
+    /*                   Migration                  */
+    /* -------------------------------------------- */
+
     game.settings.register(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.Migration.currentVersion, {
         name: "SETTINGS.MigrateCurrentVersionN",
         hint: "SETTINGS.MigrateCurrentVersionH",
@@ -107,6 +133,10 @@ export const registerModuleSettings = function() {
 
         }
     }),
+
+    /* -------------------------------------------- */
+    /*                     Misc                     */
+    /* -------------------------------------------- */
 
     game.settings.register(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.Misc.disableDiceSound, {
         name: "SETTINGS.DisableDiceSoundN",
@@ -179,5 +209,14 @@ export const registerModuleSettings = function() {
         onChange: s => {
 
         }
+    }),
+
+    game.settings.registerMenu(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.Misc.maestroConfigMenu,{
+        name: "SETTINGS.Config.ButtonN",
+        label: MAESTRO.DEFAULT_CONFIG.Misc.maestroConfigTitle,
+        hint: "SETTINGS.Config.ButtonH",
+        icon: "fas fa-cog",
+        type: MaestroConfigForm,
+        restricted: true
     })
 }

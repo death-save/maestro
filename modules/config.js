@@ -106,7 +106,8 @@ export const SETTINGS_KEYS = {
 
     get HypeTrack() {
         return {
-            enable: "enableHypeTrack"
+            enable: "enableHypeTrack",
+            pauseOthers: "hypeTrackPauseOthers"
         }
     },
 
@@ -131,7 +132,8 @@ export const SETTINGS_KEYS = {
             enableCriticalSuccessFailureTracks: "enableCriticalSuccessFailureTracks",
             createCriticalSuccessPlaylist: "createCriticalSuccessPlaylist",
             criticalSuccessFailureTracks: "criticalSuccessFailureTracks",
-            createCriticalFailurePlaylist: "createFailurePlaylist"
+            createCriticalFailurePlaylist: "createFailurePlaylist",
+            maestroConfigMenu: "maestroConfigMenu"
         }
     }
 
