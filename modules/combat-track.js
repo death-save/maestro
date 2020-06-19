@@ -123,7 +123,7 @@ export default class CombatTrack {
             }
         });
 
-        await playlist.updateManyEmbeddedEntities("PlaylistSound", updates);
+        await playlist.updateEmbeddedEntity("PlaylistSound", updates);
         ui.playlists.render();
 
         
