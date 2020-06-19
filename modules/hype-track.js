@@ -42,12 +42,12 @@ export default class HypeTrack {
      * @param {*} update - the update data
      */
     async _processHype(combat, update) {
-        if (!game.user.isGM || !Number.isNumeric(update.turn) || !combat.combatants.length || !this.playlist) {
+        if (!Number.isNumeric(update.turn) || !combat.combatants.length || !this.playlist) {
             return;
         }
 
         // Stop any active hype tracks
-        if (this?.playlist?.playing) {
+        if (game.user.isGM && this?.playlist?.playing) {
             this.playlist.stopAll();
         }
 
@@ -73,7 +73,11 @@ export default class HypeTrack {
 
         // Find the hype track's playlist sound and play it
         const hypeTrackSound = this.playlist.sounds.find(s => s._id === hypeTrack);
-        await this.playHype(combat.combatant.actor, {warn: false});
+
+        if (game.user.isGM) {
+            await this.playHype(combat.combatant.actor, {warn: false});
+        }
+        
         const howl = game.audio.sounds[hypeTrackSound.path].howl;
 
         if (this.pausedSounds.length) {

@@ -220,8 +220,7 @@ export default class ItemTrack {
         }
 
         message.setFlag(MAESTRO.MODULE_NAME, MAESTRO.DEFAULT_CONFIG.ItemTrack.flagNames.played, true);
-    }
-    
+    }    
 }
 
 /**
