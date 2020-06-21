@@ -89,11 +89,11 @@ export const registerModuleSettings = function() {
         default: false,
         config: true,
         onChange: s => {
-            if (!game.maestro.CombatTrack) {
+            if (!game.maestro.combatTrack) {
                 return;
             }
 
-            game.maestro.CombatTrack._checkForCombatTracksPlaylist();
+            game.maestro.combatTrack._checkForCombatTracksPlaylist();
         }
     }),
 

@@ -3,7 +3,7 @@
     "title":"Maestro",
     "description":"Adds new sound-related features such as Hype Tracks, and Item Tracks",
     "author":"Evan Clarke (errational#2007)",
-    "version":"0.7.0",
+    "version":"0.7.1",
     "minimumCoreVersion":"0.5.7",
     "compatibleCoreVersion":"0.6.3",
     "esmodules":["./maestro.js"],
@@ -18,6 +18,11 @@
         "lang": "ja",
         "name": "日本語",
         "path": "lang/ja.json"
+      },
+      {
+        "lang": "ko",
+        "name": "한국어",
+        "path": "lang/ko.json"
       }
     ],
     "manifest":"https://raw.githubusercontent.com/death-save/maestro/master/module.json",
