@@ -6,7 +6,7 @@
 - Pausing functionality in native Foundry playlist controls
 - Pausing functionality for Combat Tracks
 
-## [0.7.1] - 2020-06-19
+## [0.7.1] - 2020-06-20
 ## Added
 - 한국어 (Korean) translation (thanks KLO!)
 
