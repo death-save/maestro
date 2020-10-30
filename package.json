@@ -3,14 +3,11 @@
   "version": "0.7.2",
   "description": "Adds new audio features to Foundry VTT",
   "main": "maestro.js",
-  "dependencies": {
-    "eslint": "^6.8.0",
-    "fluent-ffmpeg": "^2.1.2",
-    "gulp": "^4.0.2"
-  },
+  "dependencies": {},
   "devDependencies": {
+    "eslint": "^6.8.0",
+    "gulp": "^4.0.2",
     "@pixi/jsdoc-template": "^2.6.0",
-    "foundry-pc-types": "gitlab:foundry-projects/foundry-pc/foundry-pc-types",
     "gulp-zip": "^5.0.2",
     "jquery": "^3.5.1",
     "jsdoc-to-markdown": "^6.0.1",
