@@ -211,11 +211,11 @@ export default class CombatTrack {
      */
     static _openTrackForm(combat, track, playlist, options){
         const data = {
-            "defaultPlaylist": game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.CombatTrack.defaultPlaylist),
-            "defaultTrack": game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.CombatTrack.defaultTrack),
-            "currentTrack": track,
-            "currentPlaylist": playlist,
-            "playlists": game.playlists.entities
+            defaultPlaylist: game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.CombatTrack.defaultPlaylist),
+            defaultTrack: game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.CombatTrack.defaultTrack),
+            currentTrack: track,
+            currentPlaylist: playlist,
+            playlists: game.playlists.entities
         }
 
         new CombatTrackForm(combat, data, options).render(true);
@@ -250,7 +250,8 @@ class CombatTrackForm extends FormApplication {
             title: MAESTRO.DEFAULT_CONFIG.CombatTrack.aTitle,
             template: MAESTRO.DEFAULT_CONFIG.CombatTrack.templatePath,
             classes: ["sheet"],
-            width: 500
+            width: 500,
+            tabs: [{navSelector: ".tabs", contentSelector: ".content", initial: "defaults"}]
         });
     }
 
@@ -299,17 +300,7 @@ class CombatTrackForm extends FormApplication {
      * @param {*} html 
      */
     activateListeners(html) {
-        super.activateListeners(html);
-
-        
-        // Activate tabs
-        new Tabs(html.find(".tabs"), {
-            initial: this["_sheetTab"],
-            callback: clicked => {
-                this["_sheetTab"] = clicked.data("tab");
-            }
-        });
-        
+        super.activateListeners(html);        
 
         const defaultPlaylistSelect = html.find(".default-playlist-select");
         const playlistSelect = html.find(".playlist-select");
