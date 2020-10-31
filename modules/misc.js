@@ -185,20 +185,19 @@ function _addPlaylistLoopToggle(html) {
 export function _onPreUpdatePlaylistSound(playlist, update) {
     // Return if there's no id or the playlist is not in sequential or shuffl mode
     if (!playlist.data.playing || !update._id || ![0, 1].includes(playlist.data.mode)) {
-        return;
+        return true;
     }
 
     // If the update is a sound playback ending, save it as the previous track and return
     if (update.playing === false) {
-        return playlist.setFlag(MAESTRO.MODULE_NAME, MAESTRO.DEFAULT_CONFIG.PlaylistLoop.flagNames.previousSound, update._id);
+        playlist.setFlag(MAESTRO.MODULE_NAME, MAESTRO.DEFAULT_CONFIG.PlaylistLoop.flagNames.previousSound, update._id);
+        return true;
     }
 
     // Otherwise it must be a sound playback starting:
     const previousSound = playlist.getFlag(MAESTRO.MODULE_NAME, MAESTRO.DEFAULT_CONFIG.PlaylistLoop.flagNames.previousSound);
 
-    if (!previousSound) {
-        return;
-    }
+    if (!previousSound) return true;
 
     let order;
 
