@@ -4,7 +4,8 @@
         {{#if combat}}<a class="item" data-tab="encounter"><i class="fas fa-fist-raised"></i> {{ localize "COMBAT-TRACK.FormEncounterHeading" }}</a>{{/if}}
     </nav>
 
-    <div class="tab defaults flexcol" data-group="primary" data-tab="defaults">
+    <section class="content">
+        <div class="tab defaults flexcol" data-group="primary" data-tab="defaults">
         <div class="form-group">
             <label>{{localize "COMBAT-TRACK.FormDefaultPlaylistLabel"}}</label>
             <select name="default-playlist" class="default-playlist-select" title="{{localize "COMBAT-TRACK.FormDefaultPlaylistTooltip"}}" default="">
@@ -72,6 +73,8 @@
         </div>
     </div>
     {{/if}}
+    </section>
+    
 
     <span>
         <button type="submit" name="submit">
