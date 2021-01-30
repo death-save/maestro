@@ -8,7 +8,7 @@ const fetch  = require('node-fetch');
 
 function docs(done) {
   jsdoc2md.render({ files: ['modules/*.?(m)js', '*.js'], configure: 'jsdoc-conf.json' })
-    .then(output => fs.writeFileSync('api.md', output));
+    .then(output => fs.writeFileSync('API.md', output));
   return done();
 }
 
