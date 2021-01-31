@@ -108,7 +108,7 @@ export default class ItemTrack {
      * @returns {Promise} flags - an object containing the flags
      */
     async getItemFlags(item) {
-        return item.data.flags[MAESTRO.MODULE_NAME];
+        return item?.data?.flags[MAESTRO.MODULE_NAME];
     }
 
     /**
