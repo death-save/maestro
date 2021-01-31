@@ -8,7 +8,7 @@ const fetch  = require('node-fetch');
 
 function docs(done) {
   jsdoc2md.render({ files: ['modules/*.?(m)js', '*.js'], configure: 'jsdoc-conf.json' })
-    .then(output => fs.writeFileSync('api.md', output));
+    .then(output => fs.writeFileSync('API.md', output));
   return done();
 }
 
@@ -56,7 +56,7 @@ function build(done) {
     '!package.json',
     '!package-lock.json'
   ])
-    .pipe(zip(`combat-carousel.zip`))
+    .pipe(zip(`maestro.zip`))
     .pipe(gulp.dest('dist'));
   return done();
 }

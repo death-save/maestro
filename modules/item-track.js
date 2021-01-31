@@ -64,8 +64,8 @@ export default class ItemTrack {
         const sceneTokenId = itemCard.attr("data-token-id");
 
         if (sceneTokenId) {
-            const tokenId = sceneTokenId.split(".")[1];
-            const token = canvas.tokens.get(tokenId);
+            const [sceneId, tokenId] = sceneTokenId.split(".");
+            const token = canvas.scene.id === sceneId ? canvas.tokens.get(tokenId) : game.scenes.get(sceneId)?.data.tokens.find(t => t._id === tokenId);
             item = token.actor.getOwnedItem(itemId);
         } else if (!sceneTokenId && actorId) {
             item = await game.actors.get(actorId).getOwnedItem(itemId);
@@ -108,7 +108,7 @@ export default class ItemTrack {
      * @returns {Promise} flags - an object containing the flags
      */
     async getItemFlags(item) {
-        return item.data.flags[MAESTRO.MODULE_NAME];
+        return item?.data?.flags[MAESTRO.MODULE_NAME];
     }
 
     /**
