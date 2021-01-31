@@ -56,7 +56,7 @@ function build(done) {
     '!package.json',
     '!package-lock.json'
   ])
-    .pipe(zip(`combat-carousel.zip`))
+    .pipe(zip(`maestro.zip`))
     .pipe(gulp.dest('dist'));
   return done();
 }
