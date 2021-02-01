@@ -47,7 +47,7 @@ jobs:
       with:
         allowUpdates: true
         name: Latest
-        draft: false
+        draft: true
         prerelease: false
         token: ${{ secrets.GITHUB_TOKEN }}
         artifacts: './module.json,./module.zip'
