@@ -1,0 +1,8 @@
+"dist/"
+"out/"
+"jsdoc/"
+"node_modules/"
+".gitignore"
+"gulpfile.js"
+"package.json"
+"package-lock.json"
