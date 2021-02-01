@@ -23,7 +23,7 @@ jobs:
         download: https://github.com/${{github.repository}}/releases/download/${{github.event.release.tag_name}}/module.zip
 
     # create a zip file with all files required by the module to add to the release
-    - run: zip -r ./module.zip .* * -x@.github/zip-exclude.lst
+    - run: zip -r ./module.zip . -x@.github/zip-exclude.lst
 
     # Create a release for this specific version
     - name: Update Release with Files
@@ -32,8 +32,8 @@ jobs:
       with:
         allowUpdates: true # set this to false if you want to prevent updating existing releases
         name: ${{ github.event.release.name }}
-        draft: true
-        prerelease: true
+        draft: false
+        prerelease: false
         token: ${{ secrets.GITHUB_TOKEN }}
         artifacts: './module.json, ./module.zip'
         tag: ${{ github.event.release.tag_name }}
@@ -47,8 +47,8 @@ jobs:
       with:
         allowUpdates: true
         name: Latest
-        draft: true
-        prerelease: true
+        draft: false
+        prerelease: false
         token: ${{ secrets.GITHUB_TOKEN }}
         artifacts: './module.json,./module.zip'
         tag: latest
