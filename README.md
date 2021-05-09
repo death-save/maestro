@@ -1,4 +1,4 @@
-![https://img.shields.io/badge/Foundry%20VTT-0.6.3%2B-green](https://img.shields.io/badge/Foundry%20VTT-0.6.3%2B-green)
+![https://img.shields.io/badge/Foundry%20VTT-0.7.5=>0.7.5-green](https://img.shields.io/badge/Foundry%20VTT-0.7.5=>0.7.5-green)
 
 # Maestro
 **Author**: Evan Clarke (errational#2007 on Foundry discord)    
@@ -53,6 +53,6 @@ You can create an issue here: [Issue Log](https://github.com/death-save/maestro/
 Click the Sponsor button at the top of the Github repo!
 
 ## Attributions
-**Formerly Featured code by**: KaKaRoTo#4756
-Critical sound: "Ta da" by Mike Koenig http://soundbible.com/1003-Ta-Da.html
-Failure sound: "Cartoon fail or sad trumpet 2" from https://zapsplat.com
+**Formerly Featured code by**: KaKaRoTo#4756    
+Critical sound: "Ta da" by Mike Koenig http://soundbible.com/1003-Ta-Da.html    
+Failure sound: "Cartoon fail or sad trumpet 2" from https://zapsplat.com   

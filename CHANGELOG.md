@@ -1,21 +1,28 @@
 # Changelog
 
-## [Unreleased]
-- Soundboard for SFX
-- ~~Possible support for external audio services (YouTube etc)~~ see the MusicAssist module instead
-- Pausing functionality in native Foundry playlist controls
-- Pausing functionality for Combat Tracks
+## Known Issues
+1. Critical Sounds do not play for game systems that do not use the same roll logic as dnd5e
+2. Critical Sounds do not play when roll made with advantage/disadvantage
+3. Critical Sounds do not play with modules such as BetterRolls5e
+
+## [0.7.2] - 2020-10-31
+### Added
+- Português (Brasil) translation (thanks @rinnocenti!)
+- Spanish translation (thanks @lozalojo)
+
+### Fixed
+- Combat Track config not opening
 
 ## [0.7.1] - 2020-06-20
-## Added
+### Added
 - 한국어 (Korean) translation (thanks KLO!)
 
-## Fixed
+### Fixed
 - Fixed bug where Combat Tracks playlist was not created when first enabled
 - Maestro additional config now opens from the Module Settings menu
 
 ## [0.7.0] - 2020-06-19
-## Added
+### Added
 - New macro methods:
 - - `game.maestro.findSound` finds a playlist sound by its name or path
 - - `game.maestro.playByName` allows playing a playlist sound using its name (best effort)
@@ -25,13 +32,13 @@
 - - `game.maestro.playHype` play an actor's hype track
 - New setting to allow Hype Tracks to pause other playing sounds (disabled by default) -- paused sounds will resume when the Hype Track finishes
 
-## Changed
+### Changed
 - Players can now set **Hype Tracks** for Actors they own
 - Refactored hooks to use new structure
 - Certify compatibility with Foundry VTT 0.6.3
 - Maestro Config is now also available in Module Settings
 
-## Fixed
+### Fixed
 - Fixed bug where Hype Tracks could not be created/set when first enabled
 - Fixed bug where Hype Tracks playlist was not created when first enabled
 - Fixed bug where Item Tracks playlist was not created when first enabled

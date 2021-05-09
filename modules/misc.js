@@ -182,38 +182,42 @@ function _addPlaylistLoopToggle(html) {
  * @param {*} update 
  * @todo maybe return early if no flag set?
  */
-export function _onPreUpdatePlaylistSound(playlist, update) {
-    // Return if there's no id or the playlist is not in sequential or shuffl mode
-    if (!playlist.data.playing || !update._id || ![0, 1].includes(playlist.data.mode)) {
-        return;
+export function _onPreUpdatePlaylistSound(playlist, sound, update, options, userId) {
+    // skip this method if the playlist sound has already been processed
+    if (sound?._maestroSkip) return true;
+
+    sound._maestroSkip = true;
+    
+    // Return if there's no id or the playlist is not in sequential or shuffle mode
+    if (!playlist?.data?.playing || !update?._id || ![0, 1].includes(playlist?.data?.mode)) {
+        return true;
     }
 
     // If the update is a sound playback ending, save it as the previous track and return
-    if (update.playing === false) {
-        return playlist.setFlag(MAESTRO.MODULE_NAME, MAESTRO.DEFAULT_CONFIG.PlaylistLoop.flagNames.previousSound, update._id);
+    if (update?.playing === false) {
+        playlist.setFlag(MAESTRO.MODULE_NAME, MAESTRO.DEFAULT_CONFIG.PlaylistLoop.flagNames.previousSound, update._id);
+        return true;
     }
 
     // Otherwise it must be a sound playback starting:
     const previousSound = playlist.getFlag(MAESTRO.MODULE_NAME, MAESTRO.DEFAULT_CONFIG.PlaylistLoop.flagNames.previousSound);
 
-    if (!previousSound) {
-        return;
-    }
+    if (!previousSound) return true;
 
     let order;
 
     // If shuffle order exists, use that, else map the sounds to an order
-    if (playlist.data.mode === 1) {
+    if (playlist?.data?.mode === 1) {
         order = playlist._getPlaybackOrder();
     } else {
-        order = playlist.sounds.map(s => s._id);
+        order = playlist?.sounds.map(s => s._id);
     }        
     
     const previousIdx = order.indexOf(previousSound);
     const playlistloop = playlist.getFlag(MAESTRO.MODULE_NAME, MAESTRO.DEFAULT_CONFIG.PlaylistLoop.flagNames.loop);
 
     // If the previous sound was the last in the order, and playlist loop is set to false, don't play the incoming sound
-    if (previousIdx === (playlist.sounds.length - 1) && playlistloop === false) {
+    if (previousIdx === (playlist?.sounds?.length - 1) && playlistloop === false) {
         update.playing = false;
         playlist.data.playing = false;
     }        
