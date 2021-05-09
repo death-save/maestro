@@ -56,7 +56,7 @@ export default class HypeTrack {
         const pauseOthers = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.HypeTrack.pauseOthers);
 
         if (!hypeTrack) {
-            if (this.pausedSounds.length) {
+            if (this?.pausedSounds?.length) {
                 // Resume any previously paused sounds
                 Playback.resumeSounds(this.pausedSounds);
                 this.pausedSounds = [];
@@ -194,7 +194,7 @@ export default class HypeTrack {
     async playHype(actor, {warn=true, pauseOthers=false}={}) {
         if (typeof(actor) === "string") {
             actor = game.actors.getName(actor) || null;
-        } else if (actor instanceof Object) {
+        } else if (!(actor instanceof Actor) && actor instanceof Object) {
             actor = game.actors.getName(actor.name) || null;
         }
 
