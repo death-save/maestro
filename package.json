@@ -1,6 +1,6 @@
 {
   "name": "maestro",
-  "version": "0.7.3",
+  "version": "0.8.0",
   "description": "Adds new audio features to Foundry VTT",
   "main": "maestro.js",
   "dependencies": {},
