@@ -93,7 +93,7 @@ export function playSoundByName(name, {playlist=null}={}) {
         let {playlist, sound} = findPlaylistSound(name);
         
         if (!playlist) {
-            ui.warn(game.i18n.localize("PLAYBACK.PlaySoundByName.NoPlaylist"));
+            ui.warn(game.i18n.localize("MAESTRO.PLAYBACK.PlaySoundByName.NoPlaylist"));
             return;
         }
     }

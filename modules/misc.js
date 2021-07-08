@@ -114,7 +114,7 @@ export class MaestroConfigForm extends FormApplication {
 function _addPlaylistLoopToggle(html) {
     const playlistModeButtons = html.find('[data-action="playlist-mode"]');
     const loopToggleHtml = 
-        `<a class="sound-control" data-action="playlist-loop" title="${game.i18n.localize("PLAYLIST-LOOP.ButtonTooltipLoop")}">
+        `<a class="sound-control" data-action="playlist-loop" title="${game.i18n.localize("MAESTRO.PLAYLIST-LOOP.ButtonTooltipLoop")}">
             <i class="fas fa-sync"></i>
         </a>`;
 
@@ -142,10 +142,10 @@ function _addPlaylistLoopToggle(html) {
         const mode = playlist.data.mode;
         if ([-1, 2].includes(mode)) {
             button.setAttribute("class", buttonClass.concat(" disabled"));
-            button.setAttribute("title", game.i18n.localize("PLAYLIST-LOOP.ButtonToolTipDisabled"));
+            button.setAttribute("title", game.i18n.localize("MAESTRO.PLAYLIST-LOOP.ButtonToolTipDisabled"));
         } else if (loop === false) {
             button.setAttribute("class", buttonClass.concat(" inactive"));
-            button.setAttribute("title", game.i18n.localize("PLAYLIST-LOOP.ButtonTooltipNoLoop"));
+            button.setAttribute("title", game.i18n.localize("MAESTRO.PLAYLIST-LOOP.ButtonTooltipNoLoop"));
         }
     }
 
@@ -167,11 +167,11 @@ function _addPlaylistLoopToggle(html) {
         if (buttonClass.includes("inactive")) {
             game.playlists.get(playlistId).unsetFlag(MAESTRO.MODULE_NAME, MAESTRO.DEFAULT_CONFIG.PlaylistLoop.flagNames.loop);
             button.setAttribute("class", buttonClass.replace(" inactive", ""));
-            button.setAttribute("title", game.i18n.localize("PLAYLIST-LOOP.ButtonTooltipLoop"));
+            button.setAttribute("title", game.i18n.localize("MAESTRO.PLAYLIST-LOOP.ButtonTooltipLoop"));
         } else { 
             game.playlists.get(playlistId).setFlag(MAESTRO.MODULE_NAME, MAESTRO.DEFAULT_CONFIG.PlaylistLoop.flagNames.loop, false);
             button.setAttribute("class", buttonClass.concat(" inactive"));
-            button.setAttribute("title", game.i18n.localize("PLAYLIST-LOOP.ButtonTooltipNoLoop"));
+            button.setAttribute("title", game.i18n.localize("MAESTRO.PLAYLIST-LOOP.ButtonTooltipNoLoop"));
         }
     });
 }

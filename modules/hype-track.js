@@ -199,21 +199,21 @@ export default class HypeTrack {
         }
 
         if (!actor) {
-            if (warn) ui.notifications.warn(game.i18n.localize("HYPE-TRACK.PlayHype.NoActor"));
+            if (warn) ui.notifications.warn(game.i18n.localize("MAESTRO.HYPE-TRACK.PlayHype.NoActor"));
             return;
         }
 
         const hypeTrack = this._getActorHypeTrack(actor);
 
         if (!hypeTrack) {
-            if (warn) ui.notifications.warn(game.i18n.localize("HYPE-TRACK.PlayHype.NoTrack"));
+            if (warn) ui.notifications.warn(game.i18n.localize("MAESTRO.HYPE-TRACK.PlayHype.NoTrack"));
             return;
         }
 
         const playlist = this.playlist || game.playlists.entities.find(p => p.name === MAESTRO.DEFAULT_CONFIG.HypeTrack.playlistName || p.sounds.find(s => s._id === hypeTrack)) || null;
 
         if (!playlist) {
-            if (warn) ui.notifications.warn(game.i18n.localize("HYPE-TRACK.PlayHype.NoPlaylist"));
+            if (warn) ui.notifications.warn(game.i18n.localize("MAESTRO.HYPE-TRACK.PlayHype.NoPlaylist"));
         }
 
         if (playlist.playing) {
