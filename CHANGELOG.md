@@ -5,6 +5,18 @@
 2. Critical Sounds do not play when roll made with advantage/disadvantage
 3. Critical Sounds do not play with modules such as BetterRolls5e
 
+
+## [0.7.5] - 2021-07-13
+- Added Foundry VTT v0.8.x compatibility
+
+## [0.7.4] - 2021-02-01
+- Release workflow refinements
+
+## [0.7.3] - 2021-01-31
+- Skip processing playlist sound updates if already processed
+- Improve some logic in Hype Track
+- Improve some logic in Item Track
+
 ## [0.7.2] - 2020-10-31
 ### Added
 - Português (Brasil) translation (thanks @rinnocenti!)

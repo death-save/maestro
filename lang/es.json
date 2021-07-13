@@ -1,11 +1,11 @@
 {
+  "MAESTRO": {
+    "MODULE_NAME": "Maestro",
+    "MODULE_LABEL": "Maestro",
+      
     "I18N.LANGUAGE": "Español",
     "I18N.MAINTAINERS": "@Viriato139ac#0342",
-  
-    "MAESTRO": "Maestro",
-
-    "MAESTRO.MODULE_LABEL": "Maestro",
-
+    
     "SETTINGS.HypeTrackEnableN": "Habilitar pistas de actor",
     "SETTINGS.HypeTrackEnableH": "Posibilita el asociar una pista a un actor",
     "SETTINGS.HypeTrackPauseOthersN": "Pausar sonidos de otras listas de reproducción",
@@ -118,6 +118,5 @@
     "PLAYLIST-LOOP.ButtonTooltipLoop": "Lista de reproducción en bucle",
     "PLAYLIST-LOOP.ButtonTooltipNoLoop": "No repetir en bucle la lista de reproducción",
     "PLAYLIST-LOOP.ButtonToolTipDisabled": "Reproducción en bucle deshabilitada"
-
-
+    }
 }

@@ -4,7 +4,7 @@
         "checkJs": true,
         "experimentalDecorators": true,
         "target": "ES2019",
-        "types": ["foundry-pc-types"],
+        //"types": ["foundry-pc-types"],
         "outDir": "./out-js"
     }
 }

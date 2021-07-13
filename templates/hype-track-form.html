@@ -2,18 +2,18 @@
 
     <div class="form-group">
         <label>Actor Hype Track</label>
-        <select name="track" class="track-select" title="{{localize "HYPE-TRACK.FormTrackSelection"}}">
+        <select name="track" class="track-select" title="{{localize "MAESTRO.HYPE-TRACK.FormTrackSelection"}}">
             {{#select track}}
-                <option value="">{{localize "HYPE-TRACK.FormSelectNone"}}</option>
+                <option value="">{{localize "MAESTRO.HYPE-TRACK.FormSelectNone"}}</option>
                 {{#each playlistTracks}}
                 <option value="{{this._id}}">{{this.name}}</option>
                 {{/each}}
             {{/select}}
         </select>
-        <p class="notes">{{localize "HYPE-TRACK.FormNotes"}}</p> 
+        <p class="notes">{{localize "MAESTRO.HYPE-TRACK.FormNotes"}}</p> 
     </div>
 
     <button type="submit" name="submit">
-        <i class="far fa-save"></i> {{localize "HYPE-TRACK.FormSaveTrack"}}
+        <i class="far fa-save"></i> {{localize "MAESTRO.HYPE-TRACK.FormSaveTrack"}}
     </button>
 </form>

@@ -1,36 +1,36 @@
 {
-    "MAESTRO": "Maestro",
+    "MAESTRO": {
+        "MODULE_NAME": "Maestro",
 
-    "MAESTRO.MODULE_LABEL": "Maestro",
+        "MODULE_LABEL": "Maestro",
 
-    "SETTINGS.HypeTrackEnableN": "キャラ固有BGMを使用する",
-    "SETTINGS.HypeTrackEnableH": "特定のキャラクターのための固有BGMを設定できます。",
-    "SETTINGS.ItemTrackEnableN": "アイテム固有BGMを使用する",
-    "SETTINGS.ItemTrackEnableH": "特定のアイテムが使用されたときのための固有BGMを設定できます",
-    "SETTINGS.ItemTrackCreatePlaylistN": "アイテム固有BGM用のプレイリストを作成する",
-    "SETTINGS.MigrationCurrentVersionN": "Current Migration Version",
-    "SETTINGS.ItemTrackCreatePlaylistH": "アイテム固有BGMのためのプレイリストが存在しない場合は作成されます。",
-    "SETTINGS.MigrationCurrentVersionH": "Maestroモッドの最後のバージョンを持ちます。",
+        "SETTINGS.HypeTrackEnableN": "キャラ固有BGMを使用する",
+        "SETTINGS.HypeTrackEnableH": "特定のキャラクターのための固有BGMを設定できます。",
+        "SETTINGS.ItemTrackEnableN": "アイテム固有BGMを使用する",
+        "SETTINGS.ItemTrackEnableH": "特定のアイテムが使用されたときのための固有BGMを設定できます",
+        "SETTINGS.ItemTrackCreatePlaylistN": "アイテム固有BGM用のプレイリストを作成する",
+        "SETTINGS.MigrationCurrentVersionN": "Current Migration Version",
+        "SETTINGS.ItemTrackCreatePlaylistH": "アイテム固有BGMのためのプレイリストが存在しない場合は作成されます。",
+        "SETTINGS.MigrationCurrentVersionH": "Maestroモッドの最後のバージョンを持ちます。",
 
-    "NOTIFICATIONS.MigrationStarting": "Maestro | データ移行開始...",
-    "NOTIFICATIONS.MigrationSucceeded": "Maestro | データ移行成功！",
-    "NOTIFICATIONS.MigrationFailed": "Maestro | データ移行にエラーがありました。コンソールでData migration finished with errors. Please see console for additional details.",
+        "NOTIFICATIONS.MigrationStarting": "Maestro | データ移行開始...",
+        "NOTIFICATIONS.MigrationSucceeded": "Maestro | データ移行成功！",
+        "NOTIFICATIONS.MigrationFailed": "Maestro | データ移行にエラーがありました。コンソールでData migration finished with errors. Please see console for additional details.",
 
-    "HYPE-TRACK.FormTrackSelection": "曲を選択",
-    "HYPE-TRACK.FormNotes": "このキャラの固有BGMとして使用する曲を選択します。",
-    "HYPE-TRACK.FormSaveTrack": "曲を保存",
+        "HYPE-TRACK.FormTrackSelection": "曲を選択",
+        "HYPE-TRACK.FormNotes": "このキャラの固有BGMとして使用する曲を選択します。",
+        "HYPE-TRACK.FormSaveTrack": "曲を保存",
 
-    "ITEM-TRACK.FormPlaylistTooltip": "プレイリストを選択",
-    "ITEM-TRACK.FormTrackTooltip": "曲を選択",
-    "ITEM-TRACK.FormSelectNone": "--無し--",
-    "ITEM-TRACK.FormPlaylistNotes": "曲を選択するにはまずプレイリストを選択してください。",
-    "ITEM-TRACK.FormTrackNotes": "このアイテムがロールされたときに流す曲を選択してください。",
-    "ITEM-TRACK.FormPlayRandom": "--ランダムな曲--",
-    "ITEM-TRACK.FormPlayAll": "--すべての曲--",
+        "ITEM-TRACK.FormPlaylistTooltip": "プレイリストを選択",
+        "ITEM-TRACK.FormTrackTooltip": "曲を選択",
+        "ITEM-TRACK.FormSelectNone": "--無し--",
+        "ITEM-TRACK.FormPlaylistNotes": "曲を選択するにはまずプレイリストを選択してください。",
+        "ITEM-TRACK.FormTrackNotes": "このアイテムがロールされたときに流す曲を選択してください。",
+        "ITEM-TRACK.FormPlayRandom": "--ランダムな曲--",
+        "ITEM-TRACK.FormPlayAll": "--すべての曲--",
 
-    "PLAYLIST-LOOP.ButtonTooltipLoop": "プレイリストをループ",
-    "PLAYLIST-LOOP.ButtonTooltipNoLoop": "プレイリストをループしない",
-    "PLAYLIST-LOOP.ButtonToolTipDisabled": "ループオフ"
-
-
+        "PLAYLIST-LOOP.ButtonTooltipLoop": "プレイリストをループ",
+        "PLAYLIST-LOOP.ButtonTooltipNoLoop": "プレイリストをループしない",
+        "PLAYLIST-LOOP.ButtonToolTipDisabled": "ループオフ"
+    }
 }

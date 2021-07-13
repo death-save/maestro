@@ -114,7 +114,7 @@ export class MaestroConfigForm extends FormApplication {
 function _addPlaylistLoopToggle(html) {
     const playlistModeButtons = html.find('[data-action="playlist-mode"]');
     const loopToggleHtml = 
-        `<a class="sound-control" data-action="playlist-loop" title="${game.i18n.localize("PLAYLIST-LOOP.ButtonTooltipLoop")}">
+        `<a class="sound-control" data-action="playlist-loop" title="${game.i18n.localize("MAESTRO.PLAYLIST-LOOP.ButtonTooltipLoop")}">
             <i class="fas fa-sync"></i>
         </a>`;
 
@@ -142,10 +142,10 @@ function _addPlaylistLoopToggle(html) {
         const mode = playlist.data.mode;
         if ([-1, 2].includes(mode)) {
             button.setAttribute("class", buttonClass.concat(" disabled"));
-            button.setAttribute("title", game.i18n.localize("PLAYLIST-LOOP.ButtonToolTipDisabled"));
+            button.setAttribute("title", game.i18n.localize("MAESTRO.PLAYLIST-LOOP.ButtonToolTipDisabled"));
         } else if (loop === false) {
             button.setAttribute("class", buttonClass.concat(" inactive"));
-            button.setAttribute("title", game.i18n.localize("PLAYLIST-LOOP.ButtonTooltipNoLoop"));
+            button.setAttribute("title", game.i18n.localize("MAESTRO.PLAYLIST-LOOP.ButtonTooltipNoLoop"));
         }
     }
 
@@ -167,11 +167,11 @@ function _addPlaylistLoopToggle(html) {
         if (buttonClass.includes("inactive")) {
             game.playlists.get(playlistId).unsetFlag(MAESTRO.MODULE_NAME, MAESTRO.DEFAULT_CONFIG.PlaylistLoop.flagNames.loop);
             button.setAttribute("class", buttonClass.replace(" inactive", ""));
-            button.setAttribute("title", game.i18n.localize("PLAYLIST-LOOP.ButtonTooltipLoop"));
+            button.setAttribute("title", game.i18n.localize("MAESTRO.PLAYLIST-LOOP.ButtonTooltipLoop"));
         } else { 
             game.playlists.get(playlistId).setFlag(MAESTRO.MODULE_NAME, MAESTRO.DEFAULT_CONFIG.PlaylistLoop.flagNames.loop, false);
             button.setAttribute("class", buttonClass.concat(" inactive"));
-            button.setAttribute("title", game.i18n.localize("PLAYLIST-LOOP.ButtonTooltipNoLoop"));
+            button.setAttribute("title", game.i18n.localize("MAESTRO.PLAYLIST-LOOP.ButtonTooltipNoLoop"));
         }
     });
 }
@@ -182,12 +182,12 @@ function _addPlaylistLoopToggle(html) {
  * @param {*} update 
  * @todo maybe return early if no flag set?
  */
-export function _onPreUpdatePlaylistSound(playlist, sound, update, options, userId) {
+export function _onPreUpdatePlaylistSound(sound, update, options, userId) {
     // skip this method if the playlist sound has already been processed
     if (sound?._maestroSkip) return true;
 
     sound._maestroSkip = true;
-    
+    const playlist = sound.parent;
     // Return if there's no id or the playlist is not in sequential or shuffle mode
     if (!playlist?.data?.playing || !update?._id || ![0, 1].includes(playlist?.data?.mode)) {
         return true;
@@ -208,7 +208,7 @@ export function _onPreUpdatePlaylistSound(playlist, sound, update, options, user
 
     // If shuffle order exists, use that, else map the sounds to an order
     if (playlist?.data?.mode === 1) {
-        order = playlist._getPlaybackOrder();
+        order = playlist.playbackOrder;
     } else {
         order = playlist?.sounds.map(s => s._id);
     }        
@@ -229,7 +229,7 @@ export function _onPreUpdatePlaylistSound(playlist, sound, update, options, user
 export function _onPreCreateChatMessage(message, options, userId) {
     const removeDiceSound = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.Misc.disableDiceSound);
 
-    if (removeDiceSound && (message.sound && message.sound === "sounds/dice.wav")) {
+    if (removeDiceSound && message.sound === "sounds/dice.wav") {
         message.sound = "";
     }
 }
@@ -254,7 +254,7 @@ export function _onRenderChatMessage(message, html, data) {
  * @param {*} message
  */
 function playCriticalSuccessFailure(message) {
-    if ( !game.user.isGM || !message.isRoll || !message.isContentVisible || !message.roll.parts.length ) return;
+    if ( !game.user.isGM || !message.isRoll || !message.isContentVisible || !message.isRoll ) return;
   
     // Highlight rolls where the first part is a d20 roll
     const roll = message.roll;
@@ -264,7 +264,7 @@ function playCriticalSuccessFailure(message) {
     // Ensure it is an un-modified d20 roll
     const isD20 = (d.faces === 20) && ( d.results.length === 1 );
     if ( !isD20 ) return;
-    const isModifiedRoll = ("success" in d.rolls[0]) || d.options.marginSuccess || d.options.marginFailure;
+    const isModifiedRoll = ("success" in d.results[0]) || d.options.marginSuccess || d.options.marginFailure;
     if ( isModifiedRoll ) return;
 
     // Get the sounds

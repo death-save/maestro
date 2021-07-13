@@ -42,7 +42,7 @@ export default class HypeTrack {
      * @param {*} update - the update data
      */
     async _processHype(combat, update) {
-        if (!Number.isNumeric(update.turn) || !combat.combatants.length || !this.playlist) {
+        if (!Number.isNumeric(update.turn) || !combat.combatants?.contents?.length || !this.playlist) {
             return;
         }
 
@@ -67,7 +67,7 @@ export default class HypeTrack {
 
         if (pauseOthers) {
             // pause active playlists
-            this.pausedSounds = Playback.pauseAll();
+            this.pausedSounds = await Playback.pauseAll();
         }
         
 
@@ -78,14 +78,14 @@ export default class HypeTrack {
             await this.playHype(combat.combatant.actor, {warn: false});
         }
         
-        const howl = game.audio.sounds[hypeTrackSound.path].howl;
+        const activeHypeSound = hypeTrackSound.sound;
 
-        if (this.pausedSounds.length) {
-                // Defer the resumption of paused sounds after hype track finishes
-            howl.on("end", () => {
+        if (this.pausedSounds?.length) {
+            activeHypeSound.on("end", () => {
+
                 Playback.resumeSounds(this.pausedSounds);
                 this.pausedSounds = [];
-            });
+            }, {once: true});
         }
     }
     
@@ -199,21 +199,21 @@ export default class HypeTrack {
         }
 
         if (!actor) {
-            if (warn) ui.notifications.warn(game.i18n.localize("HYPE-TRACK.PlayHype.NoActor"));
+            if (warn) ui.notifications.warn(game.i18n.localize("MAESTRO.HYPE-TRACK.PlayHype.NoActor"));
             return;
         }
 
         const hypeTrack = this._getActorHypeTrack(actor);
 
         if (!hypeTrack) {
-            if (warn) ui.notifications.warn(game.i18n.localize("HYPE-TRACK.PlayHype.NoTrack"));
+            if (warn) ui.notifications.warn(game.i18n.localize("MAESTRO.HYPE-TRACK.PlayHype.NoTrack"));
             return;
         }
 
         const playlist = this.playlist || game.playlists.entities.find(p => p.name === MAESTRO.DEFAULT_CONFIG.HypeTrack.playlistName || p.sounds.find(s => s._id === hypeTrack)) || null;
 
         if (!playlist) {
-            if (warn) ui.notifications.warn(game.i18n.localize("HYPE-TRACK.PlayHype.NoPlaylist"));
+            if (warn) ui.notifications.warn(game.i18n.localize("MAESTRO.HYPE-TRACK.PlayHype.NoPlaylist"));
         }
 
         if (playlist.playing) {

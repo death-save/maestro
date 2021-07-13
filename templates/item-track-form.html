@@ -2,32 +2,32 @@
 
     <div class="form-group">
         <label>Item Playlist</label>
-        <select name="playlist" class="playlist-select" title="{{localize "ITEM-TRACK.FormPlaylistTooltip"}}" default="">
+        <select name="playlist" class="playlist-select" title="{{localize "MAESTRO.ITEM-TRACK.FormPlaylistTooltip"}}" default="">
             {{#select playlist}}
-                <option value="">{{localize "ITEM-TRACK.FormSelectNone"}}</option>
+                <option value="">{{localize "MAESTRO.ITEM-TRACK.FormSelectNone"}}</option>
                 {{#each playlists}}
                 <option value="{{this._id}}">{{this.name}}</option>
                 {{/each}}
             {{/select}}
         </select>
-        <p class="notes">{{localize "ITEM-TRACK.FormPlaylistNotes"}}</p> 
+        <p class="notes">{{localize "MAESTRO.ITEM-TRACK.FormPlaylistNotes"}}</p> 
     </div>
 
     <div class="form-group">
         <label>Item Track</label>
-        <select name="track" class="track-select" title="{{localize "ITEM-TRACK.FormTrackTooltip"}}" default="">
+        <select name="track" class="track-select" title="{{localize "MAESTRO.ITEM-TRACK.FormTrackTooltip"}}" default="">
             {{#select track}}
-                <option value="">{{localize "ITEM-TRACK.FormSelectNone"}}</option>
+                <option value="">{{localize "MAESTRO.ITEM-TRACK.FormSelectNone"}}</option>
                 {{#if playlistTracks}}
-                <option value="random-track">{{localize "ITEM-TRACK.FormPlayRandom"}}</option>
-                <option value="play-all">{{localize "ITEM-TRACK.FormPlayAll"}}</option>
+                <option value="random-track">{{localize "MAESTRO.ITEM-TRACK.FormPlayRandom"}}</option>
+                <option value="play-all">{{localize "MAESTRO.ITEM-TRACK.FormPlayAll"}}</option>
                 {{/if}}
                 {{#each playlistTracks}}
                 <option value="{{this._id}}">{{this.name}}</option>
                 {{/each}}
             {{/select}}
         </select>
-        <p class="notes">{{localize "ITEM-TRACK.FormTrackNotes"}}</p> 
+        <p class="notes">{{localize "MAESTRO.ITEM-TRACK.FormTrackNotes"}}</p> 
     </div>
 
     <span>
