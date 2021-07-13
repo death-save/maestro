@@ -120,8 +120,8 @@ export default class Conductor {
      * PreUpdate Playlist Sound Hook
      */
     static _hookOnPreUpdatePlaylistSound() {
-        Hooks.on("preUpdatePlaylistSound", (playlist, sound, update, options, userId) => {
-            Misc._onPreUpdatePlaylistSound(playlist, sound, update, options, userId);
+        Hooks.on("preUpdatePlaylistSound", (sound, update, options, userId) => {
+            Misc._onPreUpdatePlaylistSound(sound, update, options, userId);
         });
     }
 

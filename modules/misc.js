@@ -182,12 +182,12 @@ function _addPlaylistLoopToggle(html) {
  * @param {*} update 
  * @todo maybe return early if no flag set?
  */
-export function _onPreUpdatePlaylistSound(playlist, sound, update, options, userId) {
+export function _onPreUpdatePlaylistSound(sound, update, options, userId) {
     // skip this method if the playlist sound has already been processed
     if (sound?._maestroSkip) return true;
 
     sound._maestroSkip = true;
-    
+    const playlist = sound.parent;
     // Return if there's no id or the playlist is not in sequential or shuffle mode
     if (!playlist?.data?.playing || !update?._id || ![0, 1].includes(playlist?.data?.mode)) {
         return true;
@@ -208,7 +208,7 @@ export function _onPreUpdatePlaylistSound(playlist, sound, update, options, user
 
     // If shuffle order exists, use that, else map the sounds to an order
     if (playlist?.data?.mode === 1) {
-        order = playlist._getPlaybackOrder();
+        order = playlist.playbackOrder;
     } else {
         order = playlist?.sounds.map(s => s._id);
     }        
@@ -229,7 +229,7 @@ export function _onPreUpdatePlaylistSound(playlist, sound, update, options, user
 export function _onPreCreateChatMessage(message, options, userId) {
     const removeDiceSound = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.Misc.disableDiceSound);
 
-    if (removeDiceSound && (message.sound && message.sound === "sounds/dice.wav")) {
+    if (removeDiceSound && message.sound === "sounds/dice.wav") {
         message.sound = "";
     }
 }
@@ -254,7 +254,7 @@ export function _onRenderChatMessage(message, html, data) {
  * @param {*} message
  */
 function playCriticalSuccessFailure(message) {
-    if ( !game.user.isGM || !message.isRoll || !message.isContentVisible || !message.roll.parts.length ) return;
+    if ( !game.user.isGM || !message.isRoll || !message.isContentVisible || !message.isRoll ) return;
   
     // Highlight rolls where the first part is a d20 roll
     const roll = message.roll;
@@ -264,7 +264,7 @@ function playCriticalSuccessFailure(message) {
     // Ensure it is an un-modified d20 roll
     const isD20 = (d.faces === 20) && ( d.results.length === 1 );
     if ( !isD20 ) return;
-    const isModifiedRoll = ("success" in d.rolls[0]) || d.options.marginSuccess || d.options.marginFailure;
+    const isModifiedRoll = ("success" in d.results[0]) || d.options.marginSuccess || d.options.marginFailure;
     if ( isModifiedRoll ) return;
 
     // Get the sounds
