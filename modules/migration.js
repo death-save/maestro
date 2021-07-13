@@ -10,7 +10,7 @@ export function migrationHandler() {
     }
     game.maestro.migration.errors = 0;
 
-    const migrationStartMessage = game.i18n.localize("NOTIFICATIONS.MigrationStarting");
+    const migrationStartMessage = game.i18n.localize("MAESTRO.NOTIFICATIONS.MigrationStarting");
 
     ui.notifications.info(migrationStartMessage);
 
@@ -29,10 +29,10 @@ export function migrationHandler() {
     let migrationEndMessage;
 
     if (game.maestro.migration.errors > 0) {
-        migrationEndMessage = game.i18n.localize("NOTIFICATIONS.MigrationFailed");
+        migrationEndMessage = game.i18n.localize("MAESTRO.NOTIFICATIONS.MigrationFailed");
         ui.notifications.warn(migrationEndMessage);
     } else {
-        migrationEndMessage = game.i18n.localize("NOTIFICATIONS.MigrationSucceeded");
+        migrationEndMessage = game.i18n.localize("MAESTRO.NOTIFICATIONS.MigrationSucceeded");
         ui.notifications.info(migrationEndMessage);
     }
 
@@ -47,7 +47,7 @@ async function _migrateScenePlaylists() {
         return;
     }
 
-    console.log(game.i18n.localize("LOGS.MigrationSceneFlagsFound"));
+    console.log(game.i18n.localize("MAESTRO.LOGS.MigrationSceneFlagsFound"));
 
     for (let s of scenePlaylists) {
         const playlist = s.getFlag(MAESTRO.MODULE_NAME, MAESTRO.DEFAULT_CONFIG.SceneMusic.flagNames.playlist);
@@ -56,9 +56,9 @@ async function _migrateScenePlaylists() {
 
         if (!sceneUpdate) {
 
-            console.warn(game.i18n.localize("LOGS.MigrationSceneFlagsFailed"), s._id, playlist);
+            console.warn(game.i18n.localize("MAESTRO.LOGS.MigrationSceneFlagsFailed"), s._id, playlist);
         } else {
-            console.log(game.i18n.localize("LOGS.MigrationSceneFlagsSuccessful"), s._id, playlist);
+            console.log(game.i18n.localize("MAESTRO.LOGS.MigrationSceneFlagsSuccessful"), s._id, playlist);
         }
     }
 
@@ -130,25 +130,25 @@ async function _migrateActorFlags() {
     const hypePlaylist = game.playlists.entities.find(p => p.name === MAESTRO.DEFAULT_CONFIG.HypeTrack.playlistName);
 
     if (!hypePlaylist) {
-        console.warn(game.i18n.localize("LOGS.MigrationHypeNoPlaylist"));
+        console.warn(game.i18n.localize("MAESTRO.LOGS.MigrationHypeNoPlaylist"));
     }
 
     if (hypePlaylist.sounds.length === 0) {
-        console.warn(game.i18n.localize("LOGS.MigrationHypeNoSounds"));
+        console.warn(game.i18n.localize("MAESTRO.LOGS.MigrationHypeNoSounds"));
     }
-    console.log(game.i18n.localize("LOGS.MigrationHypeFoundActors"), actorHypeMap);
-    console.log(game.i18n.localize("LOGS.MigrationHypeAttemptingMatch"));
+    console.log(game.i18n.localize("MAESTRO.LOGS.MigrationHypeFoundActors"), actorHypeMap);
+    console.log(game.i18n.localize("MAESTRO.LOGS.MigrationHypeAttemptingMatch"));
 
     for (const a of actorHypeMap) {
         const actor = game.actors.get(a._id);
         const newTrack = hypePlaylist.sounds[Number(a.track)-1];
         if (!newTrack) {
-            console.warn(game.i18n.localize("LOGS.MigrationHypeNoMatch"), actor);
+            console.warn(game.i18n.localize("MAESTRO.LOGS.MigrationHypeNoMatch"), actor);
             game.maestro.migration.errors += 1;
         }
         
         await actor.setFlag(MAESTRO.MODULE_NAME, MAESTRO.DEFAULT_CONFIG.HypeTrack.flagNames.track, newTrack._id);
-        return console.log(game.i18n.localize("LOGS.MigrationHypeSuccessful"), actor._id, newTrack._id);
+        return console.log(game.i18n.localize("MAESTRO.LOGS.MigrationHypeSuccessful"), actor._id, newTrack._id);
     }
 
 }
@@ -174,15 +174,15 @@ async function _migrateItemFlags() {
         return;
     }
 
-    console.log(game.i18n.localize("LOGS.MigrationItemFound"), itemTrackMap);
-    console.log(game.i18n.localize("LOGS.MigrationItemAttemptingMatch"));
+    console.log(game.i18n.localize("MAESTRO.LOGS.MigrationItemFound"), itemTrackMap);
+    console.log(game.i18n.localize("MAESTRO.LOGS.MigrationItemAttemptingMatch"));
 
     for (const i of itemTrackMap) {
         const item = game.items.get(i._id);
         const playlist = i.playlist ? game.playlists.get(i.playlist) : game.playlists.entities.find(p => p.name === MAESTRO.DEFAULT_CONFIG.HypeTrack.playlistName);
 
         if (!playlist) {
-            console.warn(game.i18n.localize("LOGS.MigrationItemNoPlaylist"), i.playlist);
+            console.warn(game.i18n.localize("MAESTRO.LOGS.MigrationItemNoPlaylist"), i.playlist);
             game.maestro.migration.errors += 1;
             continue;
         }
@@ -190,14 +190,14 @@ async function _migrateItemFlags() {
         const newTrack = playlist.sounds[Number(i.track)-1];
 
         if (!newTrack) {
-            console.warn(game.i18n.localize("LOGS.MigrationItemNoSound"), item);
+            console.warn(game.i18n.localize("MAESTRO.LOGS.MigrationItemNoSound"), item);
             game.maestro.migration.errors += 1;
             continue;
         }
         
         item.setFlag(MAESTRO.MODULE_NAME, MAESTRO.DEFAULT_CONFIG.ItemTrack.flagNames.playlist, playlist._id);
         item.setFlag(MAESTRO.MODULE_NAME, MAESTRO.DEFAULT_CONFIG.ItemTrack.flagNames.track, newTrack._id);
-        return console.log(game.i18n.localize("LOGS.MigrationItemSuccess"), i._id, playlist._id, newTrack._id);
+        return console.log(game.i18n.localize("MAESTRO.LOGS.MigrationItemSuccess"), i._id, playlist._id, newTrack._id);
     }
 
 }
@@ -248,16 +248,16 @@ async function _migrateActorOwnedItemFlags() {
             }
         });
 
-        console.log(game.i18n.localize("LOGS.MigrationOwnedItemFound"), a._id, ownedItems);
-        console.log(game.i18n.localize("LOGS.MigrationOwnedItemAttemptingMatch"));
+        console.log(game.i18n.localize("MAESTRO.LOGS.MigrationOwnedItemFound"), a._id, ownedItems);
+        console.log(game.i18n.localize("MAESTRO.LOGS.MigrationOwnedItemAttemptingMatch"));
 
         // Migrate the flags logging success or failure
         const itemUpdates = await a.updateEmbeddedEntity("OwnedItem", updates)
         
         if (!itemUpdates) {
-            console.warn(game.i18n.localize("LOGS.MigrationOwnedItemFailed"), updates);
+            console.warn(game.i18n.localize("MAESTRO.LOGS.MigrationOwnedItemFailed"), updates);
         } else {
-            console.log(game.i18n.localize("LOGS.MigrationOwnedItemSuccess"), updates);
+            console.log(game.i18n.localize("MAESTRO.LOGS.MigrationOwnedItemSuccess"), updates);
         }
     }
 
@@ -308,7 +308,7 @@ async function _migrateTokenOwnedItemFlags() {
                 continue;
             }
 
-            console.log(game.i18n.localize("LOGS.MigrationTokenOwnedItemsFound"), t.actorId, t._id, s._id, badFlagItems);
+            console.log(game.i18n.localize("MAESTRO.LOGS.MigrationTokenOwnedItemsFound"), t.actorId, t._id, s._id, badFlagItems);
             
 
             const itemUpdates = await duplicate(ownedItems);
@@ -332,7 +332,7 @@ async function _migrateTokenOwnedItemFlags() {
                 }
                 
                 if (!playlist) {
-                    console.warn(game.i18n.localize("LOGS.MigrationItemNoPlaylist"));
+                    console.warn(game.i18n.localize("MAESTRO.LOGS.MigrationItemNoPlaylist"));
                     game.maestro.errors += 1;
                     return;
                 }
@@ -340,10 +340,10 @@ async function _migrateTokenOwnedItemFlags() {
                 if (playlist.sounds[Number(trackFlag)-1]) {
                     i.flags.maestro.track = playlist.sounds[Number(trackFlag)-1]._id;
                     i.flags.maestro.playlist = playlist._id;
-                    console.log(game.i18n.localize("LOGS.MigrationTokenOwnedItemsMatched"), i.flags.maestro.playlist, i.flags.maestro.track);
+                    console.log(game.i18n.localize("MAESTRO.LOGS.MigrationTokenOwnedItemsMatched"), i.flags.maestro.playlist, i.flags.maestro.track);
                 } else {
                     i.flags.maestro.track = "";
-                    console.warn(game.i18n.localize("LOGS.MigrationTokenOwnedItemsNotMatched"), trackFlag, playlistFlag);
+                    console.warn(game.i18n.localize("MAESTRO.LOGS.MigrationTokenOwnedItemsNotMatched"), trackFlag, playlistFlag);
                     game.maestro.errors += 1;
                 }
             });
@@ -365,11 +365,11 @@ async function _migrateTokenOwnedItemFlags() {
         const sceneUpdate = await s.updateEmbeddedEntity("Token", updates);
         
         if (!sceneUpdate) {
-            console.warn(game.i18n.localize("LOGS.MigrationTokenOwnedItemFailed"), updates);
+            console.warn(game.i18n.localize("MAESTRO.LOGS.MigrationTokenOwnedItemFailed"), updates);
             game.maestro.migration.errors += 1;
             continue;
         }
 
-        console.log(game.i18n.localize("LOGS.MigrationTokenOwnedItemSuccess"), updates);
+        console.log(game.i18n.localize("MAESTRO.LOGS.MigrationTokenOwnedItemSuccess"), updates);
     }
 }

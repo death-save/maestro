@@ -8,7 +8,7 @@
             "type": "chrome",
             "request": "launch",
             "name": "Launch Chrome against localhost",
-            "url": "http://192.168.1.69:59999",
+            "url": "http://localhost:59999",
             "pathMapping": {
                 "/modules/maestro": "${workspaceFolder}"
             },
