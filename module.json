@@ -12,7 +12,7 @@
         "reddit": "u/etherboy12"
       }
     ],
-    "version":"0.8.0",
+    "version":"0.7.5",
     "minimumCoreVersion":"0.8.8",
     "compatibleCoreVersion":"0.8.8",
     "esmodules":["./maestro.js"],
@@ -48,6 +48,8 @@
     "download": "https://github.com/death-save/maestro/releases/latest/download/module.zip",
     "url": "https://github.com/death-save/maestro",
     "bugs": "https://github.com/death-save/maestro/issues",
-    "useBugReporter": true
+    "flags": {
+      "allowBugReporter": true
+    }
   }
   
