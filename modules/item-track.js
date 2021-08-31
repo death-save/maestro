@@ -64,7 +64,7 @@ export default class ItemTrack {
         const sceneTokenId = itemCard.attr("data-token-id");
 
         if (sceneTokenId) {
-            const [sceneId, tokenId] = sceneTokenId.split(".");
+            const [, sceneId, , tokenId] = sceneTokenId.split(".");
             const token = canvas.scene.id === sceneId ? canvas.tokens.get(tokenId) : game.scenes.get(sceneId)?.data.tokens.find(t => t._id === tokenId);
             item = token.actor.getOwnedItem(itemId);
         } else if (!sceneTokenId && actorId) {
