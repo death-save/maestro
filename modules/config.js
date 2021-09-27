@@ -100,7 +100,10 @@ export const SETTINGS_KEYS = {
     get ItemTrack() {
         return {
             enable: "enableItemTrack",
-            createPlaylist: "createItemTrackPlaylist"
+            createPlaylist: "createItemTrackPlaylist",
+            itemIdAttribute: "itemIdChatCardAttribute",
+            actorIdAttribute: "actorIdChatCardAttribute",
+            tokenIdAttribute: "tokenIdChatCardAttribute"
         }
     },
 

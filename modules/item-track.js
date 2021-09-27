@@ -51,7 +51,11 @@ export default class ItemTrack {
             return;
         }
 
-        const itemCard = html.find("[data-item-id]");
+        const itemIdentifier = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.ItemTrack.itemIdAttribute);
+        const actorIdentifier = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.ItemTrack.actorIdAttribute);
+        const tokenIdentifier = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.ItemTrack.tokenIdAttribute);
+
+        const itemCard = html.find(`[${itemIdentifier}]`);
         const trackPlayed = message.getFlag(MAESTRO.MODULE_NAME, MAESTRO.DEFAULT_CONFIG.ItemTrack.flagNames.played);
         
         if(!itemCard || itemCard.length === 0 || trackPlayed) {
@@ -59,9 +63,12 @@ export default class ItemTrack {
         }
         
         let item;
-        const itemId = itemCard.attr("data-item-id");
-        const actorId = itemCard.attr("data-actor-id");
-        const sceneTokenId = itemCard.attr("data-token-id");
+        const itemId = itemCard.attr(itemIdentifier);
+
+        if (!itemId) return;
+        
+        const actorId = itemCard.attr(actorIdentifier);
+        const sceneTokenId = itemCard.attr(tokenIdentifier);
 
         if (sceneTokenId) {
             item = await fromUuid(`${sceneTokenId}.Item.${itemId}`);

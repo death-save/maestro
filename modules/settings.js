@@ -65,6 +65,42 @@ export const registerModuleSettings = function() {
         }
     }),
 
+    game.settings.register(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.ItemTrack.itemIdAttribute, {
+        name: "MAESTRO.SETTINGS.ItemTrack.ItemIdAttributeN",
+        hint: "MAESTRO.SETTINGS.ItemTrack.ItemIdAttributeH",
+        scope: "world",
+        type: String,
+        default: "data-item-id",
+        config: true,
+        onChange: s => {
+            
+        }
+    }),
+
+    game.settings.register(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.ItemTrack.actorIdAttribute, {
+        name: "MAESTRO.SETTINGS.ItemTrack.ActorIdAttributeN",
+        hint: "MAESTRO.SETTINGS.ItemTrack.ActorIdAttributeH",
+        scope: "world",
+        type: String,
+        default: "data-actor-id",
+        config: true,
+        onChange: s => {
+            
+        }
+    }),
+
+    game.settings.register(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.ItemTrack.tokenIdAttribute, {
+        name: "MAESTRO.SETTINGS.ItemTrack.TokenIdAttributeN",
+        hint: "MAESTRO.SETTINGS.ItemTrack.TokenIdAttributeH",
+        scope: "world",
+        type: String,
+        default: "data-actor-id",
+        config: true,
+        onChange: s => {
+            
+        }
+    }),
+
     /* -------------------------------------------- */
     /*                 Combat Track                 */
     /* -------------------------------------------- */
