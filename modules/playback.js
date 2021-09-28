@@ -34,7 +34,7 @@ export function getPlaylistSound(trackId) {
  * @param {String} trackId - the track Id or playback mode
  */
 export async function playTrack(trackId, playlistId) {
-    if (!playlistId) {
+    if (!playlistId || !trackId) {
         return;
     }
 
@@ -49,11 +49,11 @@ export async function playTrack(trackId, playlistId) {
         trackId = ids[ids.length * Math.random() | 0];
     }
 
-    if(!trackId) {
-        return;
-    }
+    const sound = playlist.sounds?.get(trackId);
 
-    return await playlist.updateEmbeddedEntity("PlaylistSound", {_id: trackId, playing: true});
+    if (!sound) return;
+
+    return await sound.update({playing: true});
 }
 
 /**
