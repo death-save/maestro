@@ -6,7 +6,7 @@
 
         "SETTINGS.HypeTrackEnableN": "Enable Hype Track",
         "SETTINGS.HypeTrackEnableH": "Enable the ability to set a Track for an Actor",
-        "SETTINGS.HypeTrackPauseOthersN": "Pause Other Playlist Sounds",
+        "SETTINGS.HypeTrackPauseOthersN": "Pause Other Playlist Sounds (Hype Track)",
         "SETTINGS.HypeTrackPauseOthersH": "Select to pause other Sounds (eg. music) while Hype Track is playing",
         "SETTINGS.ItemTrackEnableN": "Enable Item Track",
         "SETTINGS.ItemTrackEnableH": "Assign a track/playlist to be played when item is rolled",
@@ -20,6 +20,8 @@
         "SETTINGS.CombatTrackDefaultTrackH": "Default track to use in Combat",
         "SETTINGS.CombatTrackCreatePlaylistN": "Create Combat Tracks Playlist",
         "SETTINGS.CombatTrackCreatePlaylistH": "When enabled, playlist will be created if it is not found",
+        "SETTINGS.CombatTrack.PauseOthersN": "Pause Other Playlist Sounds (Combat Track)",
+        "SETTINGS.CombatTrack.PauseOthersH": "Pause other sounds (eg. scene music) while Combat Track is playing",
         "SETTINGS.MigrationCurrentVersionN": "Current Migration Version",
         "SETTINGS.MigrationCurrentVersionH": "Holds the version of Maestro that was last migrated",
         "SETTINGS.DisableDiceSoundN": "Disable Dice Sounds",

@@ -66,7 +66,14 @@ export default class CombatTrack {
         if (!playlist) {
             return;
         }
+
+        const pauseOtherSetting = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.CombatTrack.pauseOthers);
         
+        if (pauseOtherSetting) {
+            const pausedSounds = await Playback.pauseAll();
+            game.maestro.pausedSounds = pausedSounds;
+        }
+
         // Depending on the track flag determine how and what to play
         switch (track) {
             case MAESTRO.DEFAULT_CONFIG.CombatTrack.playbackModes.all:
@@ -124,9 +131,19 @@ export default class CombatTrack {
         });
 
         await playlist.updateEmbeddedEntity("PlaylistSound", updates);
-        ui.playlists.render();
+        ui.playlists.render();   
+    }
 
-        
+    /**
+     * Resume any paused Sounds
+     */
+    _resumeOtherSounds() {
+        const pauseOtherSoundSetting = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.CombatTrack.pauseOthers);
+        const pausedSounds = game.maestro.pausedSounds;
+
+        if (pauseOtherSoundSetting && pausedSounds) {
+            Playback.resumeSounds(pausedSounds);
+        }
     }
 
     /**

@@ -155,6 +155,16 @@ export const registerModuleSettings = function() {
         }
     }),
 
+    game.settings.register(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.CombatTrack.pauseOthers, {
+        name: "MAESTRO.SETTINGS.CombatTrackPauseOthersN",
+        hint: "MAESTRO.SETTINGS.CombatTrackPauseOthersH",
+        scope: "world",
+        type: Boolean,
+        default: false,
+        config: true,
+        onChange: async s => {}
+    }),
+
     /* -------------------------------------------- */
     /*                   Migration                  */
     /* -------------------------------------------- */

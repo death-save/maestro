@@ -159,6 +159,7 @@ export default class Conductor {
     static _hookOnDeleteCombat() {
         Hooks.on("deleteCombat", (combat, options, userId) => {
             game.maestro.combatTrack._stopCombatTrack(combat);
+            game.maestro.combatTrack._resumeOtherSounds();
         });
     }
     

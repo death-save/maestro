@@ -119,7 +119,8 @@ export const SETTINGS_KEYS = {
             enable: "enableCombatTrack",
             createPlaylist: "createCombatTrackPlaylist",
             defaultPlaylist: "defaultCombatTrackPlaylist",
-            defaultTrack: "defaultCombatTrackTrack"
+            defaultTrack: "defaultCombatTrackTrack",
+            pauseOthers: "combatTrackPauseOthers"
         }
     },
 
