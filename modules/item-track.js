@@ -114,33 +114,12 @@ export default class ItemTrack {
                 }
 
                 await Playback.playTrack(track, playlist);
-                return this._setChatMessageFlag(message);      
+                     
         }
-    }    
 
-    /**
-     * Gets the Item Track flags on an Item
-     * @param {Object} item - the item to get flags from
-     * @returns {Promise} flags - an object containing the flags
-     */
-    async getItemFlags(item) {
-        return item?.data?.flags[MAESTRO.MODULE_NAME];
+        return await this._setChatMessageFlag(message);
     }
-
-    /**
-     * Sets the Item Track flags on an Item instance
-     * Handled as an update so all flags can be set at once
-     * @param {Object} item - the item to set flags on
-     * @param {String} playlistId - the playlist id to set
-     * @param {String} trackId - the trackId or playback mode to set
-     */
-    async setItemFlags(item, playlistId, trackId) {
-        return await item.update({
-            [`flags.${MAESTRO.MODULE_NAME}.${MAESTRO.DEFAULT_CONFIG.ItemTrack.flagNames.playlist}`]: playlistId,
-            [`flags.${MAESTRO.MODULE_NAME}.${MAESTRO.DEFAULT_CONFIG.ItemTrack.flagNames.track}`]: trackId
-        });
-    }
-     
+    
     /**
      * Adds a button to the Item sheet to open the Item Track form
      * @param {Object} app 
@@ -224,6 +203,33 @@ export default class ItemTrack {
             "playlists": game.playlists.contents
         }
         new ItemTrackForm(item, data, options).render(true);
+    }
+
+    /* -------------------------------------------- */
+    /*                    Helpers                   */
+    /* -------------------------------------------- */
+
+    /**
+     * Gets the Item Track flags on an Item
+     * @param {Object} item - the item to get flags from
+     * @returns {Promise} flags - an object containing the flags
+     */
+    getItemFlags(item) {
+        return item?.data?.flags[MAESTRO.MODULE_NAME];
+    }
+
+    /**
+     * Sets the Item Track flags on an Item instance
+     * Handled as an update so all flags can be set at once
+     * @param {Object} item - the item to set flags on
+     * @param {String} playlistId - the playlist id to set
+     * @param {String} trackId - the trackId or playback mode to set
+     */
+    async setItemFlags(item, playlistId, trackId) {
+        return await item.update({
+            [`flags.${MAESTRO.MODULE_NAME}.${MAESTRO.DEFAULT_CONFIG.ItemTrack.flagNames.playlist}`]: playlistId,
+            [`flags.${MAESTRO.MODULE_NAME}.${MAESTRO.DEFAULT_CONFIG.ItemTrack.flagNames.track}`]: trackId
+        });
     }    
 
     /**
