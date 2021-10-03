@@ -166,12 +166,7 @@ export function resumeSounds(sounds) {
  * Pauses all active playlist sounds
  */
 export function pauseAll() {
-    // Find active playlists and sounds and pause them
-    const activePlaylists = game.playlists.playing;
-
-    if (!activePlaylists.length) return;
-
-    const activeSounds = activePlaylists.flatMap(p => {
+    const activeSounds = game.playlists.contents.flatMap(p => {
         return p.sounds?.contents?.filter(s => s.playing);
     });
 
