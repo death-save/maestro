@@ -72,7 +72,6 @@ export default class CombatTrack {
      * @param {*} combat 
      * @param {*} update 
      * @param {*} options 
-     * @returns 
      */
     static _checkCombatStart(combat, update, options) {
         const combatStart = combat.round === 0 && update.round === 1;
@@ -316,7 +315,7 @@ class CombatTrackForm extends FormApplication {
             template: MAESTRO.DEFAULT_CONFIG.CombatTrack.templatePath,
             classes: ["sheet"],
             width: 500,
-            tabs: [{navSelector: ".tabs", contentSelector: ".content", initial: "defaults"}]
+            tabs: [{navSelector: ".tabs", contentSelector: ".content", initial: `${game.combat ? "encounter" : "defaults"}`}]
         });
     }
 
