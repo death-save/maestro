@@ -12,6 +12,8 @@
         "SETTINGS.ItemTrackEnableH": "Assign a track/playlist to be played when item is rolled",
         "SETTINGS.ItemTrackCreatePlaylistN": "Create Item Tracks Playlist",
         "SETTINGS.ItemTrackCreatePlaylistH": "When enabled, playlist will be created if it is not found",
+        "SETTINGS.ItemTrack.ItemIdAttributeN": "Item Id Attribute",
+        "SETTINGS.ItemTrack.ItemIdAttributeH": "Used to look for matching Item Id in chat messages",
         "SETTINGS.CombatTrackEnableN": "Enable Combat Track",
         "SETTINGS.CombatTrackEnableH": "Assign a track/playlist to be played when combat begins",
         "SETTINGS.CombatTrackDefaultPlaylistN": "Default Combat Playlist",

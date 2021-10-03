@@ -70,9 +70,6 @@ export default class ItemTrack {
         }
 
         const itemIdentifier = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.ItemTrack.itemIdAttribute);
-        const actorIdentifier = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.ItemTrack.actorIdAttribute);
-        const tokenIdentifier = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.ItemTrack.tokenIdAttribute);
-
         const itemCard = html.find(`[${itemIdentifier}]`);
         const trackPlayed = message.getFlag(MAESTRO.MODULE_NAME, MAESTRO.DEFAULT_CONFIG.ItemTrack.flagNames.played);
         
@@ -80,27 +77,23 @@ export default class ItemTrack {
             return;
         }
         
-        let item;
         const itemId = itemCard.attr(itemIdentifier);
 
         if (!itemId) return;
         
-        const actorId = itemCard.attr(actorIdentifier);
-        const sceneTokenId = itemCard.attr(tokenIdentifier);
+        const tokenId = message.data.speaker?.token;
+        const sceneId = message.data.speaker?.scene;
+        const actorId = message.data.speaker?.actor;
 
-        if (sceneTokenId) {
-            item = await fromUuid(`${sceneTokenId}.Item.${itemId}`);
-        } else if (!sceneTokenId && actorId) {
-            item = await game.actors.get(actorId).getOwnedItem(itemId);
-        } else {
-            item = await game.items.get(itemId);
-        }
+        const token = await fromUuid(`Scene.${sceneId}.Token.${tokenId}`);
+        const actor = token?.actor ?? game.actors.get(actorId);
+        const item = actor?.items?.get(itemId) ?? game.items?.get(itemId);
 
-        const flags = await this.getItemFlags(item);
+        if (!item) return;
 
-        if (!flags) {
-            return;
-        }
+        const flags = this.getItemFlags(item);
+
+        if (!flags) return;
 
         const track = flags.track || "";
         const playlist = flags.playlist || "";
