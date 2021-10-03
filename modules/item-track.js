@@ -9,6 +9,31 @@ export default class ItemTrack {
         this.playlist = null;
     }
 
+    /* -------------------------------------------- */
+    /*                 Hook Handlers                */
+    /* -------------------------------------------- */
+    static async _onReady() {
+        if (game.maestro.itemTrack) {
+            game.maestro.itemTrack._checkForItemTracksPlaylist();
+        }
+    }
+
+    static async _onRenderChatMessage(message, html, data) {
+        if (game.maestro.itemTrack) {
+            game.maestro.itemTrack._chatMessageHandler(message, html, data);
+        }
+    }
+
+    static async _onRenderItemSheet(app, html, data) {
+        if (game.maestro.itemTrack) {
+            game.maestro.itemTrack._addItemTrackButton(app, html, data);
+        }
+    }
+
+    /* -------------------------------------------- */
+    /*               Handlers/Workers               */
+    /* -------------------------------------------- */
+
     /**
      * Checks for the presence of the Hype Tracks playlist, creates one if none exist
      */
@@ -45,7 +70,7 @@ export default class ItemTrack {
      * @param {Object} html - the jquery object
      * @param {Object} data - the data in the message update
      */
-    async chatMessageHandler(message, html, data) {
+    async _chatMessageHandler(message, html, data) {
         const enabled = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.ItemTrack.enable);
         if (!enabled || !game.user.isGM) {
             return;

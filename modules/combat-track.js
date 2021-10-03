@@ -10,6 +10,42 @@ export default class CombatTrack {
         this.pausedSounds = [];
     }
 
+    /* -------------------------------------------- */
+    /*                 Hook Handlers                */
+    /* -------------------------------------------- */
+
+    static _onReady() {
+        if (game.maestro.combatTrack) {
+            if (!game.maestro.combatTrack.playlist) game.maestro.combatTrack._checkForCombatTracksPlaylist();
+        }
+    }
+
+    static async _onPreUpdateCombat(combat, update, options, userId) {
+        if (game.maestro.combatTrack) {
+            CombatTrack._checkCombatStart(combat, update, options);
+        }
+    }
+
+    static async _onUpdateCombat(combat, update, options, userId) {
+        if (game.maestro.combatTrack) {
+            game.maestro.combatTrack._getCombatTrack(combat, update, options, userId);
+        }
+    }
+
+    static async _onDeleteCombat(combat, options, userId) {
+        if (game.maestro.combatTrack) {
+            game.maestro.combatTrack._stopCombatTrack(combat);
+        }
+    }
+
+    static async _onRenderCombatTracker(app, html, data) {
+        CombatTrack._addCombatTrackButton(app, html, data);
+    }
+
+    /* -------------------------------------------- */
+    /*               Handlers/Workers               */
+    /* -------------------------------------------- */
+
     /**
      * Checks for the presence of the Hype Tracks playlist, creates one if none exist
      */
@@ -39,16 +75,31 @@ export default class CombatTrack {
         }
         return await Playlist.create({"name": MAESTRO.DEFAULT_CONFIG.CombatTrack.playlistName});
     }
+    
+    /**
+     * Checks the updating Combat instance to determine if it just starting (round 0 => round 1)
+     * @param {*} combat 
+     * @param {*} update 
+     * @param {*} options 
+     * @returns 
+     */
+    static _checkCombatStart(combat, update, options) {
+        const combatStart = combat.round === 0 && update.round === 1;
+
+        if (!game.user.isGM || !combatStart) return;
+
+        setProperty(options, `${MAESTRO.MODULE_NAME}.${MAESTRO.FLAGS.CombatTrack.combatStarted}`, true);
+    }
 
     /**
      * Checks for the existence of a Combat Track and initiates playback
      * @param combat
      * @param update
      */
-    async _checkCombatTrack(combat, update) {
-        const combatStart = combat.round === 0 && update.round === 1;
+    async _getCombatTrack(combat, update, options) {
+        const combatStarted = getProperty(options, `${MAESTRO.MODULE_NAME}.${MAESTRO.FLAGS.CombatTrack.combatStarted}`);
 
-        if (!game.user.isGM || !combatStart) {
+        if (!game.user.isGM || !combatStarted) {
             return;
         }
 

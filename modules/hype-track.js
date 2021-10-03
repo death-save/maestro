@@ -7,6 +7,35 @@ export default class HypeTrack {
         this.pausedSounds = [];
     }
 
+    /* -------------------------------------------- */
+    /*                 Hook Handlers                */
+    /* -------------------------------------------- */
+
+    static _onReady() {
+        if (game.maestro.hypeTrack) {
+            game.maestro.hypeTrack._checkForHypeTracksPlaylist();
+            game.maestro.playHype = game.maestro.hypeTrack.playHype.bind(game.maestro.hypeTrack);
+        }
+    }
+
+    static _onUpdateCombat(combat, update, options, userId) {
+        if (game.maestro.hypeTrack) {
+            game.maestro.hypeTrack._processHype(combat, update);
+        }
+    }
+
+    static _onDeleteCombat(combat, options, userId) {
+        if (game.maestro.hypeTrack) {
+            game.maestro.hypeTrack._stopHypeTrack();
+        }
+    }
+
+    static _onRenderActorSheet(app, html, data) {
+        if (game.maestro.hypeTrack) {
+            game.maestro.hypeTrack._addHypeButton(app, html, data);
+        }
+    }
+
     /**
      * Checks for the presence of the Hype Tracks playlist, creates one if none exist
      */

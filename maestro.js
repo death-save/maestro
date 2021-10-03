@@ -32,25 +32,13 @@ export default class Conductor {
      */
     static async _hookOnReady() {
         Hooks.on("ready", async () => {
-
             game.maestro.hypeTrack = new HypeTrack();
             game.maestro.itemTrack = new ItemTrack();
             game.maestro.combatTrack = new CombatTrack();
 
-            if (game.maestro.hypeTrack) {
-                game.maestro.hypeTrack._checkForHypeTracksPlaylist();
-
-                // Hype Track Macro methods
-                game.maestro.playHype = game.maestro.hypeTrack.playHype.bind(game.maestro.hypeTrack);
-            }
-
-            if (game.maestro.itemTrack) {
-                game.maestro.itemTrack._checkForItemTracksPlaylist();
-            }
-
-            if (game.maestro.combatTrack) {
-                game.maestro.combatTrack._checkForCombatTracksPlaylist();
-            }
+            HypeTrack._onReady();
+            ItemTrack._onReady();
+            CombatTrack._onReady();
 
             Misc._checkForCriticalPlaylist();
             Misc._checkForFailurePlaylist();
@@ -113,6 +101,7 @@ export default class Conductor {
      */
     static _hookOnPreUpdatePlaylist() {
         Hooks.on("preUpdatePlaylist", (playlist, update, options, userId) => {
+            // unused
         });
     }
 
@@ -139,7 +128,7 @@ export default class Conductor {
      */
     static _hookOnPreUpdateCombat() {
         Hooks.on("preUpdateCombat", (combat, update, options, userId) => {
-            game.maestro.combatTrack._checkCombatTrack(combat, update);
+            CombatTrack._onPreUpdateCombat(combat, update, options, userId);
         });
     }
 
@@ -148,8 +137,8 @@ export default class Conductor {
      */
     static _hookOnUpdateCombat() {
         Hooks.on("updateCombat", (combat, update, options, userId) => {
-            //game.maestro.combatTrack._checkCombatTrack(combat, update);
-            game.maestro.hypeTrack._processHype(combat, update);
+            HypeTrack._onUpdateCombat(combat, update, options, userId);
+            CombatTrack._onUpdateCombat(combat, update, options, userId);
         });
     }
 
@@ -158,8 +147,8 @@ export default class Conductor {
      */
     static _hookOnDeleteCombat() {
         Hooks.on("deleteCombat", (combat, options, userId) => {
-            game.maestro.combatTrack._stopCombatTrack(combat);
-            game.maestro.combatTrack._resumeOtherSounds();
+            HypeTrack._onDeleteCombat(combat, options, userId);
+            CombatTrack._onDeleteCombat(combat, options, userId);
         });
     }
     
@@ -168,7 +157,7 @@ export default class Conductor {
      */
     static _hookOnRenderActorSheet() {
         Hooks.on("renderActorSheet", (app, html, data) => {
-            game.maestro.hypeTrack._addHypeButton(app, html, data);
+            HypeTrack._onRenderActorSheet(app, html, data);
         });
        
     }
@@ -178,7 +167,7 @@ export default class Conductor {
      */
     static _hookOnRenderChatMessage() {
         Hooks.on("renderChatMessage", (message, html, data) => {
-            game.maestro.itemTrack.chatMessageHandler(message, html, data);
+            ItemTrack._onRenderChatMessage(message, html, data);
             Misc._onRenderChatMessage(message, html, data);
         })
     }
@@ -197,7 +186,7 @@ export default class Conductor {
      */
     static _hookOnRenderCombatTracker() {
         Hooks.on("renderCombatTracker", (app, html, data) => {
-            CombatTrack._addCombatTrackButton(app, html, data);
+            CombatTrack._onRenderCombatTracker(app, html, data);
         });
     }
 
@@ -205,12 +194,8 @@ export default class Conductor {
      * Render Item Sheet Hook
      */
     static _hookOnRenderItemSheet() {
-        if(!game.user.isGM) {
-            return;
-        }
-
         Hooks.on("renderItemSheet", (app, html, data) => {
-            game.maestro.itemTrack._addItemTrackButton(app, html, data);
+            ItemTrack._onRenderItemSheet(app, html, data);
         });
         
     }

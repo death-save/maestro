@@ -94,6 +94,14 @@ export const DEFAULT_CONFIG = {
         }
     }
 }
+
+export const FLAGS = {
+    get CombatTrack() {
+        return {
+            combatStarted: "combatStarted"
+        }
+    }
+}
         
 
 export const SETTINGS_KEYS = {
