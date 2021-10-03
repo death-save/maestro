@@ -53,26 +53,17 @@ export default class CombatTrack {
         const enabled = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.CombatTrack.enable);
         const createPlaylist = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.CombatTrack.createPlaylist);
 
-        if(!game.user.isGM || !enabled || !createPlaylist) {
-            return;
-        }
+        if(!game.user.isGM || !enabled || !createPlaylist) return;
 
-        const combatPlaylist = game.playlists.entities.find(p => p.name == MAESTRO.DEFAULT_CONFIG.CombatTrack.playlistName);
-        if(!combatPlaylist) {
-            this.playlist = await this._createCombatTracksPlaylist(true);
-        } else {
-            this.playlist = combatPlaylist;
-        }
+        const combatPlaylist = game.playlists.getName(MAESTRO.DEFAULT_CONFIG.CombatTrack.playlistName);
+
+        this.playlist = combatPlaylist ?? await this._createCombatTracksPlaylist();
     }
 
     /**
      * Create the Hype Tracks playlist if the create param is true
-     * @param {Boolean} create - whether or not to create the playlist
      */
-    async _createCombatTracksPlaylist(create) {
-        if (!create) {
-            return;
-        }
+    async _createCombatTracksPlaylist() {
         return await Playlist.create({"name": MAESTRO.DEFAULT_CONFIG.CombatTrack.playlistName});
     }
     
