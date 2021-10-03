@@ -185,7 +185,7 @@ export default class HypeTrack {
         /**
          * Register a click listener that opens the Hype Track form
          */
-        hypeButton.click(ev => {
+        hypeButton.on("click", (event) => {
             const actorTrack = this._getActorHypeTrack(app.entity);
             this._openTrackForm(app.entity, actorTrack, {closeOnSubmit: true});
         });

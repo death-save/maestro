@@ -231,7 +231,7 @@ export default class CombatTrack {
         /**
          * Register a click listener that opens the Combat Track form
          */
-        combatTrackButton.click(async ev => {
+        combatTrackButton.on("click", async (event) => {
             const combat = game.combat || null,
                   flags = combat ? await CombatTrack.getCombatFlags(combat) : null,
                   track = flags ? flags.track : "",

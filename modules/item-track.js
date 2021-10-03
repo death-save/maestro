@@ -182,7 +182,7 @@ export default class ItemTrack {
         /**
          * Register a click listener that opens the Hype Track form
          */
-        itemTrackButton.click(async ev => {
+        itemTrackButton.on("click", (event) => {
 
             let item;
             
