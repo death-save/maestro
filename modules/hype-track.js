@@ -253,11 +253,12 @@ export default class HypeTrack {
         }
 
         // Stop any sounds playing individually
-        const playingSounds = this.playlist.sounds.filter(s => s.playing);
+        const playingSounds = this.playlist.sounds.filter(s => s.playing || s.data.pausedTime);
         const updates = playingSounds.map(s => {
             return {
                 _id: s._id,
-                playing: false
+                playing: false,
+                pausedTime: null
             }
         });
 
