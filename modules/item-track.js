@@ -171,9 +171,9 @@ export default class ItemTrack {
                 const actor = app.entity.actor;
 
                 if (actor.isToken) {
-                    item = canvas.tokens.get(actor.token.id).actor.getOwnedItem(itemId);
+                    item = canvas.tokens?.get(actor.token.id)?.actor.items?.get(itemId);
                 } else {
-                    item = game.actors.get(actor.id).getOwnedItem(itemId);
+                    item = game.actors.get(actor.id)?.items.get(itemId);
                 }
 
             //Scenario 2 - world item
