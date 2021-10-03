@@ -147,7 +147,7 @@ export default class ItemTrack {
      * @param {Object} html 
      * @param {Object} data 
      */
-    async _addItemTrackButton (app, html, data) {
+     async _addItemTrackButton(app, html, data) {
         const enabled = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.ItemTrack.enable);
         if (!enabled) {
             return;
