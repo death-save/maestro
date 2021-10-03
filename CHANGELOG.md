@@ -1,11 +1,30 @@
 # Changelog
 
 ## Known Issues
-1. Critical Sounds do not play for game systems that do not use the same roll logic as dnd5e
+1. ~~Critical Sounds do not play for game systems that do not use the same roll logic as dnd5e~~ resolved in 0.7.6
 2. Critical Sounds do not play when roll made with advantage/disadvantage
-3. Critical Sounds do not play with modules such as BetterRolls5e
-
-
+3. Critical Sounds ~~do~~ may not play with modules such as BetterRolls5e (possibly resolved in 0.7.6)
+4. A GM must be logged in for many of the Maestro functions to work due to underlying Foundry permission requirements.
+5. Game systems that do not include an Item Id reference in their item roll chat messages **cannot** be used with Item Tracks
+---
+## [0.7.6] - 2021-10-03
+### Item Tracks
+- Improved the detection of token/actor and items in chat messages for Item Tracks
+- Added a setting for the item-id attribute checked for in chat messages for Item Tracks
+> These changes combined should greatly improve compatibility with different game systems
+### Various
+- Random playback option in Hype, Combat, Critical Success/Failure Tracks is now actually random again
+- Playlist loop toggle can now only be seen/set by a GM which avoids an error that occurs when a non-GM tries to configure it
+- When Hype/Combat Tracks pause sounds, they will now pause regardless of whether the playlist itself is marked as "playing"
+### Hype Tracks
+- When combat ends Hype Tracks will also end
+- Hype Tracks correctly pause Combat Tracks
+### Combat Tracks
+- Combat Tracks now include a setting to pause other playlist sounds while they are playing. At the end of a Combat Track, the previously paused sounds should resume
+- If there is a combat encounter the Combat Tracks config will open to the ENCOUNTER tab instead of DEFAULTS
+### Critical Success/Failure Tracks
+- Critical Success/Failure Tracks now include settings to configure the number of faces/die type (eg. 20 for d20) to trigger off and the threshold for success and failure
+---
 ## [0.7.5] - 2021-07-13
 - Added Foundry VTT v0.8.x compatibility
 
