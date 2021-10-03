@@ -12,9 +12,9 @@
         "reddit": "u/etherboy12"
       }
     ],
-    "version":"0.7.5",
+    "version":"0.7.6",
     "minimumCoreVersion":"0.8.8",
-    "compatibleCoreVersion":"0.8.8",
+    "compatibleCoreVersion":"0.8.9",
     "esmodules":["./maestro.js"],
     "styles": ["./maestro.css"],
     "languages": [
