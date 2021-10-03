@@ -105,15 +105,14 @@ export default class CombatTrack {
         const playlist = flags ? flags.playlist : defaultPlaylist ? defaultPlaylist : "";
         const track = flags ? flags.track : defaultTrack ? defaultTrack : "";
 
-        if (!playlist) {
+        if (!playlist || !track) {
             return;
         }
 
         const pauseOtherSetting = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.CombatTrack.pauseOthers);
         
         if (pauseOtherSetting) {
-            const pausedSounds = await Playback.pauseAll();
-            game.maestro.pausedSounds = pausedSounds;
+            this.pausedSounds = await Playback.pauseAll();
         }
 
         // Depending on the track flag determine how and what to play
@@ -126,10 +125,6 @@ export default class CombatTrack {
                 return await Playback.playTrack(track, playlist);
         
             default:
-                if (!track) {
-                    break;
-                }
-
                 return await Playback.playTrack(track, playlist);     
         }
     }
