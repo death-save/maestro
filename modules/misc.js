@@ -112,6 +112,8 @@ export class MaestroConfigForm extends FormApplication {
  * @param {*} html 
  */
 function _addPlaylistLoopToggle(html) {
+    if (!game.user.isGM) return;
+    
     const playlistModeButtons = html.find('[data-action="playlist-mode"]');
     const loopToggleHtml = 
         `<a class="sound-control" data-action="playlist-loop" title="${game.i18n.localize("MAESTRO.PLAYLIST-LOOP.ButtonTooltipLoop")}">
