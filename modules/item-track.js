@@ -45,22 +45,15 @@ export default class ItemTrack {
             return;
         }
 
-        const itemPlaylist = game.playlists.entities.find(p => p.name == MAESTRO.DEFAULT_CONFIG.ItemTrack.playlistName);
-        if(!itemPlaylist) {
-            this.playlist = await this._createItemTracksPlaylist(true);
-        } else {
-            this.playlist = itemPlaylist;
-        }
+        const itemPlaylist = game.playlists.getName(MAESTRO.DEFAULT_CONFIG.ItemTrack.playlistName);
+
+        this.playlist = itemPlaylist ?? await this._createItemTracksPlaylist();
     }
 
     /**
      * Create the Hype Tracks playlist if the create param is true
-     * @param {Boolean} create - whether or not to create the playlist
      */
-    async _createItemTracksPlaylist(create) {
-        if (!create) {
-            return;
-        }
+    async _createItemTracksPlaylist() {
         return await Playlist.create({"name": MAESTRO.DEFAULT_CONFIG.ItemTrack.playlistName});
     }
 
