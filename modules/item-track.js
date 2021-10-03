@@ -236,12 +236,10 @@ export default class ItemTrack {
      * Sets a flag on a chat message
      * @param {Object} message - the message to set a flag on
      */
-    _setChatMessageFlag(message) {
-        if (!message) {
-            return;
-        }
+    async _setChatMessageFlag(message) {
+        if (!message) return;
 
-        message.setFlag(MAESTRO.MODULE_NAME, MAESTRO.DEFAULT_CONFIG.ItemTrack.flagNames.played, true);
+        return await message.setFlag(MAESTRO.MODULE_NAME, MAESTRO.DEFAULT_CONFIG.ItemTrack.flagNames.played, true);
     }    
 }
 
