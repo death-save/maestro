@@ -9,6 +9,31 @@ export default class ItemTrack {
         this.playlist = null;
     }
 
+    /* -------------------------------------------- */
+    /*                 Hook Handlers                */
+    /* -------------------------------------------- */
+    static async _onReady() {
+        if (game.maestro.itemTrack) {
+            game.maestro.itemTrack._checkForItemTracksPlaylist();
+        }
+    }
+
+    static async _onRenderChatMessage(message, html, data) {
+        if (game.maestro.itemTrack) {
+            game.maestro.itemTrack._chatMessageHandler(message, html, data);
+        }
+    }
+
+    static async _onRenderItemSheet(app, html, data) {
+        if (game.maestro.itemTrack) {
+            game.maestro.itemTrack._addItemTrackButton(app, html, data);
+        }
+    }
+
+    /* -------------------------------------------- */
+    /*               Handlers/Workers               */
+    /* -------------------------------------------- */
+
     /**
      * Checks for the presence of the Hype Tracks playlist, creates one if none exist
      */
@@ -20,22 +45,15 @@ export default class ItemTrack {
             return;
         }
 
-        const itemPlaylist = game.playlists.entities.find(p => p.name == MAESTRO.DEFAULT_CONFIG.ItemTrack.playlistName);
-        if(!itemPlaylist) {
-            this.playlist = await this._createItemTracksPlaylist(true);
-        } else {
-            this.playlist = itemPlaylist;
-        }
+        const itemPlaylist = game.playlists.getName(MAESTRO.DEFAULT_CONFIG.ItemTrack.playlistName);
+
+        this.playlist = itemPlaylist ?? await this._createItemTracksPlaylist();
     }
 
     /**
      * Create the Hype Tracks playlist if the create param is true
-     * @param {Boolean} create - whether or not to create the playlist
      */
-    async _createItemTracksPlaylist(create) {
-        if (!create) {
-            return;
-        }
+    async _createItemTracksPlaylist() {
         return await Playlist.create({"name": MAESTRO.DEFAULT_CONFIG.ItemTrack.playlistName});
     }
 
@@ -45,39 +63,36 @@ export default class ItemTrack {
      * @param {Object} html - the jquery object
      * @param {Object} data - the data in the message update
      */
-    async chatMessageHandler(message, html, data) {
+    async _chatMessageHandler(message, html, data) {
         const enabled = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.ItemTrack.enable);
-        if (!enabled || !game.user.isGM) {
-            return;
-        }
 
-        const itemCard = html.find("[data-item-id]");
+        if (!enabled || !game.user.isGM) return;
+
+        const itemIdentifier = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.ItemTrack.itemIdAttribute);
+        const itemCard = html.find(`[${itemIdentifier}]`);
         const trackPlayed = message.getFlag(MAESTRO.MODULE_NAME, MAESTRO.DEFAULT_CONFIG.ItemTrack.flagNames.played);
         
         if(!itemCard || itemCard.length === 0 || trackPlayed) {
             return;
         }
         
-        let item;
-        const itemId = itemCard.attr("data-item-id");
-        const actorId = itemCard.attr("data-actor-id");
-        const sceneTokenId = itemCard.attr("data-token-id");
+        const itemId = itemCard.attr(itemIdentifier);
 
-        if (sceneTokenId) {
-            const [sceneId, tokenId] = sceneTokenId.split(".");
-            const token = canvas.scene.id === sceneId ? canvas.tokens.get(tokenId) : game.scenes.get(sceneId)?.data.tokens.find(t => t._id === tokenId);
-            item = token.actor.getOwnedItem(itemId);
-        } else if (!sceneTokenId && actorId) {
-            item = await game.actors.get(actorId).getOwnedItem(itemId);
-        } else {
-            item = await game.items.get(itemId);
-        }
+        if (!itemId) return;
+        
+        const tokenId = message.data.speaker?.token;
+        const sceneId = message.data.speaker?.scene;
+        const actorId = message.data.speaker?.actor;
 
-        const flags = await this.getItemFlags(item);
+        const token = await fromUuid(`Scene.${sceneId}.Token.${tokenId}`);
+        const actor = token?.actor ?? game.actors.get(actorId);
+        const item = actor?.items?.get(itemId) ?? game.items?.get(itemId);
 
-        if (!flags) {
-            return;
-        }
+        if (!item) return;
+
+        const flags = this.getItemFlags(item);
+
+        if (!flags) return;
 
         const track = flags.track || "";
         const playlist = flags.playlist || "";
@@ -86,52 +101,29 @@ export default class ItemTrack {
         switch (track) {
             case MAESTRO.DEFAULT_CONFIG.ItemTrack.playbackModes.all:
                 await Playback.playPlaylist(playlist);
-                return this._setChatMessageFlag(message);
+                break;
             
             case MAESTRO.DEFAULT_CONFIG.ItemTrack.playbackModes.random:
-                await Playback.playTrack(track, playlist)
-                return this._setChatMessageFlag(message);
+                await Playback.playTrack(track, playlist);
+                break;
         
             default:
-                if (!track) {
-                    break;
-                }
+                if (!track) return;
 
                 await Playback.playTrack(track, playlist);
-                return this._setChatMessageFlag(message);      
+                     
         }
-    }    
 
-    /**
-     * Gets the Item Track flags on an Item
-     * @param {Object} item - the item to get flags from
-     * @returns {Promise} flags - an object containing the flags
-     */
-    async getItemFlags(item) {
-        return item?.data?.flags[MAESTRO.MODULE_NAME];
+        return await this._setChatMessageFlag(message);
     }
-
-    /**
-     * Sets the Item Track flags on an Item instance
-     * Handled as an update so all flags can be set at once
-     * @param {Object} item - the item to set flags on
-     * @param {String} playlistId - the playlist id to set
-     * @param {String} trackId - the trackId or playback mode to set
-     */
-    async setItemFlags(item, playlistId, trackId) {
-        return await item.update({
-            [`flags.${MAESTRO.MODULE_NAME}.${MAESTRO.DEFAULT_CONFIG.ItemTrack.flagNames.playlist}`]: playlistId,
-            [`flags.${MAESTRO.MODULE_NAME}.${MAESTRO.DEFAULT_CONFIG.ItemTrack.flagNames.track}`]: trackId
-        });
-    }
-     
+    
     /**
      * Adds a button to the Item sheet to open the Item Track form
      * @param {Object} app 
      * @param {Object} html 
      * @param {Object} data 
      */
-    async _addItemTrackButton (app, html, data) {
+     async _addItemTrackButton(app, html, data) {
         const enabled = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.ItemTrack.enable);
         if (!enabled) {
             return;
@@ -166,7 +158,7 @@ export default class ItemTrack {
         /**
          * Register a click listener that opens the Hype Track form
          */
-        itemTrackButton.click(async ev => {
+        itemTrackButton.on("click", (event) => {
 
             let item;
             
@@ -176,9 +168,9 @@ export default class ItemTrack {
                 const actor = app.entity.actor;
 
                 if (actor.isToken) {
-                    item = canvas.tokens.get(actor.token.id).actor.getOwnedItem(itemId);
+                    item = canvas.tokens?.get(actor.token.id)?.actor.items?.get(itemId);
                 } else {
-                    item = game.actors.get(actor.id).getOwnedItem(itemId);
+                    item = game.actors.get(actor.id)?.items.get(itemId);
                 }
 
             //Scenario 2 - world item
@@ -188,7 +180,7 @@ export default class ItemTrack {
                 }
             }
             
-            const flags = await this.getItemFlags(item);
+            const flags = this.getItemFlags(item);
             const track = flags ? flags.track : "";
             const playlist = flags ? flags.playlist : "";
             this._openTrackForm(item, track, playlist, {closeOnSubmit: true});
@@ -205,21 +197,46 @@ export default class ItemTrack {
         const data = {
             "currentTrack": track,
             "currentPlaylist": playlist,
-            "playlists": game.playlists.entities
+            "playlists": game.playlists.contents
         }
         new ItemTrackForm(item, data, options).render(true);
+    }
+
+    /* -------------------------------------------- */
+    /*                    Helpers                   */
+    /* -------------------------------------------- */
+
+    /**
+     * Gets the Item Track flags on an Item
+     * @param {Object} item - the item to get flags from
+     * @returns {Promise} flags - an object containing the flags
+     */
+    getItemFlags(item) {
+        return item?.data?.flags[MAESTRO.MODULE_NAME];
+    }
+
+    /**
+     * Sets the Item Track flags on an Item instance
+     * Handled as an update so all flags can be set at once
+     * @param {Object} item - the item to set flags on
+     * @param {String} playlistId - the playlist id to set
+     * @param {String} trackId - the trackId or playback mode to set
+     */
+    async setItemFlags(item, playlistId, trackId) {
+        return await item.update({
+            [`flags.${MAESTRO.MODULE_NAME}.${MAESTRO.DEFAULT_CONFIG.ItemTrack.flagNames.playlist}`]: playlistId,
+            [`flags.${MAESTRO.MODULE_NAME}.${MAESTRO.DEFAULT_CONFIG.ItemTrack.flagNames.track}`]: trackId
+        });
     }    
 
     /**
      * Sets a flag on a chat message
      * @param {Object} message - the message to set a flag on
      */
-    _setChatMessageFlag(message) {
-        if (!message) {
-            return;
-        }
+    async _setChatMessageFlag(message) {
+        if (!message) return;
 
-        message.setFlag(MAESTRO.MODULE_NAME, MAESTRO.DEFAULT_CONFIG.ItemTrack.flagNames.played, true);
+        return await message.setFlag(MAESTRO.MODULE_NAME, MAESTRO.DEFAULT_CONFIG.ItemTrack.flagNames.played, true);
     }    
 }
 
@@ -266,7 +283,7 @@ class ItemTrackForm extends FormApplication {
      * @param {Object} formData - the form data
      */
     _updateObject(event, formData) {
-        game.maestro.itemTrack.setItemFlags(this.item, formData.playlist, formData.track)  
+        game.maestro.itemTrack.setItemFlags(this.item, formData.playlist, formData.track);
     }
 
     /**

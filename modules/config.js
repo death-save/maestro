@@ -94,13 +94,22 @@ export const DEFAULT_CONFIG = {
         }
     }
 }
+
+export const FLAGS = {
+    get CombatTrack() {
+        return {
+            combatStarted: "combatStarted"
+        }
+    }
+}
         
 
 export const SETTINGS_KEYS = {
     get ItemTrack() {
         return {
             enable: "enableItemTrack",
-            createPlaylist: "createItemTrackPlaylist"
+            createPlaylist: "createItemTrackPlaylist",
+            itemIdAttribute: "itemIdChatCardAttribute"
         }
     },
 
@@ -116,7 +125,8 @@ export const SETTINGS_KEYS = {
             enable: "enableCombatTrack",
             createPlaylist: "createCombatTrackPlaylist",
             defaultPlaylist: "defaultCombatTrackPlaylist",
-            defaultTrack: "defaultCombatTrackTrack"
+            defaultTrack: "defaultCombatTrackTrack",
+            pauseOthers: "combatTrackPauseOthers"
         }
     },
 
@@ -133,6 +143,9 @@ export const SETTINGS_KEYS = {
             createCriticalSuccessPlaylist: "createCriticalSuccessPlaylist",
             criticalSuccessFailureTracks: "criticalSuccessFailureTracks",
             createCriticalFailurePlaylist: "createFailurePlaylist",
+            criticalDieFaces: "dieFaces",
+            criticalSuccessThreshold: "successThreshold",
+            criticalFailureThreshold: "failureThreshold",
             maestroConfigMenu: "maestroConfigMenu"
         }
     }

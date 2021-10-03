@@ -4,7 +4,9 @@
         "checkJs": true,
         "experimentalDecorators": true,
         "target": "ES2019",
-        //"types": ["foundry-pc-types"],
+        "types": ["@league-of-foundry-developers/foundry-vtt-types"],
+        "moduleResolution": "node",
+        "strictNullChecks": true,
         "outDir": "./out-js"
     }
 }

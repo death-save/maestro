@@ -7,33 +7,51 @@ export default class HypeTrack {
         this.pausedSounds = [];
     }
 
+    /* -------------------------------------------- */
+    /*                 Hook Handlers                */
+    /* -------------------------------------------- */
+
+    static _onReady() {
+        if (game.maestro.hypeTrack) {
+            game.maestro.hypeTrack._checkForHypeTracksPlaylist();
+            game.maestro.playHype = game.maestro.hypeTrack.playHype.bind(game.maestro.hypeTrack);
+        }
+    }
+
+    static _onUpdateCombat(combat, update, options, userId) {
+        if (game.maestro.hypeTrack) {
+            game.maestro.hypeTrack._processHype(combat, update);
+        }
+    }
+
+    static _onDeleteCombat(combat, options, userId) {
+        if (game.maestro.hypeTrack) {
+            game.maestro.hypeTrack._stopHypeTrack();
+        }
+    }
+
+    static _onRenderActorSheet(app, html, data) {
+        if (game.maestro.hypeTrack) {
+            game.maestro.hypeTrack._addHypeButton(app, html, data);
+        }
+    }
+
     /**
      * Checks for the presence of the Hype Tracks playlist, creates one if none exist
      */
     async _checkForHypeTracksPlaylist() {
         const enabled = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.HypeTrack.enable);
-        if(!enabled) {
-            return;
-        } 
+        if(!enabled || !game.user.isGM) return;
 
-        const hypePlaylist = game.playlists.entities.find(p => p.name == MAESTRO.DEFAULT_CONFIG.HypeTrack.playlistName);
-        if(!hypePlaylist && game.user.isGM) {
-            this.playlist = await this._createHypeTracksPlaylist(true);
-        } else {
-            this.playlist = hypePlaylist || null;
-        }
+        const hypePlaylist = game.playlists.getName(MAESTRO.DEFAULT_CONFIG.HypeTrack.playlistName);
+        this.playlist = hypePlaylist ?? await this._createHypeTracksPlaylist();
     }
 
     /**
      * Create the Hype Tracks playlist if the create param is true
-     * @param {Boolean} create - whether or not to create the playlist
      */
-    async _createHypeTracksPlaylist(create) {
-        if(create) {
-            return await Playlist.create({"name": MAESTRO.DEFAULT_CONFIG.HypeTrack.playlistName});
-        } else {
-            return;
-        }
+    async _createHypeTracksPlaylist() {
+        return await Playlist.create({"name": MAESTRO.DEFAULT_CONFIG.HypeTrack.playlistName});
     }
 
     /**
@@ -42,14 +60,12 @@ export default class HypeTrack {
      * @param {*} update - the update data
      */
     async _processHype(combat, update) {
-        if (!Number.isNumeric(update.turn) || !combat.combatants?.contents?.length || !this.playlist) {
+        if (!Number.isNumeric(update.turn) || !combat.combatants?.contents?.length || !this.playlist || !game.user.isGM) {
             return;
         }
 
         // Stop any active hype tracks
-        if (game.user.isGM && this?.playlist?.playing) {
-            this.playlist.stopAll();
-        }
+        if (this.playlist?.playing) await this.playlist.stopAll();
 
         // Find the hype track
         const hypeTrack = this._getActorHypeTrack(combat.combatant.actor);
@@ -58,8 +74,7 @@ export default class HypeTrack {
         if (!hypeTrack) {
             if (this?.pausedSounds?.length) {
                 // Resume any previously paused sounds
-                Playback.resumeSounds(this.pausedSounds);
-                this.pausedSounds = [];
+                this._resumeOthers();
             }
             
             return;
@@ -70,23 +85,25 @@ export default class HypeTrack {
             this.pausedSounds = await Playback.pauseAll();
         }
         
-
         // Find the hype track's playlist sound and play it
-        const hypeTrackSound = this.playlist.sounds.find(s => s._id === hypeTrack);
+        await this.playHype(combat.combatant.actor, {warn: false});
 
-        if (game.user.isGM) {
-            await this.playHype(combat.combatant.actor, {warn: false});
-        }
-        
-        const activeHypeSound = hypeTrackSound.sound;
-
+        // Resume other sounds on end
         if (this.pausedSounds?.length) {
-            activeHypeSound.on("end", () => {
+            const hypeTrackSound = this.playlist.sounds.get(hypeTrack);
+            hypeTrackSound.sound.on("end", () => {
 
-                Playback.resumeSounds(this.pausedSounds);
-                this.pausedSounds = [];
+                this._resumeOthers();
             }, {once: true});
         }
+    }
+
+    /**
+     * Resumes previously paused sounds
+     */
+    _resumeOthers() {
+        Playback.resumeSounds(this.pausedSounds);
+        this.pausedSounds = [];
     }
     
 
@@ -96,16 +113,7 @@ export default class HypeTrack {
      * 
      */
     _getActorHypeTrack(actor) {
-        let actorTrack;
-
-        try {
-            actorTrack = actor.getFlag(MAESTRO.MODULE_NAME, MAESTRO.DEFAULT_CONFIG.HypeTrack.flagNames.track);
-            return actorTrack;
-        } catch (e) {
-            console.log(e);
-            return;
-        }
-
+        return getProperty(actor, `data.flags.${MAESTRO.MODULE_NAME}.${MAESTRO.DEFAULT_CONFIG.HypeTrack.flagNames.track}`);
     }
     
     /**
@@ -113,12 +121,7 @@ export default class HypeTrack {
      * @param {Number} trackId - Id of the track in the playlist 
      */
     async _setActorHypeTrack(actor, trackId) {
-        try {
-            await actor.setFlag(MAESTRO.MODULE_NAME, MAESTRO.DEFAULT_CONFIG.HypeTrack.flagNames.track, trackId);
-        } catch (e) {
-            //we should do something with this in the future, eg. if the flag can't be found
-            throw e
-        }
+        return await actor.update({[`flags.${MAESTRO.MODULE_NAME}.${MAESTRO.DEFAULT_CONFIG.HypeTrack.flagNames.track}`]: trackId});
     }
     
     /**
@@ -167,7 +170,7 @@ export default class HypeTrack {
         /**
          * Register a click listener that opens the Hype Track form
          */
-        hypeButton.click(ev => {
+        hypeButton.on("click", (event) => {
             const actorTrack = this._getActorHypeTrack(app.entity);
             this._openTrackForm(app.entity, actorTrack, {closeOnSubmit: true});
         });
@@ -210,32 +213,38 @@ export default class HypeTrack {
             return;
         }
 
-        const playlist = this.playlist || game.playlists.entities.find(p => p.name === MAESTRO.DEFAULT_CONFIG.HypeTrack.playlistName || p.sounds.find(s => s._id === hypeTrack)) || null;
+        const playlist = this.playlist || game.playlists.contents.find(p => p.name === MAESTRO.DEFAULT_CONFIG.HypeTrack.playlistName || p.sounds.find(s => s._id === hypeTrack)) || null;
 
         if (!playlist) {
             if (warn) ui.notifications.warn(game.i18n.localize("MAESTRO.HYPE-TRACK.PlayHype.NoPlaylist"));
         }
 
-        if (playlist.playing) {
-            await playlist.stopAll();
-        }
-
-        let pausedSounds = [];
-
-        if (pauseOthers) {
-            pausedSounds = Playback.pauseAll();
-        }
-
         const playedTrack = await Playback.playTrack(hypeTrack, playlist.id);
 
-        if (pauseOthers && pausedSounds.length) {
-            const playlistSound = playlist.sounds.find(s => s._id === playedTrack._id);
-            const howl = game.audio.sounds[playlistSound.path].howl;
+        return playedTrack;
+    }
 
-            howl.on("end", () => Playback.resumeSounds(pausedSounds));
+    async _stopHypeTrack() {
+        if (!this.playlist || !game.user.isGM) return;
+
+        // Stop the playlist if it is playing
+        if (this.playlist.playing) {
+            await this.playlist.stopAll();
+            ui.playlists.render();
         }
 
-        return playedTrack;
+        // Stop any sounds playing individually
+        const playingSounds = this.playlist.sounds.filter(s => s.playing || s.data.pausedTime);
+        const updates = playingSounds.map(s => {
+            return {
+                _id: s._id,
+                playing: false,
+                pausedTime: null
+            }
+        });
+
+        await this.playlist.updateEmbeddedDocuments("PlaylistSound", updates);
+        ui.playlists.render();
     }
 }
 

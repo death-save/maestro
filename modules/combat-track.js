@@ -10,6 +10,42 @@ export default class CombatTrack {
         this.pausedSounds = [];
     }
 
+    /* -------------------------------------------- */
+    /*                 Hook Handlers                */
+    /* -------------------------------------------- */
+
+    static _onReady() {
+        if (game.maestro.combatTrack) {
+            if (!game.maestro.combatTrack.playlist) game.maestro.combatTrack._checkForCombatTracksPlaylist();
+        }
+    }
+
+    static async _onPreUpdateCombat(combat, update, options, userId) {
+        if (game.maestro.combatTrack) {
+            CombatTrack._checkCombatStart(combat, update, options);
+        }
+    }
+
+    static async _onUpdateCombat(combat, update, options, userId) {
+        if (game.maestro.combatTrack) {
+            game.maestro.combatTrack._getCombatTrack(combat, update, options, userId);
+        }
+    }
+
+    static async _onDeleteCombat(combat, options, userId) {
+        if (game.maestro.combatTrack) {
+            game.maestro.combatTrack._stopCombatTrack(combat);
+        }
+    }
+
+    static async _onRenderCombatTracker(app, html, data) {
+        CombatTrack._addCombatTrackButton(app, html, data);
+    }
+
+    /* -------------------------------------------- */
+    /*               Handlers/Workers               */
+    /* -------------------------------------------- */
+
     /**
      * Checks for the presence of the Hype Tracks playlist, creates one if none exist
      */
@@ -17,27 +53,32 @@ export default class CombatTrack {
         const enabled = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.CombatTrack.enable);
         const createPlaylist = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.CombatTrack.createPlaylist);
 
-        if(!game.user.isGM || !enabled || !createPlaylist) {
-            return;
-        }
+        if(!game.user.isGM || !enabled || !createPlaylist) return;
 
-        const combatPlaylist = game.playlists.entities.find(p => p.name == MAESTRO.DEFAULT_CONFIG.CombatTrack.playlistName);
-        if(!combatPlaylist) {
-            this.playlist = await this._createCombatTracksPlaylist(true);
-        } else {
-            this.playlist = combatPlaylist;
-        }
+        const combatPlaylist = game.playlists.getName(MAESTRO.DEFAULT_CONFIG.CombatTrack.playlistName);
+
+        this.playlist = combatPlaylist ?? await this._createCombatTracksPlaylist();
     }
 
     /**
      * Create the Hype Tracks playlist if the create param is true
-     * @param {Boolean} create - whether or not to create the playlist
      */
-    async _createCombatTracksPlaylist(create) {
-        if (!create) {
-            return;
-        }
+    async _createCombatTracksPlaylist() {
         return await Playlist.create({"name": MAESTRO.DEFAULT_CONFIG.CombatTrack.playlistName});
+    }
+    
+    /**
+     * Checks the updating Combat instance to determine if it just starting (round 0 => round 1)
+     * @param {*} combat 
+     * @param {*} update 
+     * @param {*} options 
+     */
+    static _checkCombatStart(combat, update, options) {
+        const combatStart = combat.round === 0 && update.round === 1;
+
+        if (!game.user.isGM || !combatStart) return;
+
+        setProperty(options, `${MAESTRO.MODULE_NAME}.${MAESTRO.FLAGS.CombatTrack.combatStarted}`, true);
     }
 
     /**
@@ -45,10 +86,10 @@ export default class CombatTrack {
      * @param combat
      * @param update
      */
-    async _checkCombatTrack(combat, update) {
-        const combatStart = combat.round === 0 && update.round === 1;
+    async _getCombatTrack(combat, update, options) {
+        const combatStarted = getProperty(options, `${MAESTRO.MODULE_NAME}.${MAESTRO.FLAGS.CombatTrack.combatStarted}`);
 
-        if (!game.user.isGM || !combatStart) {
+        if (!game.user.isGM || !combatStarted) {
             return;
         }
 
@@ -63,10 +104,16 @@ export default class CombatTrack {
         const playlist = flags ? flags.playlist : defaultPlaylist ? defaultPlaylist : "";
         const track = flags ? flags.track : defaultTrack ? defaultTrack : "";
 
-        if (!playlist) {
+        if (!playlist || !track) {
             return;
         }
+
+        const pauseOtherSetting = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.CombatTrack.pauseOthers);
         
+        if (pauseOtherSetting) {
+            this.pausedSounds = await Playback.pauseAll();
+        }
+
         // Depending on the track flag determine how and what to play
         switch (track) {
             case MAESTRO.DEFAULT_CONFIG.CombatTrack.playbackModes.all:
@@ -77,10 +124,6 @@ export default class CombatTrack {
                 return await Playback.playTrack(track, playlist);
         
             default:
-                if (!track) {
-                    break;
-                }
-
                 return await Playback.playTrack(track, playlist);     
         }
     }
@@ -110,48 +153,42 @@ export default class CombatTrack {
 
         const playlist = game.playlists.get(playlistId);
 
+        // Stop combat playlist if it is playing
         if (playlist.playing) {
             await playlist.stopAll();
             ui.playlists.render();
         }
 
-        const playingSounds = playlist.sounds.filter(s => s.playing);
-        const updates = playingSounds.map(s => {
+        // Stop any individual playing or paused sounds in the playlist
+        const soundsToStop = playlist.sounds.contents.filter(s => s.playing || s.data.pausedTime);
+        const updates = soundsToStop.map(s => {
             return {
-                _id: s._id,
-                playing: false
+                _id: s.id,
+                playing: false,
+                pausedTime: null
             }
         });
 
-        await playlist.updateEmbeddedEntity("PlaylistSound", updates);
+        await playlist.updateEmbeddedDocuments("PlaylistSound", updates);
         ui.playlists.render();
 
-        
+        this._resumeOtherSounds();
     }
 
     /**
-     * Gets the combat Track flags on an combat
-     * @param {Object} combat - the combat to get flags from
-     * @returns {Object} flags - an object containing the flags
+     * Resume any paused Sounds
      */
-    static getCombatFlags(combat) {
-        return combat.data.flags[MAESTRO.MODULE_NAME];
+    _resumeOtherSounds() {
+        const pauseOtherSoundSetting = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.CombatTrack.pauseOthers);
+        const pausedSounds = this.pausedSounds;
+
+        if (pauseOtherSoundSetting && pausedSounds) {
+            Playback.resumeSounds(pausedSounds);
+        }
+
+        this.pausedSounds = [];
     }
 
-    /**
-     * Sets the Combat Track flags on an Combat instance
-     * Handled as an update so all flags can be set at once
-     * @param {Object} combat - the combat to set flags on
-     * @param {String} playlistId - the playlist id to set
-     * @param {String} trackId - the trackId or playback mode to set
-     */
-    async setCombatFlags(combat, playlistId, trackId) {
-        return await combat.update({
-            [`flags.${MAESTRO.MODULE_NAME}.${MAESTRO.DEFAULT_CONFIG.CombatTrack.flagNames.playlist}`]: playlistId,
-            [`flags.${MAESTRO.MODULE_NAME}.${MAESTRO.DEFAULT_CONFIG.CombatTrack.flagNames.track}`]: trackId
-        });
-    }
-     
     /**
      * Adds a button to the Combat sheet to open the Combat Track form
      * @param {Object} app 
@@ -193,7 +230,7 @@ export default class CombatTrack {
         /**
          * Register a click listener that opens the Combat Track form
          */
-        combatTrackButton.click(async ev => {
+        combatTrackButton.on("click", async (event) => {
             const combat = game.combat || null,
                   flags = combat ? await CombatTrack.getCombatFlags(combat) : null,
                   track = flags ? flags.track : "",
@@ -215,10 +252,37 @@ export default class CombatTrack {
             defaultTrack: game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.CombatTrack.defaultTrack),
             currentTrack: track,
             currentPlaylist: playlist,
-            playlists: game.playlists.entities
+            playlists: game.playlists.contents
         }
 
         new CombatTrackForm(combat, data, options).render(true);
+    }
+
+    /* -------------------------------------------- */
+    /*                    Helpers                   */
+    /* -------------------------------------------- */
+
+    /**
+     * Gets the combat Track flags on an combat
+     * @param {Object} combat - the combat to get flags from
+     * @returns {Object} flags - an object containing the flags
+     */
+    static getCombatFlags(combat) {
+        return combat.data.flags[MAESTRO.MODULE_NAME];
+    }
+
+    /**
+     * Sets the Combat Track flags on an Combat instance
+     * Handled as an update so all flags can be set at once
+     * @param {Object} combat - the combat to set flags on
+     * @param {String} playlistId - the playlist id to set
+     * @param {String} trackId - the trackId or playback mode to set
+     */
+    async setCombatFlags(combat, playlistId, trackId) {
+        return await combat.update({
+            [`flags.${MAESTRO.MODULE_NAME}.${MAESTRO.DEFAULT_CONFIG.CombatTrack.flagNames.playlist}`]: playlistId,
+            [`flags.${MAESTRO.MODULE_NAME}.${MAESTRO.DEFAULT_CONFIG.CombatTrack.flagNames.track}`]: trackId
+        });
     }
     
     /**
@@ -251,7 +315,7 @@ class CombatTrackForm extends FormApplication {
             template: MAESTRO.DEFAULT_CONFIG.CombatTrack.templatePath,
             classes: ["sheet"],
             width: 500,
-            tabs: [{navSelector: ".tabs", contentSelector: ".content", initial: "defaults"}]
+            tabs: [{navSelector: ".tabs", contentSelector: ".content", initial: `${game.combat ? "encounter" : "defaults"}`}]
         });
     }
 

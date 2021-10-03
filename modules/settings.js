@@ -65,6 +65,18 @@ export const registerModuleSettings = function() {
         }
     }),
 
+    game.settings.register(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.ItemTrack.itemIdAttribute, {
+        name: "MAESTRO.SETTINGS.ItemTrack.ItemIdAttributeN",
+        hint: "MAESTRO.SETTINGS.ItemTrack.ItemIdAttributeH",
+        scope: "world",
+        type: String,
+        default: "data-item-id",
+        config: true,
+        onChange: s => {
+            
+        }
+    }),
+
     /* -------------------------------------------- */
     /*                 Combat Track                 */
     /* -------------------------------------------- */
@@ -117,6 +129,16 @@ export const registerModuleSettings = function() {
         onChange: s => {
             
         }
+    }),
+
+    game.settings.register(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.CombatTrack.pauseOthers, {
+        name: "MAESTRO.SETTINGS.CombatTrack.PauseOthersN",
+        hint: "MAESTRO.SETTINGS.CombatTrack.PauseOthersH",
+        scope: "world",
+        type: Boolean,
+        default: false,
+        config: true,
+        onChange: async s => {}
     }),
 
     /* -------------------------------------------- */
@@ -200,15 +222,45 @@ export const registerModuleSettings = function() {
         scope: "world",
         type: Object,
         default: {
-            criticalSuccessPlaylist: game.playlists ? game.playlists.entities.find(p => p.name === MAESTRO.DEFAULT_CONFIG.Misc.criticalSuccessPlaylistName) : "",
+            criticalSuccessPlaylist: game.playlists ? game.playlists.contents.find(p => p.name === MAESTRO.DEFAULT_CONFIG.Misc.criticalSuccessPlaylistName) : "",
             criticalSuccessSound: "",
-            criticalFailurePlaylist: game.playlists ? game.playlists.entities.find(p => p.name === MAESTRO.DEFAULT_CONFIG.Misc.criticalFailurePlaylistName) : "",
+            criticalFailurePlaylist: game.playlists ? game.playlists.contents.find(p => p.name === MAESTRO.DEFAULT_CONFIG.Misc.criticalFailurePlaylistName) : "",
             criticalFailureSound: ""
         },
         config: false,
         onChange: s => {
 
         }
+    }),
+
+    game.settings.register(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.Misc.criticalDieFaces, {
+        name: "MAESTRO.SETTINGS.CriticalSuccessFailureTracks.DieFacesN",
+        hint: "MAESTRO.SETTINGS.CriticalSuccessFailureTracks.DieFacesH",
+        scope: "world",
+        type: Number,
+        default: 20,
+        config: true,
+        onChange: s => {}
+    }),
+
+    game.settings.register(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.Misc.criticalSuccessThreshold, {
+        name: "MAESTRO.SETTINGS.CriticalSuccessFailureTracks.SuccessThresholdN",
+        hint: "MAESTRO.SETTINGS.CriticalSuccessFailureTracks.SuccessThresholdH",
+        scope: "world",
+        type: Number,
+        default: 20,
+        config: true,
+        onChange: s => {}
+    }),
+
+    game.settings.register(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.Misc.criticalFailureThreshold, {
+        name: "MAESTRO.SETTINGS.CriticalSuccessFailureTracks.FailureThresholdN",
+        hint: "MAESTRO.SETTINGS.CriticalSuccessFailureTracks.FailureThresholdH",
+        scope: "world",
+        type: Number,
+        default: 1,
+        config: true,
+        onChange: s => {}
     }),
 
     game.settings.registerMenu(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.Misc.maestroConfigMenu,{
