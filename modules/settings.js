@@ -132,8 +132,8 @@ export const registerModuleSettings = function() {
     }),
 
     game.settings.register(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.CombatTrack.pauseOthers, {
-        name: "MAESTRO.SETTINGS.CombatTrackPauseOthersN",
-        hint: "MAESTRO.SETTINGS.CombatTrackPauseOthersH",
+        name: "MAESTRO.SETTINGS.CombatTrack.PauseOthersN",
+        hint: "MAESTRO.SETTINGS.CombatTrack.PauseOthersH",
         scope: "world",
         type: Boolean,
         default: false,
