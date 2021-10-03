@@ -75,7 +75,7 @@ export async function playPlaylist(playlistId) {
 }
 
 /**
- * Finds a sound EmbeddedEntity by its name
+ * Finds a Playlist sound by its name
  * @param {*} name 
  */
 export function findPlaylistSound(searchString, findBy="name") {
