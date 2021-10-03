@@ -113,16 +113,7 @@ export default class HypeTrack {
      * 
      */
     _getActorHypeTrack(actor) {
-        let actorTrack;
-
-        try {
-            actorTrack = actor.getFlag(MAESTRO.MODULE_NAME, MAESTRO.DEFAULT_CONFIG.HypeTrack.flagNames.track);
-            return actorTrack;
-        } catch (e) {
-            console.log(e);
-            return;
-        }
-
+        return getProperty(actor, `data.flags.${MAESTRO.MODULE_NAME}.${MAESTRO.DEFAULT_CONFIG.HypeTrack.flagNames.track}`);
     }
     
     /**
@@ -130,12 +121,7 @@ export default class HypeTrack {
      * @param {Number} trackId - Id of the track in the playlist 
      */
     async _setActorHypeTrack(actor, trackId) {
-        try {
-            await actor.setFlag(MAESTRO.MODULE_NAME, MAESTRO.DEFAULT_CONFIG.HypeTrack.flagNames.track, trackId);
-        } catch (e) {
-            //we should do something with this in the future, eg. if the flag can't be found
-            throw e
-        }
+        return await actor.update({[`flags.${MAESTRO.MODULE_NAME}.${MAESTRO.DEFAULT_CONFIG.HypeTrack.flagNames.track}`]: trackId});
     }
     
     /**
