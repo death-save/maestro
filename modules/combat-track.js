@@ -274,7 +274,7 @@ export default class CombatTrack {
             defaultTrack: game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.CombatTrack.defaultTrack),
             currentTrack: track,
             currentPlaylist: playlist,
-            playlists: game.playlists.entities
+            playlists: game.playlists.contents
         }
 
         new CombatTrackForm(combat, data, options).render(true);

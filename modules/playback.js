@@ -79,7 +79,7 @@ export async function playPlaylist(playlistId) {
  * @param {*} name 
  */
 export function findPlaylistSound(searchString, findBy="name") {
-    const playlist = game.playlists.entities.find(p => p.sounds.find(s => s[findBy] === searchString));
+    const playlist = game.playlists.contents.find(p => p.sounds.find(s => s[findBy] === searchString));
     return playlist ? {playlist, sound: playlist.sounds.find(s => s[findBy] === searchString)} : null;
 }
 

@@ -61,7 +61,7 @@ export class MaestroConfigForm extends FormApplication {
         }
         
         return {
-            playlists: game.playlists.entities,
+            playlists: game.playlists.contents,
             criticalSuccessPlaylist: this.data.criticalSuccessPlaylist,
             criticalSuccessPlaylistSounds: this.data.criticalSuccessPlaylist ? Playback.getPlaylistSounds(this.data.criticalSuccessPlaylist) : null,
             criticalSuccessSound: this.data.criticalSuccessSound,
@@ -293,7 +293,7 @@ export async function _checkForCriticalPlaylist() {
         return;
     }
 
-    let playlist = game.playlists.entities.find(p => p.name == MAESTRO.DEFAULT_CONFIG.Misc.criticalSuccessPlaylistName);
+    let playlist = game.playlists.contents.find(p => p.name == MAESTRO.DEFAULT_CONFIG.Misc.criticalSuccessPlaylistName);
 
     if(!playlist) {
         playlist = await _createCriticalPlaylist(true);
@@ -322,7 +322,7 @@ export async function _checkForFailurePlaylist() {
         return;
     }
 
-    let playlist = game.playlists.entities.find(p => p.name == MAESTRO.DEFAULT_CONFIG.Misc.criticalFailurePlaylistName);
+    let playlist = game.playlists.contents.find(p => p.name == MAESTRO.DEFAULT_CONFIG.Misc.criticalFailurePlaylistName);
 
     if(!playlist) {
         playlist = await _createFailurePlaylist(true);

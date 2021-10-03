@@ -221,7 +221,7 @@ export default class ItemTrack {
         const data = {
             "currentTrack": track,
             "currentPlaylist": playlist,
-            "playlists": game.playlists.entities
+            "playlists": game.playlists.contents
         }
         new ItemTrackForm(item, data, options).render(true);
     }    

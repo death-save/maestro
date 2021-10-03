@@ -222,9 +222,9 @@ export const registerModuleSettings = function() {
         scope: "world",
         type: Object,
         default: {
-            criticalSuccessPlaylist: game.playlists ? game.playlists.entities.find(p => p.name === MAESTRO.DEFAULT_CONFIG.Misc.criticalSuccessPlaylistName) : "",
+            criticalSuccessPlaylist: game.playlists ? game.playlists.contents.find(p => p.name === MAESTRO.DEFAULT_CONFIG.Misc.criticalSuccessPlaylistName) : "",
             criticalSuccessSound: "",
-            criticalFailurePlaylist: game.playlists ? game.playlists.entities.find(p => p.name === MAESTRO.DEFAULT_CONFIG.Misc.criticalFailurePlaylistName) : "",
+            criticalFailurePlaylist: game.playlists ? game.playlists.contents.find(p => p.name === MAESTRO.DEFAULT_CONFIG.Misc.criticalFailurePlaylistName) : "",
             criticalFailureSound: ""
         },
         config: false,
