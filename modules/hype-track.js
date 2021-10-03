@@ -60,14 +60,12 @@ export default class HypeTrack {
      * @param {*} update - the update data
      */
     async _processHype(combat, update) {
-        if (!Number.isNumeric(update.turn) || !combat.combatants?.contents?.length || !this.playlist) {
+        if (!Number.isNumeric(update.turn) || !combat.combatants?.contents?.length || !this.playlist || !game.user.isGM) {
             return;
         }
 
         // Stop any active hype tracks
-        if (game.user.isGM && this?.playlist?.playing) {
-            this.playlist.stopAll();
-        }
+        if (this.playlist?.playing) await this.playlist.stopAll();
 
         // Find the hype track
         const hypeTrack = this._getActorHypeTrack(combat.combatant.actor);
@@ -76,8 +74,7 @@ export default class HypeTrack {
         if (!hypeTrack) {
             if (this?.pausedSounds?.length) {
                 // Resume any previously paused sounds
-                Playback.resumeSounds(this.pausedSounds);
-                this.pausedSounds = [];
+                this._resumeOthers();
             }
             
             return;
@@ -88,23 +85,25 @@ export default class HypeTrack {
             this.pausedSounds = await Playback.pauseAll();
         }
         
-
         // Find the hype track's playlist sound and play it
-        const hypeTrackSound = this.playlist.sounds.find(s => s._id === hypeTrack);
+        await this.playHype(combat.combatant.actor, {warn: false});
 
-        if (game.user.isGM) {
-            await this.playHype(combat.combatant.actor, {warn: false});
-        }
-        
-        const activeHypeSound = hypeTrackSound.sound;
-
+        // Resume other sounds on end
         if (this.pausedSounds?.length) {
-            activeHypeSound.on("end", () => {
+            const hypeTrackSound = this.playlist.sounds.get(hypeTrack);
+            hypeTrackSound.sound.on("end", () => {
 
-                Playback.resumeSounds(this.pausedSounds);
-                this.pausedSounds = [];
+                this._resumeOthers();
             }, {once: true});
         }
+    }
+
+    /**
+     * Resumes previously paused sounds
+     */
+    _resumeOthers() {
+        Playback.resumeSounds(this.pausedSounds);
+        this.pausedSounds = [];
     }
     
 
