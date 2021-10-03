@@ -125,21 +125,12 @@ export async function pauseSounds(sounds) {
         if (typeof(sound) === "string") {
             playlistSound = findPlaylistSound(sound)?.sound || findPlaylistSound(sound, "path")?.sound || null;
         }
-        // } else if (sound instanceof PlaylistSound) {
-        //     // const playlist = game.playlists.entities.find(p => p.sounds.find(s => s._id === sound._id)) || null;
-        //     // playlistSound = playlist ? playlist.sounds.find(s => s._id === sound._id) : null;
-        //     sound.sound.pause();
-
-        // }
 
         if (!sound instanceof PlaylistSound) {
             return;
         }
-        //const howl = game.audio.sounds[playlistSound.path].howl;
-        //howl.pause();
-        //sound.sound?.pause();
+        
         sound.update({playing: false, pausedTime: sound.sound.currentTime});
-        //soundsToPause.push({_id: sound.id, playing: false, pausedTime: sound.sound.currentTime});
         pausedSounds.push(sound);
     }
 
