@@ -219,26 +219,7 @@ export default class HypeTrack {
             if (warn) ui.notifications.warn(game.i18n.localize("MAESTRO.HYPE-TRACK.PlayHype.NoPlaylist"));
         }
 
-        // if (playlist.playing) {
-        //     await playlist.stopAll();
-        // }
-
-        // let pausedSounds = [];
-
-        // if (pauseOthers) {
-        //     pausedSounds = Playback.pauseAll();
-        // }
-
         const playedTrack = await Playback.playTrack(hypeTrack, playlist.id);
-
-        // if (pauseOthers && pausedSounds.length) {
-        //     const playlistSound = playlist.sounds.find(s => s._id === playedTrack._id);
-        //     const howl = game.audio.sounds[playlistSound.path].howl;
-
-        //     howl.on("end", () => {
-        //         this._resumeOthers();
-        //     });
-        // }
 
         return playedTrack;
     }
