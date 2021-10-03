@@ -154,21 +154,26 @@ export default class CombatTrack {
 
         const playlist = game.playlists.get(playlistId);
 
+        // Stop combat playlist if it is playing
         if (playlist.playing) {
             await playlist.stopAll();
             ui.playlists.render();
         }
 
-        const playingSounds = playlist.sounds.filter(s => s.playing);
-        const updates = playingSounds.map(s => {
+        // Stop any individual playing or paused sounds in the playlist
+        const soundsToStop = playlist.sounds.contents.filter(s => s.playing || s.data.pausedTime);
+        const updates = soundsToStop.map(s => {
             return {
-                _id: s._id,
-                playing: false
+                _id: s.id,
+                playing: false,
+                pausedTime: null
             }
         });
 
-        await playlist.updateEmbeddedEntity("PlaylistSound", updates);
-        ui.playlists.render();   
+        await playlist.updateEmbeddedDocuments("PlaylistSound", updates);
+        ui.playlists.render();
+
+        this._resumeOtherSounds();
     }
 
     /**
@@ -176,36 +181,15 @@ export default class CombatTrack {
      */
     _resumeOtherSounds() {
         const pauseOtherSoundSetting = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.CombatTrack.pauseOthers);
-        const pausedSounds = game.maestro.pausedSounds;
+        const pausedSounds = this.pausedSounds;
 
         if (pauseOtherSoundSetting && pausedSounds) {
             Playback.resumeSounds(pausedSounds);
         }
+
+        this.pausedSounds = [];
     }
 
-    /**
-     * Gets the combat Track flags on an combat
-     * @param {Object} combat - the combat to get flags from
-     * @returns {Object} flags - an object containing the flags
-     */
-    static getCombatFlags(combat) {
-        return combat.data.flags[MAESTRO.MODULE_NAME];
-    }
-
-    /**
-     * Sets the Combat Track flags on an Combat instance
-     * Handled as an update so all flags can be set at once
-     * @param {Object} combat - the combat to set flags on
-     * @param {String} playlistId - the playlist id to set
-     * @param {String} trackId - the trackId or playback mode to set
-     */
-    async setCombatFlags(combat, playlistId, trackId) {
-        return await combat.update({
-            [`flags.${MAESTRO.MODULE_NAME}.${MAESTRO.DEFAULT_CONFIG.CombatTrack.flagNames.playlist}`]: playlistId,
-            [`flags.${MAESTRO.MODULE_NAME}.${MAESTRO.DEFAULT_CONFIG.CombatTrack.flagNames.track}`]: trackId
-        });
-    }
-     
     /**
      * Adds a button to the Combat sheet to open the Combat Track form
      * @param {Object} app 
@@ -273,6 +257,33 @@ export default class CombatTrack {
         }
 
         new CombatTrackForm(combat, data, options).render(true);
+    }
+
+    /* -------------------------------------------- */
+    /*                    Helpers                   */
+    /* -------------------------------------------- */
+
+    /**
+     * Gets the combat Track flags on an combat
+     * @param {Object} combat - the combat to get flags from
+     * @returns {Object} flags - an object containing the flags
+     */
+    static getCombatFlags(combat) {
+        return combat.data.flags[MAESTRO.MODULE_NAME];
+    }
+
+    /**
+     * Sets the Combat Track flags on an Combat instance
+     * Handled as an update so all flags can be set at once
+     * @param {Object} combat - the combat to set flags on
+     * @param {String} playlistId - the playlist id to set
+     * @param {String} trackId - the trackId or playback mode to set
+     */
+    async setCombatFlags(combat, playlistId, trackId) {
+        return await combat.update({
+            [`flags.${MAESTRO.MODULE_NAME}.${MAESTRO.DEFAULT_CONFIG.CombatTrack.flagNames.playlist}`]: playlistId,
+            [`flags.${MAESTRO.MODULE_NAME}.${MAESTRO.DEFAULT_CONFIG.CombatTrack.flagNames.track}`]: trackId
+        });
     }
     
     /**
