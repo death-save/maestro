@@ -219,26 +219,50 @@ export default class HypeTrack {
             if (warn) ui.notifications.warn(game.i18n.localize("MAESTRO.HYPE-TRACK.PlayHype.NoPlaylist"));
         }
 
-        if (playlist.playing) {
-            await playlist.stopAll();
-        }
+        // if (playlist.playing) {
+        //     await playlist.stopAll();
+        // }
 
-        let pausedSounds = [];
+        // let pausedSounds = [];
 
-        if (pauseOthers) {
-            pausedSounds = Playback.pauseAll();
-        }
+        // if (pauseOthers) {
+        //     pausedSounds = Playback.pauseAll();
+        // }
 
         const playedTrack = await Playback.playTrack(hypeTrack, playlist.id);
 
-        if (pauseOthers && pausedSounds.length) {
-            const playlistSound = playlist.sounds.find(s => s._id === playedTrack._id);
-            const howl = game.audio.sounds[playlistSound.path].howl;
+        // if (pauseOthers && pausedSounds.length) {
+        //     const playlistSound = playlist.sounds.find(s => s._id === playedTrack._id);
+        //     const howl = game.audio.sounds[playlistSound.path].howl;
 
-            howl.on("end", () => Playback.resumeSounds(pausedSounds));
-        }
+        //     howl.on("end", () => {
+        //         this._resumeOthers();
+        //     });
+        // }
 
         return playedTrack;
+    }
+
+    async _stopHypeTrack() {
+        if (!this.playlist || !game.user.isGM) return;
+
+        // Stop the playlist if it is playing
+        if (this.playlist.playing) {
+            await this.playlist.stopAll();
+            ui.playlists.render();
+        }
+
+        // Stop any sounds playing individually
+        const playingSounds = this.playlist.sounds.filter(s => s.playing);
+        const updates = playingSounds.map(s => {
+            return {
+                _id: s._id,
+                playing: false
+            }
+        });
+
+        await this.playlist.updateEmbeddedDocuments("PlaylistSound", updates);
+        ui.playlists.render();
     }
 }
 
