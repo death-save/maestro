@@ -263,9 +263,10 @@ function playCriticalSuccessFailure(message) {
     if ( !roll.dice.length ) return;
     const d = roll.dice[0];
 
-    // Ensure it is an un-modified d20 roll
-    const isD20 = (d.faces === 20) && ( d.results.length === 1 );
-    if ( !isD20 ) return;
+    // Ensure it is the configured die type and unmodified
+    const faceSetting = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.Misc.criticalDieFaces);
+    const facesMatch = (d.faces === faceSetting) && ( d.results.length === 1 );
+    if ( !facesMatch ) return;
     const isModifiedRoll = ("success" in d.results[0]) || d.options.marginSuccess || d.options.marginFailure;
     if ( isModifiedRoll ) return;
 
@@ -275,11 +276,18 @@ function playCriticalSuccessFailure(message) {
     const criticalSuccessSound = criticalSuccessFailureTracks.criticalSuccessSound;
     const criticalFailurePlaylist = criticalSuccessFailureTracks.criticalFailurePlaylist;
     const criticalFailureSound = criticalSuccessFailureTracks.criticalFailureSound;
-       
+
+    // Get the success/failure criteria
+    const successSetting = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.Misc.criticalSuccessThreshold);
+    const failureSetting = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.Misc.criticalFailureThreshold);
+    
+    const successThreshold = d.options.critical ?? successSetting;
+    const failureThreshold = d.options.fumble ?? failureSetting;
+
     // Play relevant sound for successes and failures
-    if ((d.options.critical && (d.total >= d.options.critical)) && (criticalSuccessPlaylist && criticalSuccessSound)) {
+    if ((successThreshold && (d.total >= successThreshold)) && (criticalSuccessPlaylist && criticalSuccessSound)) {
         Playback.playTrack(criticalSuccessSound, criticalSuccessPlaylist);
-    } else if ((d.options.fumble && (d.total <= d.options.fumble)) && (criticalFailurePlaylist && criticalFailureSound)) {
+    } else if ((failureThreshold && (d.total <= failureThreshold)) && (criticalFailurePlaylist && criticalFailureSound)) {
         Playback.playTrack(criticalFailureSound, criticalFailurePlaylist)
     }
 }

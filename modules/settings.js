@@ -233,6 +233,36 @@ export const registerModuleSettings = function() {
         }
     }),
 
+    game.settings.register(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.Misc.criticalDieFaces, {
+        name: "MAESTRO.SETTINGS.CriticalSuccessFailureTracks.DieFacesN",
+        hint: "MAESTRO.SETTINGS.CriticalSuccessFailureTracks.DieFacesH",
+        scope: "world",
+        type: Number,
+        default: 20,
+        config: true,
+        onChange: s => {}
+    }),
+
+    game.settings.register(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.Misc.criticalSuccessThreshold, {
+        name: "MAESTRO.SETTINGS.CriticalSuccessFailureTracks.SuccessThresholdN",
+        hint: "MAESTRO.SETTINGS.CriticalSuccessFailureTracks.SuccessThresholdH",
+        scope: "world",
+        type: Number,
+        default: 20,
+        config: true,
+        onChange: s => {}
+    }),
+
+    game.settings.register(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.Misc.criticalFailureThreshold, {
+        name: "MAESTRO.SETTINGS.CriticalSuccessFailureTracks.FailureThresholdN",
+        hint: "MAESTRO.SETTINGS.CriticalSuccessFailureTracks.FailureThresholdH",
+        scope: "world",
+        type: Number,
+        default: 1,
+        config: true,
+        onChange: s => {}
+    }),
+
     game.settings.registerMenu(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.Misc.maestroConfigMenu,{
         name: "MAESTRO.SETTINGS.Config.ButtonN",
         label: MAESTRO.DEFAULT_CONFIG.Misc.maestroConfigTitle,

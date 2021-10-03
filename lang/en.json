@@ -36,6 +36,13 @@
         "SETTINGS.CriticalSuccessFailureTracksH": "Object containing the playlists and sounds for Critical Success/Failure",
         "SETTINGS.CreateCriticalFailurePlaylistN": "Create Critical Failure Tracks Playlist",
         "SETTINGS.CreateCriticalFailurePlaylistH": "Creates a playlist for Failure Sounds when enabled",
+        "SETTINGS.CriticalSuccessFailureTracks.DieFacesN": "Number of Die Faces/Die Type for Critical Checking",
+        "SETTINGS.CriticalSuccessFailureTracks.DieFacesH": "How many faces does the primary game system die have for checking criticals against (eg. 20 for d20)",
+        "SETTINGS.CriticalSuccessFailureTracks.SuccessThresholdN": "Critical Success Threshold",
+        "SETTINGS.CriticalSuccessFailureTracks.SuccessThresholdH": "What is the value that a roll must be at or above to critically succeed",
+        "SETTINGS.CriticalSuccessFailureTracks.FailureThresholdN": "Failure Threshold",
+        "SETTINGS.CriticalSuccessFailureTracks.FailureThresholdH": "What is the value that a roll must be at or below to critically fail",
+
         "SETTINGS.Config.ButtonN": "Maestro Config",
         "SETTINGS.Config.ButtonH": "Additional Maestro Settings",
 

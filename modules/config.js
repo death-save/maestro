@@ -143,6 +143,9 @@ export const SETTINGS_KEYS = {
             createCriticalSuccessPlaylist: "createCriticalSuccessPlaylist",
             criticalSuccessFailureTracks: "criticalSuccessFailureTracks",
             createCriticalFailurePlaylist: "createFailurePlaylist",
+            criticalDieFaces: "dieFaces",
+            criticalSuccessThreshold: "successThreshold",
+            criticalFailureThreshold: "failureThreshold",
             maestroConfigMenu: "maestroConfigMenu"
         }
     }
