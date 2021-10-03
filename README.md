@@ -1,4 +1,4 @@
-![https://img.shields.io/badge/Foundry%20VTT-0.8.8=>0.8.8-green](https://img.shields.io/badge/Foundry%20VTT-0.8.8=>0.8.8-green)
+![https://img.shields.io/badge/Foundry%20VTT-0.8.8=>0.8.9-green](https://img.shields.io/badge/Foundry%20VTT-0.8.8=>0.8.9-green)
 
 ![GitHub downloads (latest)](https://img.shields.io/github/downloads-pre/death-save/maestro/latest/module.zip)
 [![Forge Installs](https://img.shields.io/badge/dynamic/json?label=Forge%20Install%20Base&query=package.installs&suffix=%&url=https://forge-vtt.com/api/bazaar/package/maestro&colorB=brightgreen)](https://forge-vtt.com/)
