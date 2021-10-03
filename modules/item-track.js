@@ -286,7 +286,7 @@ class ItemTrackForm extends FormApplication {
      * @param {Object} formData - the form data
      */
     _updateObject(event, formData) {
-        game.maestro.itemTrack.setItemFlags(this.item, formData.playlist, formData.track)  
+        game.maestro.itemTrack.setItemFlags(this.item, formData.playlist, formData.track);
     }
 
     /**
