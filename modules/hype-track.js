@@ -41,28 +41,17 @@ export default class HypeTrack {
      */
     async _checkForHypeTracksPlaylist() {
         const enabled = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.HypeTrack.enable);
-        if(!enabled) {
-            return;
-        } 
+        if(!enabled || !game.user.isGM) return;
 
-        const hypePlaylist = game.playlists.entities.find(p => p.name == MAESTRO.DEFAULT_CONFIG.HypeTrack.playlistName);
-        if(!hypePlaylist && game.user.isGM) {
-            this.playlist = await this._createHypeTracksPlaylist(true);
-        } else {
-            this.playlist = hypePlaylist || null;
-        }
+        const hypePlaylist = game.playlists.getName(MAESTRO.DEFAULT_CONFIG.HypeTrack.playlistName);
+        this.playlist = hypePlaylist ?? await this._createHypeTracksPlaylist();
     }
 
     /**
      * Create the Hype Tracks playlist if the create param is true
-     * @param {Boolean} create - whether or not to create the playlist
      */
-    async _createHypeTracksPlaylist(create) {
-        if(create) {
-            return await Playlist.create({"name": MAESTRO.DEFAULT_CONFIG.HypeTrack.playlistName});
-        } else {
-            return;
-        }
+    async _createHypeTracksPlaylist() {
+        return await Playlist.create({"name": MAESTRO.DEFAULT_CONFIG.HypeTrack.playlistName});
     }
 
     /**
