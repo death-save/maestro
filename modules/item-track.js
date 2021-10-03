@@ -183,7 +183,7 @@ export default class ItemTrack {
                 }
             }
             
-            const flags = await this.getItemFlags(item);
+            const flags = this.getItemFlags(item);
             const track = flags ? flags.track : "";
             const playlist = flags ? flags.playlist : "";
             this._openTrackForm(item, track, playlist, {closeOnSubmit: true});
