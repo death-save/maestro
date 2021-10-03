@@ -65,9 +65,8 @@ export default class ItemTrack {
      */
     async _chatMessageHandler(message, html, data) {
         const enabled = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.ItemTrack.enable);
-        if (!enabled || !game.user.isGM) {
-            return;
-        }
+
+        if (!enabled || !game.user.isGM) return;
 
         const itemIdentifier = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.ItemTrack.itemIdAttribute);
         const itemCard = html.find(`[${itemIdentifier}]`);
@@ -102,16 +101,14 @@ export default class ItemTrack {
         switch (track) {
             case MAESTRO.DEFAULT_CONFIG.ItemTrack.playbackModes.all:
                 await Playback.playPlaylist(playlist);
-                return this._setChatMessageFlag(message);
+                break;
             
             case MAESTRO.DEFAULT_CONFIG.ItemTrack.playbackModes.random:
-                await Playback.playTrack(track, playlist)
-                return this._setChatMessageFlag(message);
+                await Playback.playTrack(track, playlist);
+                break;
         
             default:
-                if (!track) {
-                    break;
-                }
+                if (!track) return;
 
                 await Playback.playTrack(track, playlist);
                      
