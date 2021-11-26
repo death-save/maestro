@@ -60,7 +60,7 @@ export default class HypeTrack {
      * @param {*} update - the update data
      */
     async _processHype(combat, update) {
-        if (!Number.isNumeric(update.turn) || !combat.combatants?.contents?.length || !this.playlist || !game.user.isGM) {
+        if (combat?.current?.round == 0 || !Number.isNumeric(update.turn) || !combat.combatants?.contents?.length || !this.playlist || !game.user.isGM) {
             return;
         }
 
