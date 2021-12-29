@@ -252,7 +252,7 @@ async function _migrateActorOwnedItemFlags() {
         console.log(game.i18n.localize("MAESTRO.LOGS.MigrationOwnedItemAttemptingMatch"));
 
         // Migrate the flags logging success or failure
-        const itemUpdates = await a.updateEmbeddedEntity("OwnedItem", updates)
+        const itemUpdates = await a.updateEmbeddedDocuments("OwnedItem", updates);
         
         if (!itemUpdates) {
             console.warn(game.i18n.localize("MAESTRO.LOGS.MigrationOwnedItemFailed"), updates);
@@ -362,7 +362,7 @@ async function _migrateTokenOwnedItemFlags() {
             continue;
         }
 
-        const sceneUpdate = await s.updateEmbeddedEntity("Token", updates);
+        const sceneUpdate = await s.updateEmbeddedDocuments("Token", updates);
         
         if (!sceneUpdate) {
             console.warn(game.i18n.localize("MAESTRO.LOGS.MigrationTokenOwnedItemFailed"), updates);

@@ -131,7 +131,7 @@ export default class HypeTrack {
      * @param {Object} data 
      */
     async _addHypeButton (app, html, data) {
-        if(!game.user.isGM && !app?.entity?.owner) {
+        if(!game.user.isGM && !app?.document?.owner) {
             return;
         }
 
@@ -171,8 +171,8 @@ export default class HypeTrack {
          * Register a click listener that opens the Hype Track form
          */
         hypeButton.on("click", (event) => {
-            const actorTrack = this._getActorHypeTrack(app.entity);
-            this._openTrackForm(app.entity, actorTrack, {closeOnSubmit: true});
+            const actorTrack = this._getActorHypeTrack(app.document);
+            this._openTrackForm(app.document, actorTrack, {closeOnSubmit: true});
         });
     }
     

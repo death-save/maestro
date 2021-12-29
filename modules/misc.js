@@ -8,7 +8,7 @@ export function _onRenderPlaylistDirectory(app, html, data) {
 }
 
 function _addMaestroConfig(html) {
-    const createPlaylistButton = html.find('button.create-entity');
+    const createPlaylistButton = html.find('button.create-document');
 
     const footerFlexDivHtml = 
         `<div class="flexrow"></div>`
@@ -136,8 +136,8 @@ function _addPlaylistLoopToggle(html) {
         const buttonClass = button.getAttribute("class");
         const buttonTitle = button.getAttribute("title");
 
-        const playlistDiv = button.closest(".entity");
-        const playlistId = playlistDiv.getAttribute("data-entity-id");
+        const playlistDiv = button.closest(".document");
+        const playlistId = playlistDiv.getAttribute("data-document-id");
         const playlist = game.playlists.get(playlistId);
 
         const loop = playlist.getFlag(MAESTRO.MODULE_NAME, MAESTRO.DEFAULT_CONFIG.PlaylistLoop.flagNames.loop);
@@ -159,8 +159,8 @@ function _addPlaylistLoopToggle(html) {
             return;
         }
 
-        const playlistDiv = button.closest(".entity");
-        const playlistId = playlistDiv.getAttribute("data-entity-id");
+        const playlistDiv = button.closest(".document");
+        const playlistId = playlistDiv.getAttribute("data-document-id");
 
         if (!playlistId) {
             return;

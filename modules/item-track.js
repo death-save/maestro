@@ -163,9 +163,9 @@ export default class ItemTrack {
             let item;
             
             //Scenario 1 - owned item 
-            if (app.entity.isOwned) {
-                const itemId = app.entity.data._id;
-                const actor = app.entity.actor;
+            if (app.document.isOwned) {
+                const itemId = app.document.id;
+                const actor = app.document.actor;
 
                 if (actor.isToken) {
                     item = canvas.tokens?.get(actor.token.id)?.actor.items?.get(itemId);
@@ -175,8 +175,8 @@ export default class ItemTrack {
 
             //Scenario 2 - world item
             } else {
-                if (app.entity.id) {
-                    item = app.entity;
+                if (app.document.id) {
+                    item = app.document;
                 }
             }
             
