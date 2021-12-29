@@ -6,7 +6,7 @@
             {{#select track}}
                 <option value="">{{localize "MAESTRO.HYPE-TRACK.FormSelectNone"}}</option>
                 {{#each playlistTracks}}
-                <option value="{{this._id}}">{{this.name}}</option>
+                <option value="{{this.id}}">{{this.name}}</option>
                 {{/each}}
             {{/select}}
         </select>

@@ -12,7 +12,7 @@
                 {{#select defaultPlaylist}}
                     <option value="">{{localize "MAESTRO.COMBAT-TRACK.FormSelectNone"}}</option>
                     {{#each playlists}}
-                    <option value="{{this._id}}">{{this.name}}</option>
+                    <option value="{{this.id}}">{{this.name}}</option>
                     {{/each}}
                 {{/select}}
             </select>
@@ -30,7 +30,7 @@
                     <option value="play-all">{{localize "MAESTRO.COMBAT-TRACK.FormPlayAll"}}</option>
                     {{/if}}
                     {{#each defaultPlaylistTracks}}
-                    <option value="{{this._id}}">{{this.name}}</option>
+                    <option value="{{this.id}}">{{this.name}}</option>
                     {{/each}}
                 {{/select}}
             </select>
@@ -47,7 +47,7 @@
                     <option value="default">{{localize "MAESTRO.COMBAT-TRACK.FormSelectUseDefault"}}</option>
                     <option value="">{{localize "MAESTRO.COMBAT-TRACK.FormSelectNone"}}</option>
                     {{#each playlists}}
-                    <option value="{{this._id}}">{{this.name}}</option>
+                    <option value="{{this.id}}">{{this.name}}</option>
                     {{/each}}
                 {{/select}}
             </select>
@@ -65,7 +65,7 @@
                     <option value="play-all">{{localize "MAESTRO.COMBAT-TRACK.FormPlayAll"}}</option>
                     {{/if}}
                     {{#each playlistTracks}}
-                    <option value="{{this._id}}">{{this.name}}</option>
+                    <option value="{{this.id}}">{{this.name}}</option>
                     {{/each}}
                 {{/select}}
             </select>

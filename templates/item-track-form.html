@@ -6,7 +6,7 @@
             {{#select playlist}}
                 <option value="">{{localize "MAESTRO.ITEM-TRACK.FormSelectNone"}}</option>
                 {{#each playlists}}
-                <option value="{{this._id}}">{{this.name}}</option>
+                <option value="{{this.id}}">{{this.name}}</option>
                 {{/each}}
             {{/select}}
         </select>
@@ -23,7 +23,7 @@
                 <option value="play-all">{{localize "MAESTRO.ITEM-TRACK.FormPlayAll"}}</option>
                 {{/if}}
                 {{#each playlistTracks}}
-                <option value="{{this._id}}">{{this.name}}</option>
+                <option value="{{this.id}}">{{this.name}}</option>
                 {{/each}}
             {{/select}}
         </select>
