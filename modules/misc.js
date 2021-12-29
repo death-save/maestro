@@ -191,13 +191,13 @@ export function _onPreUpdatePlaylistSound(sound, update, options, userId) {
     sound._maestroSkip = true;
     const playlist = sound.parent;
     // Return if there's no id or the playlist is not in sequential or shuffle mode
-    if (!playlist?.data?.playing || !update?._id || ![0, 1].includes(playlist?.data?.mode)) {
+    if (!playlist?.data?.playing || !update?.id || ![0, 1].includes(playlist?.data?.mode)) {
         return true;
     }
 
     // If the update is a sound playback ending, save it as the previous track and return
     if (update?.playing === false) {
-        playlist.setFlag(MAESTRO.MODULE_NAME, MAESTRO.DEFAULT_CONFIG.PlaylistLoop.flagNames.previousSound, update._id);
+        playlist.setFlag(MAESTRO.MODULE_NAME, MAESTRO.DEFAULT_CONFIG.PlaylistLoop.flagNames.previousSound, update.id);
         return true;
     }
 
@@ -212,7 +212,7 @@ export function _onPreUpdatePlaylistSound(sound, update, options, userId) {
     if (playlist?.data?.mode === 1) {
         order = playlist.playbackOrder;
     } else {
-        order = playlist?.sounds.map(s => s._id);
+        order = playlist?.sounds.map(s => s.id);
     }        
     
     const previousIdx = order.indexOf(previousSound);

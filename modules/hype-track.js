@@ -213,7 +213,7 @@ export default class HypeTrack {
             return;
         }
 
-        const playlist = this.playlist || game.playlists.contents.find(p => p.name === MAESTRO.DEFAULT_CONFIG.HypeTrack.playlistName || p.sounds.find(s => s._id === hypeTrack)) || null;
+        const playlist = this.playlist || game.playlists.contents.find(p => p.name === MAESTRO.DEFAULT_CONFIG.HypeTrack.playlistName || p.sounds.find(s => s.id === hypeTrack)) || null;
 
         if (!playlist) {
             if (warn) ui.notifications.warn(game.i18n.localize("MAESTRO.HYPE-TRACK.PlayHype.NoPlaylist"));
@@ -237,7 +237,7 @@ export default class HypeTrack {
         const playingSounds = this.playlist.sounds.filter(s => s.playing || s.data.pausedTime);
         const updates = playingSounds.map(s => {
             return {
-                _id: s._id,
+                _id: s.id,
                 playing: false,
                 pausedTime: null
             }
