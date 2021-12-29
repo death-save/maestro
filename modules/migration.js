@@ -100,7 +100,7 @@ async function _migratePlaylistMode() {
         }
     });
 
-    await Playlist.updateMany(updates);
+    await Playlist.update(updates);
 }
 
 /**
