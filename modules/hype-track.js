@@ -82,7 +82,8 @@ export default class HypeTrack {
 
         if (pauseOthers) {
             // pause active playlists
-            this.pausedSounds = await Playback.pauseAll();
+            const paused = await Playback.pauseAll();
+            this.pausedSounds = paused ? this.pausedSounds.concat(paused) : this.pausedSounds;
         }
         
         // Find the hype track's playlist sound and play it
@@ -92,7 +93,6 @@ export default class HypeTrack {
         if (this.pausedSounds?.length) {
             const hypeTrackSound = this.playlist.sounds.get(hypeTrack);
             hypeTrackSound.sound.on("end", () => {
-
                 this._resumeOthers();
             }, {once: true});
         }
