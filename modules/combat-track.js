@@ -1,4 +1,5 @@
 import * as MAESTRO from "./config.js";
+import { isFirstGM } from "./misc.js";
 import * as Playback from "./playback.js";
 
 /**
@@ -53,7 +54,7 @@ export default class CombatTrack {
         const enabled = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.CombatTrack.enable);
         const createPlaylist = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.CombatTrack.createPlaylist);
 
-        if(!game.user.isGM || !enabled || !createPlaylist) return;
+        if(!isFirstGM() || !enabled || !createPlaylist) return;
 
         const combatPlaylist = game.playlists.getName(MAESTRO.DEFAULT_CONFIG.CombatTrack.playlistName);
 
@@ -76,7 +77,7 @@ export default class CombatTrack {
     static _checkCombatStart(combat, update, options) {
         const combatStart = combat.round === 0 && update.round === 1;
 
-        if (!game.user.isGM || !combatStart) return;
+        if (!isFirstGM() || !combatStart) return;
 
         setProperty(options, `${MAESTRO.MODULE_NAME}.${MAESTRO.FLAGS.CombatTrack.combatStarted}`, true);
     }
@@ -89,7 +90,7 @@ export default class CombatTrack {
     async _getCombatTrack(combat, update, options) {
         const combatStarted = getProperty(options, `${MAESTRO.MODULE_NAME}.${MAESTRO.FLAGS.CombatTrack.combatStarted}`);
 
-        if (!game.user.isGM || !combatStarted) {
+        if (!isFirstGM() || !combatStarted) {
             return;
         }
 
@@ -134,7 +135,7 @@ export default class CombatTrack {
      */
     async _stopCombatTrack(combat) {
         const enabled = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.CombatTrack.enable);
-        if (!game.user.isGM || !enabled) {
+        if (!isFirstGM() || !enabled) {
             return;
         }
 
@@ -196,7 +197,7 @@ export default class CombatTrack {
      * @param {Object} data 
      */
     static async _addCombatTrackButton(app, html, data) {
-        if (!game.user.isGM) {
+        if (!isFirstGM()) {
             return;
         }
 

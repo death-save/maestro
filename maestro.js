@@ -54,7 +54,7 @@ export default class Conductor {
             window.setTimeout(Conductor._readyHookRegistrations, 500);
             //Conductor._readyHookRegistrations();
 
-            if (game.data.version >= "0.4.4" && game.user.isGM) {
+            if (game.version >= "0.4.4" && Misc.isFirstGM()) {
                 game.maestro.migration = {};
                 migrationHandler();
             }

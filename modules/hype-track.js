@@ -1,4 +1,5 @@
 import * as MAESTRO from "./config.js";
+import { isFirstGM } from "./misc.js";
 import * as Playback from "./playback.js";
 
 export default class HypeTrack {
@@ -41,7 +42,7 @@ export default class HypeTrack {
      */
     async _checkForHypeTracksPlaylist() {
         const enabled = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.HypeTrack.enable);
-        if(!enabled || !game.user.isGM) return;
+        if(!enabled || !isFirstGM()) return;
 
         const hypePlaylist = game.playlists.getName(MAESTRO.DEFAULT_CONFIG.HypeTrack.playlistName);
         this.playlist = hypePlaylist ?? await this._createHypeTracksPlaylist();
@@ -64,7 +65,7 @@ export default class HypeTrack {
             || !Number.isNumeric(update.turn)
             || !combat.combatants?.contents?.length 
             || !this.playlist 
-            || !game.user.isGM) {
+            || !isFirstGM()) {
             return;
         }
 
@@ -135,7 +136,7 @@ export default class HypeTrack {
      * @param {Object} data 
      */
     async _addHypeButton (app, html, data) {
-        if(!game.user.isGM && !app?.document?.owner) {
+        if(!isFirstGM() && !app?.document?.owner) {
             return;
         }
 
@@ -229,7 +230,7 @@ export default class HypeTrack {
     }
 
     async _stopHypeTrack() {
-        if (!this.playlist || !game.user.isGM) return;
+        if (!this.playlist || !isFirstGM()) return;
 
         // Stop the playlist if it is playing
         if (this.playlist.playing) {

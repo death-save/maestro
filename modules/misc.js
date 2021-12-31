@@ -112,7 +112,7 @@ export class MaestroConfigForm extends FormApplication {
  * @param {*} html 
  */
 function _addPlaylistLoopToggle(html) {
-    if (!game.user.isGM) return;
+    if (!isFirstGM()) return;
     
     const playlistModeButtons = html.find('[data-action="playlist-mode"]');
     const loopToggleHtml = 
@@ -256,7 +256,7 @@ export function _onRenderChatMessage(message, html, data) {
  * @param {*} message
  */
 function playCriticalSuccessFailure(message) {
-    if ( !game.user.isGM || !message.isRoll || !message.isContentVisible || !message.isRoll ) return;
+    if ( !isFirstGM() || !message.isRoll || !message.isContentVisible || !message.isRoll ) return;
   
     // Highlight rolls where the first part is a d20 roll
     const roll = message.roll;
@@ -299,7 +299,7 @@ export async function _checkForCriticalPlaylist() {
     const enabled = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.Misc.enableCriticalSuccessFailureTracks);
     const createPlaylist = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.Misc.createCriticalSuccessPlaylist);
 
-    if(!game.user.isGM || !enabled || !createPlaylist) {
+    if(!isFirstGM() || !enabled || !createPlaylist) {
         return;
     }
 
@@ -328,7 +328,7 @@ export async function _checkForFailurePlaylist() {
     const enabled = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.Misc.enableCriticalSuccessFailureTracks);
     const createPlaylist = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.Misc.createCriticalFailurePlaylist);
 
-    if(!game.user.isGM || !enabled || !createPlaylist) {
+    if(!isFirstGM() || !enabled || !createPlaylist) {
         return;
     }
 
@@ -348,4 +348,20 @@ async function _createFailurePlaylist(create) {
         return;
     }
     return await Playlist.create({"name": MAESTRO.DEFAULT_CONFIG.Misc.criticalFailurePlaylistName});
+}
+
+/**
+ * Gets the first (sorted by userId) active GM user
+ * @returns {User | undefined} the GM user document or undefined if none found
+ */
+export function getFirstActiveGM() {
+    return game.users.filter(u => u.isGM && u.active).sort((a, b) => a.id?.localeCompare(b.id)).shift();
+}
+
+/**
+ * Checks if the current user is the first active GM user
+ * @returns {Boolean} Boolean indicating whether the user is the first active GM or not
+ */
+export function isFirstGM() {
+    return game.userId === getFirstActiveGM()?.id;
 }

@@ -1,4 +1,5 @@
 import * as MAESTRO from "./config.js";
+import { isFirstGM } from "./misc.js";
 import * as Playback from "./playback.js";
 
 /**
@@ -41,7 +42,7 @@ export default class ItemTrack {
         const enabled = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.ItemTrack.enable);
         const createPlaylist = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.ItemTrack.createPlaylist);
 
-        if(!game.user.isGM || !enabled || !createPlaylist) {
+        if(!isFirstGM() || !enabled || !createPlaylist) {
             return;
         }
 
@@ -66,7 +67,7 @@ export default class ItemTrack {
     async _chatMessageHandler(message, html, data) {
         const enabled = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.ItemTrack.enable);
 
-        if (!enabled || !game.user.isGM) return;
+        if (!enabled || !isFirstGM()) return;
 
         const itemIdentifier = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.ItemTrack.itemIdAttribute);
         const itemCard = html.find(`[${itemIdentifier}]`);
