@@ -1,7 +1,7 @@
 import * as MAESTRO from "./config.js";
 import { _checkForCriticalPlaylist, _checkForFailurePlaylist, MaestroConfigForm } from "./misc.js";
 
-export const registerModuleSettings = function() {
+export const registerModuleSettings = async function() {
 
     /* -------------------------------------------- */
     /*                  Hype Track                  */

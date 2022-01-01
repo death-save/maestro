@@ -20,9 +20,9 @@ export default class Conductor {
      * Init Hook
      */
     static async _hookOnInit() {
-        Hooks.on("init", () =>{
+        Hooks.on("init", async () => {
             game.maestro = {};
-            registerModuleSettings();
+            await registerModuleSettings();
             Conductor._initHookRegistrations();
         });
     }
@@ -92,8 +92,7 @@ export default class Conductor {
 
         // Delete hooks
         Conductor._hookOnDeleteCombat();
-        
-        
+        Conductor._hookOnDeleteItem();
     }
 
     /**
@@ -120,6 +119,12 @@ export default class Conductor {
     static _hookOnPreCreateChatMessage() {
         Hooks.on("preCreateChatMessage", (message, options, userId) => {
             Misc._onPreCreateChatMessage(message, options);
+        });
+    }
+
+    static _hookOnDeleteItem() {
+        Hooks.on("deleteItem", (item, options, userId) => {
+            ItemTrack._onDeleteItem(item, options, userId);
         });
     }
 
