@@ -43,6 +43,9 @@
         "SETTINGS.CriticalSuccessFailureTracks.FailureThresholdN": "Failure Threshold",
         "SETTINGS.CriticalSuccessFailureTracks.FailureThresholdH": "What is the value that a roll must be at or below to critically fail",
 
+        "SETTINGS.ItemTrack.DeletedItemsN": "Deleted Items",
+        "SETTINGS.ItemTrack.DeletedItemsH": "Deleted Item Ids and and their associated Item Tracks",
+        
         "SETTINGS.Config.ButtonN": "Maestro Config",
         "SETTINGS.Config.ButtonH": "Additional Maestro Settings",
 

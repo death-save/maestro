@@ -77,6 +77,16 @@ export const registerModuleSettings = async function() {
         }
     }),
 
+    game.settings.register(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.ItemTrack.deletedItems, {
+        name: "MAESTRO.SETTINGS.ItemTrack.DeletedItemsN",
+        hint: "MAESTRO.SETTINGS.ItemTrack.DeletedItemsH",
+        scope: "world",
+        type: Object,
+        default: {},
+        config: false,
+        onChange: s => {}
+    }),
+
     /* -------------------------------------------- */
     /*                 Combat Track                 */
     /* -------------------------------------------- */

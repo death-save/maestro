@@ -19,6 +19,12 @@ export default class ItemTrack {
         }
     }
 
+    static async _onDeleteItem(item, options, userId) {
+        if (game.maestro.itemTrack) {
+            game.maestro.itemTrack._deleteItemHandler(item, options, userId);
+        }
+    }
+
     static async _onRenderChatMessage(message, html, data) {
         if (game.maestro.itemTrack) {
             game.maestro.itemTrack._chatMessageHandler(message, html, data);
@@ -58,6 +64,24 @@ export default class ItemTrack {
         return await Playlist.create({"name": MAESTRO.DEFAULT_CONFIG.ItemTrack.playlistName});
     }
 
+    async _deleteItemHandler(item, options, userId) {
+        const enabled = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.ItemTrack.enable);
+
+        if (!enabled || !isFirstGM() || !item.isOwned) return;
+
+        // check if item has an item track
+        const flags = this.getItemFlags(item);
+
+        if (!flags) return;
+
+        const deletedItems = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.ItemTrack.deletedItems);
+
+        if (deletedItems[item.id]) return;      
+
+        deletedItems[item.id] = flags;
+        await game.settings.set(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.ItemTrack.deletedItems, deletedItems);
+    }
+
     /**
      * Handles module logic for chat message card
      * @param {Object} message - the chat message object
@@ -87,11 +111,15 @@ export default class ItemTrack {
 
         const token = await fromUuid(`Scene.${sceneId}.Token.${tokenId}`);
         const actor = token?.actor ?? game.actors.get(actorId);
-        const item = actor?.items?.get(itemId) ?? game.items?.get(itemId);
+        let item = actor?.items?.get(itemId) ?? game.items?.get(itemId);
+        let flags;
 
-        if (!item) return;
-
-        const flags = this.getItemFlags(item);
+        if (item) {
+            flags = this.getItemFlags(item);    
+        } else {
+            const deletedItems = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.ItemTrack.deletedItems);
+            flags = deletedItems instanceof Object ? deletedItems[itemId] : null;    
+        } 
 
         if (!flags) return;
 

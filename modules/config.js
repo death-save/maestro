@@ -109,7 +109,8 @@ export const SETTINGS_KEYS = {
         return {
             enable: "enableItemTrack",
             createPlaylist: "createItemTrackPlaylist",
-            itemIdAttribute: "itemIdChatCardAttribute"
+            itemIdAttribute: "itemIdChatCardAttribute",
+            deletedItems: "deletedItems"
         }
     },
 
