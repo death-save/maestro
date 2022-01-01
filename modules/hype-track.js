@@ -73,10 +73,11 @@ export default class HypeTrack {
         if (this.playlist?.playing) await this.playlist.stopAll();
 
         // Find the hype track
-        const hypeTrack = this._getActorHypeTrack(combat.combatant.actor);
-        const pauseOthers = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.HypeTrack.pauseOthers);
+        const flags = this._getActorHypeFlags(combat?.combatant?.actor);        
+        const track = flags?.track || "";
+        const playlist = flags?.playlist || this.playlist?.id;
 
-        if (!hypeTrack) {
+        if (!track) {
             if (this?.pausedSounds?.length) {
                 // Resume any previously paused sounds
                 this._resumeOthers();
@@ -85,19 +86,38 @@ export default class HypeTrack {
             return;
         }
 
+        const pauseOthers = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.HypeTrack.pauseOthers);
+
         if (pauseOthers) {
             // pause active playlists
             const paused = await Playback.pauseAll();
             this.pausedSounds = paused ? this.pausedSounds.concat(paused) : this.pausedSounds;
         }
+
+        // Depending on the track flag determine how and what to play
+        switch (track) {
+            case MAESTRO.DEFAULT_CONFIG.ItemTrack.playbackModes.all:
+                await Playback.playPlaylist(playlist);
+                break;
+            
+            case MAESTRO.DEFAULT_CONFIG.ItemTrack.playbackModes.random:
+                await Playback.playTrack(track, playlist);
+                break;
         
-        // Find the hype track's playlist sound and play it
-        await this.playHype(combat.combatant.actor, {warn: false});
+            default:
+                if (!track) return;
+
+                await Playback.playTrack(track, playlist);            
+        }
 
         // Resume other sounds on end
-        if (this.pausedSounds?.length) {
-            const hypeTrackSound = this.playlist.sounds.get(hypeTrack);
-            hypeTrackSound.sound.on("end", () => {
+        const isSingleTrack = ![MAESTRO.DEFAULT_CONFIG.ItemTrack.playbackModes.all, MAESTRO.DEFAULT_CONFIG.ItemTrack.playbackModes.random].includes(track);
+
+        if (isSingleTrack && this.pausedSounds?.length) {
+            const hypePlaylist = game.playlists.get(playlist);
+            const hypeTrackSound = hypePlaylist?.sounds?.get(track);
+
+            hypeTrackSound?.sound?.on("end", () => {
                 this._resumeOthers();
             }, {once: true});
         }
@@ -127,6 +147,26 @@ export default class HypeTrack {
      */
     async _setActorHypeTrack(actor, trackId) {
         return await actor.update({[`flags.${MAESTRO.MODULE_NAME}.${MAESTRO.DEFAULT_CONFIG.HypeTrack.flagNames.track}`]: trackId});
+    }
+
+    /**
+     * Gets the Hype Flags
+     * @param {Actor} actor 
+     * @returns {Object} the Hype flags object
+     */
+    _getActorHypeFlags(actor) {
+        return actor?.data?.flags[MAESTRO.MODULE_NAME];
+    }
+
+    /**
+     * Sets the Hype Flags
+     * @param {String} trackId - Id of the track in the playlist 
+     */
+     async _setActorHypeFlags(actor, playlistId, trackId) {
+        return await actor.update({
+            [`flags.${MAESTRO.MODULE_NAME}.${MAESTRO.DEFAULT_CONFIG.HypeTrack.flagNames.playlist}`]: playlistId,
+            [`flags.${MAESTRO.MODULE_NAME}.${MAESTRO.DEFAULT_CONFIG.HypeTrack.flagNames.track}`]: trackId
+        });
     }
     
     /**
@@ -176,8 +216,8 @@ export default class HypeTrack {
          * Register a click listener that opens the Hype Track form
          */
         hypeButton.on("click", (event) => {
-            const actorTrack = this._getActorHypeTrack(app.document);
-            this._openTrackForm(app.document, actorTrack, {closeOnSubmit: true});
+            const flags = this._getActorHypeFlags(app.document);
+            this._openTrackForm(app.document, flags, {closeOnSubmit: true});
         });
     }
     
@@ -187,10 +227,10 @@ export default class HypeTrack {
      * @param {Object} track  any existing track for this actor
      * @param {Object} options  form options
      */
-    _openTrackForm(actor, track, options){
+    _openTrackForm(actor, flags, options) {
         const data = {
-            "track": track,
-            "playlist": this.playlist
+            track: flags?.track ?? "",
+            playlist: flags?.playlist ?? this.playlist?.id
         }
         new HypeTrackActorForm(actor, data, options).render(true);
     }
@@ -281,8 +321,10 @@ class HypeTrackActorForm extends FormApplication {
      */
     async getData() {
         return {
-            playlistTracks: this.data.playlist.sounds,
-            track: this.data.track
+            playlistSounds: Playback.getPlaylistSounds(this.data.playlist),
+            track: this.data.track,
+            playlist: this.data.playlist,
+            playlists: game.playlists
         }
     }
 
@@ -293,6 +335,37 @@ class HypeTrackActorForm extends FormApplication {
      * @param {Object} formData - the form data
      */
     async _updateObject(event, formData) {
-        await game.maestro.hypeTrack._setActorHypeTrack(this.actor, formData.track);  
+        await game.maestro.hypeTrack._setActorHypeFlags(this.actor, formData.playlist, formData.track);
+    }
+
+    /**
+     * Activates listeners on the form html
+     * @param {*} html 
+     */
+     activateListeners(html) {
+        super.activateListeners(html);
+
+        const playlistSelect = html.find(".playlist-select");
+        playlistSelect.on("change", (event) => this._onPlaylistChange(event));
+    }
+
+    /**
+     * Playlist select change handler
+     * @param {*} event 
+     */
+    _onPlaylistChange(event) {
+        event.preventDefault();
+        this.data.playlist = event.target.value;
+        this.render();
+    }
+
+    _getPlaylistSounds(playlistId) {
+        if (!playlistId || typeof playlistId != 'string') return;
+
+        const playlist = game.playlists.get(playlistId);
+
+        if (!playlist) return;
+
+        return playlist.sounds;
     }
 }

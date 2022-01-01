@@ -1,19 +1,35 @@
 <form autocomplete="off" onsubmit="event.preventDefault();">
-
     <div class="form-group">
-        <label>Actor Hype Track</label>
-        <select name="track" class="track-select" title="{{localize "MAESTRO.HYPE-TRACK.FormTrackSelection"}}">
-            {{#select track}}
-                <option value="">{{localize "MAESTRO.HYPE-TRACK.FormSelectNone"}}</option>
-                {{#each playlistTracks}}
+        <label>{{localize "MAESTRO.HYPE-TRACK.Form.PlaylistLabel"}}</label>
+        <select name="playlist" class="playlist-select" title="{{localize "FORM.PlaylistSelection"}}" default="">
+            {{#select playlist}}
+                <option value="">{{localize "MAESTRO.FORM.SelectNone"}}</option>
+                {{#each playlists}}
                 <option value="{{this.id}}">{{this.name}}</option>
                 {{/each}}
             {{/select}}
         </select>
-        <p class="notes">{{localize "MAESTRO.HYPE-TRACK.FormNotes"}}</p> 
+        <p class="notes">{{localize "MAESTRO.HYPE-TRACK.FormPlaylistNotes"}}</p> 
+    </div>
+
+    <div class="form-group">
+        <label>{{localize "MAESTRO.HYPE-TRACK.Form.TrackLabel"}}</label>
+        <select name="track" class="track-select" title="{{localize "MAESTRO.HYPE-TRACK.FormTrackSelection"}}">
+            {{#select track}}
+                <option value="">{{localize "MAESTRO.HYPE-TRACK.FormSelectNone"}}</option>
+                {{#if playlistSounds}}
+                <option value="random-track">{{localize "MAESTRO.FORM.PlayRandom"}}</option>
+                <option value="play-all">{{localize "MAESTRO.FORM.PlayAll"}}</option>
+                {{/if}}
+                {{#each playlistSounds}}
+                <option value="{{this.id}}">{{this.name}}</option>
+                {{/each}}
+            {{/select}}
+        </select>
+        <p class="notes">{{localize "MAESTRO.HYPE-TRACK.FormTrackNotes"}}</p> 
     </div>
 
     <button type="submit" name="submit">
-        <i class="far fa-save"></i> {{localize "MAESTRO.HYPE-TRACK.FormSaveTrack"}}
+        <i class="far fa-save"></i> {{localize "Save Changes"}}
     </button>
 </form>

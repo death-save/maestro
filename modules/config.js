@@ -22,6 +22,7 @@ export const DEFAULT_CONFIG = {
             buttonText: " Hype",
             aTitle: "Change Actor Hype Track",
             flagNames: {
+                playlist: "playlist",
                 track: "track"
             },
             templatePath: "./modules/maestro/templates/hype-track-form.html"

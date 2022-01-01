@@ -95,8 +95,13 @@
         "FORM.PlayRandom": "--Play Random Track--",
         "FORM.PlayAll": "--Play Playlist--",
 
+        "HYPE-TRACK.Form.PlaylistLabel": "Hype Playlist for this Actor",
+        "HYPE-TRACK.Form.TrackLabel": "Track to Play", 
+        "HYPE-TRACK.FormPlaylistTooltip": "Select a Playlist",
         "HYPE-TRACK.FormTrackSelection": "Select a Track",
         "HYPE-TRACK.FormNotes": "Select the audio file to use as this actor's Hype Track",
+        "HYPE-TRACK.FormTrackNotes": "Select the track or playback mode to use as this Actor's Hype Track",
+        "HYPE-TRACK.FormPlaylistNotes": "Select the playlist that contains the Hype Track/s to play",
         "HYPE-TRACK.FormSaveTrack": "Save Track",
         "HYPE-TRACK.FormSelectNone": "--None--",
 
