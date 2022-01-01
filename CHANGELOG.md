@@ -1,12 +1,27 @@
 # Changelog
 
 ## Known Issues
-1. ~~Critical Sounds do not play for game systems that do not use the same roll logic as dnd5e~~ resolved in 0.7.6
-2. Critical Sounds do not play when roll made with advantage/disadvantage
-3. Critical Sounds ~~do~~ may not play with modules such as BetterRolls5e (possibly resolved in 0.7.6)
-4. A GM must be logged in for many of the Maestro functions to work due to underlying Foundry permission requirements.
-5. Game systems that do not include an Item Id reference in their item roll chat messages **cannot** be used with Item Tracks
+1. Critical Sounds do not play when roll made with advantage/disadvantage
+2. Critical Sounds ~~do~~ may not play with modules such as BetterRolls5e (possibly resolved in 0.7.6)
+3. A GM must be logged in for many of the Maestro functions to work due to underlying Foundry permission requirements.
+4. Game systems that do not include an Item Id reference in their item roll chat messages **cannot** be used with Item Tracks
 ---
+## [0.8.0] - 2021-12-31
+> This update adds support for Foundry VTT v9
+### Hype Tracks
+- Added the ability to select a Hype Tracks playlist per Actor and additionally play all, or a random track (sound) from the selected playlist
+- Suppressed the playback of Hype Tracks during Round 0 of Combat. This fixes the unintended repeated playing of the current combatant's Hype Track (if any) while initiative is being rolled. (Thanks @k-barber 🎉) 
+- Fixed an issue that caused Hype Tracks to not resume playing other sounds (eg. Combat Track) when the round changes and the first Combatant has a Hype Track
+
+### Item Tracks
+- Added tracking of deleted owned items and their associated Item Tracks so tracks can still be played. This fixes a bug where consumable items (eg. items with charges) that were set to `Destroy on Empty` (or similar) use would not play their Item Track
+
+### Miscellaneous
+- Implemented a system to find the first active GM whenever an elevated/privileged action is required (eg. setting a `world` setting). Previously it was only checked if the current user was a GM, which could lead to unintended consequences or "race conditions" when multiple GMs were logged in
+
+### Localization
+- Spanish translation updated (as of 0.7.6) - thanks @lozalojo 🎉
+
 ## [0.7.6] - 2021-10-03
 ### Item Tracks
 - Improved the detection of token/actor and items in chat messages for Item Tracks
