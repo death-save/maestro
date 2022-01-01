@@ -90,7 +90,7 @@ export const DEFAULT_CONFIG = {
             criticalSuccessPlaylistName: "Critical Success Tracks",
             criticalFailurePlaylistName: "Critical Failure Tracks",
             maestroConfigTitle: "Maestro Configuration",
-            maestroConfigTemplatePath: "./modules/maestro/templates/maestro-config.html" 
+            maestroConfigTemplatePath: "./modules/maestro/templates/maestro-config.html"
         }
     }
 }
