@@ -1,7 +1,7 @@
 import * as MAESTRO from "./config.js";
 import { _checkForCriticalPlaylist, _checkForFailurePlaylist, MaestroConfigForm } from "./misc.js";
 
-export const registerModuleSettings = function() {
+export const registerModuleSettings = async function() {
 
     /* -------------------------------------------- */
     /*                  Hype Track                  */
@@ -75,6 +75,16 @@ export const registerModuleSettings = function() {
         onChange: s => {
             
         }
+    }),
+
+    game.settings.register(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.ItemTrack.deletedItems, {
+        name: "MAESTRO.SETTINGS.ItemTrack.DeletedItemsN",
+        hint: "MAESTRO.SETTINGS.ItemTrack.DeletedItemsH",
+        scope: "world",
+        type: Object,
+        default: {},
+        config: false,
+        onChange: s => {}
     }),
 
     /* -------------------------------------------- */

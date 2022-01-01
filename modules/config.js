@@ -22,6 +22,7 @@ export const DEFAULT_CONFIG = {
             buttonText: " Hype",
             aTitle: "Change Actor Hype Track",
             flagNames: {
+                playlist: "playlist",
                 track: "track"
             },
             templatePath: "./modules/maestro/templates/hype-track-form.html"
@@ -90,7 +91,7 @@ export const DEFAULT_CONFIG = {
             criticalSuccessPlaylistName: "Critical Success Tracks",
             criticalFailurePlaylistName: "Critical Failure Tracks",
             maestroConfigTitle: "Maestro Configuration",
-            maestroConfigTemplatePath: "./modules/maestro/templates/maestro-config.html" 
+            maestroConfigTemplatePath: "./modules/maestro/templates/maestro-config.html"
         }
     }
 }
@@ -109,7 +110,8 @@ export const SETTINGS_KEYS = {
         return {
             enable: "enableItemTrack",
             createPlaylist: "createItemTrackPlaylist",
-            itemIdAttribute: "itemIdChatCardAttribute"
+            itemIdAttribute: "itemIdChatCardAttribute",
+            deletedItems: "deletedItems"
         }
     },
 

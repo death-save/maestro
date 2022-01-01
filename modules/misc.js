@@ -8,7 +8,7 @@ export function _onRenderPlaylistDirectory(app, html, data) {
 }
 
 function _addMaestroConfig(html) {
-    const createPlaylistButton = html.find('button.create-entity');
+    const createPlaylistButton = html.find('button.create-document');
 
     const footerFlexDivHtml = 
         `<div class="flexrow"></div>`
@@ -112,7 +112,7 @@ export class MaestroConfigForm extends FormApplication {
  * @param {*} html 
  */
 function _addPlaylistLoopToggle(html) {
-    if (!game.user.isGM) return;
+    if (!isFirstGM()) return;
     
     const playlistModeButtons = html.find('[data-action="playlist-mode"]');
     const loopToggleHtml = 
@@ -136,8 +136,8 @@ function _addPlaylistLoopToggle(html) {
         const buttonClass = button.getAttribute("class");
         const buttonTitle = button.getAttribute("title");
 
-        const playlistDiv = button.closest(".entity");
-        const playlistId = playlistDiv.getAttribute("data-entity-id");
+        const playlistDiv = button.closest(".document");
+        const playlistId = playlistDiv.getAttribute("data-document-id");
         const playlist = game.playlists.get(playlistId);
 
         const loop = playlist.getFlag(MAESTRO.MODULE_NAME, MAESTRO.DEFAULT_CONFIG.PlaylistLoop.flagNames.loop);
@@ -159,8 +159,8 @@ function _addPlaylistLoopToggle(html) {
             return;
         }
 
-        const playlistDiv = button.closest(".entity");
-        const playlistId = playlistDiv.getAttribute("data-entity-id");
+        const playlistDiv = button.closest(".document");
+        const playlistId = playlistDiv.getAttribute("data-document-id");
 
         if (!playlistId) {
             return;
@@ -191,13 +191,13 @@ export function _onPreUpdatePlaylistSound(sound, update, options, userId) {
     sound._maestroSkip = true;
     const playlist = sound.parent;
     // Return if there's no id or the playlist is not in sequential or shuffle mode
-    if (!playlist?.data?.playing || !update?._id || ![0, 1].includes(playlist?.data?.mode)) {
+    if (!playlist?.data?.playing || !update?.id || ![0, 1].includes(playlist?.data?.mode)) {
         return true;
     }
 
     // If the update is a sound playback ending, save it as the previous track and return
     if (update?.playing === false) {
-        playlist.setFlag(MAESTRO.MODULE_NAME, MAESTRO.DEFAULT_CONFIG.PlaylistLoop.flagNames.previousSound, update._id);
+        playlist.setFlag(MAESTRO.MODULE_NAME, MAESTRO.DEFAULT_CONFIG.PlaylistLoop.flagNames.previousSound, update.id);
         return true;
     }
 
@@ -212,7 +212,7 @@ export function _onPreUpdatePlaylistSound(sound, update, options, userId) {
     if (playlist?.data?.mode === 1) {
         order = playlist.playbackOrder;
     } else {
-        order = playlist?.sounds.map(s => s._id);
+        order = playlist?.sounds.map(s => s.id);
     }        
     
     const previousIdx = order.indexOf(previousSound);
@@ -256,7 +256,7 @@ export function _onRenderChatMessage(message, html, data) {
  * @param {*} message
  */
 function playCriticalSuccessFailure(message) {
-    if ( !game.user.isGM || !message.isRoll || !message.isContentVisible || !message.isRoll ) return;
+    if ( !isFirstGM() || !message.isRoll || !message.isContentVisible || !message.isRoll ) return;
   
     // Highlight rolls where the first part is a d20 roll
     const roll = message.roll;
@@ -299,7 +299,7 @@ export async function _checkForCriticalPlaylist() {
     const enabled = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.Misc.enableCriticalSuccessFailureTracks);
     const createPlaylist = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.Misc.createCriticalSuccessPlaylist);
 
-    if(!game.user.isGM || !enabled || !createPlaylist) {
+    if(!isFirstGM() || !enabled || !createPlaylist) {
         return;
     }
 
@@ -328,7 +328,7 @@ export async function _checkForFailurePlaylist() {
     const enabled = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.Misc.enableCriticalSuccessFailureTracks);
     const createPlaylist = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.Misc.createCriticalFailurePlaylist);
 
-    if(!game.user.isGM || !enabled || !createPlaylist) {
+    if(!isFirstGM() || !enabled || !createPlaylist) {
         return;
     }
 
@@ -348,4 +348,20 @@ async function _createFailurePlaylist(create) {
         return;
     }
     return await Playlist.create({"name": MAESTRO.DEFAULT_CONFIG.Misc.criticalFailurePlaylistName});
+}
+
+/**
+ * Gets the first (sorted by userId) active GM user
+ * @returns {User | undefined} the GM user document or undefined if none found
+ */
+export function getFirstActiveGM() {
+    return game.users.filter(u => u.isGM && u.active).sort((a, b) => a.id?.localeCompare(b.id)).shift();
+}
+
+/**
+ * Checks if the current user is the first active GM user
+ * @returns {Boolean} Boolean indicating whether the user is the first active GM or not
+ */
+export function isFirstGM() {
+    return game.userId === getFirstActiveGM()?.id;
 }

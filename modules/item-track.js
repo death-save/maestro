@@ -1,4 +1,5 @@
 import * as MAESTRO from "./config.js";
+import { isFirstGM } from "./misc.js";
 import * as Playback from "./playback.js";
 
 /**
@@ -15,6 +16,12 @@ export default class ItemTrack {
     static async _onReady() {
         if (game.maestro.itemTrack) {
             game.maestro.itemTrack._checkForItemTracksPlaylist();
+        }
+    }
+
+    static async _onDeleteItem(item, options, userId) {
+        if (game.maestro.itemTrack) {
+            game.maestro.itemTrack._deleteItemHandler(item, options, userId);
         }
     }
 
@@ -41,7 +48,7 @@ export default class ItemTrack {
         const enabled = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.ItemTrack.enable);
         const createPlaylist = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.ItemTrack.createPlaylist);
 
-        if(!game.user.isGM || !enabled || !createPlaylist) {
+        if(!isFirstGM() || !enabled || !createPlaylist) {
             return;
         }
 
@@ -57,6 +64,24 @@ export default class ItemTrack {
         return await Playlist.create({"name": MAESTRO.DEFAULT_CONFIG.ItemTrack.playlistName});
     }
 
+    async _deleteItemHandler(item, options, userId) {
+        const enabled = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.ItemTrack.enable);
+
+        if (!enabled || !isFirstGM() || !item.isOwned) return;
+
+        // check if item has an item track
+        const flags = this.getItemFlags(item);
+
+        if (!flags) return;
+
+        const deletedItems = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.ItemTrack.deletedItems);
+
+        if (deletedItems[item.id]) return;      
+
+        deletedItems[item.id] = flags;
+        await game.settings.set(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.ItemTrack.deletedItems, deletedItems);
+    }
+
     /**
      * Handles module logic for chat message card
      * @param {Object} message - the chat message object
@@ -66,7 +91,7 @@ export default class ItemTrack {
     async _chatMessageHandler(message, html, data) {
         const enabled = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.ItemTrack.enable);
 
-        if (!enabled || !game.user.isGM) return;
+        if (!enabled || !isFirstGM()) return;
 
         const itemIdentifier = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.ItemTrack.itemIdAttribute);
         const itemCard = html.find(`[${itemIdentifier}]`);
@@ -86,11 +111,15 @@ export default class ItemTrack {
 
         const token = await fromUuid(`Scene.${sceneId}.Token.${tokenId}`);
         const actor = token?.actor ?? game.actors.get(actorId);
-        const item = actor?.items?.get(itemId) ?? game.items?.get(itemId);
+        let item = actor?.items?.get(itemId) ?? game.items?.get(itemId);
+        let flags;
 
-        if (!item) return;
-
-        const flags = this.getItemFlags(item);
+        if (item) {
+            flags = this.getItemFlags(item);    
+        } else {
+            const deletedItems = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.ItemTrack.deletedItems);
+            flags = deletedItems instanceof Object ? deletedItems[itemId] : null;    
+        } 
 
         if (!flags) return;
 
@@ -163,9 +192,9 @@ export default class ItemTrack {
             let item;
             
             //Scenario 1 - owned item 
-            if (app.entity.isOwned) {
-                const itemId = app.entity.data._id;
-                const actor = app.entity.actor;
+            if (app.document.isOwned) {
+                const itemId = app.document.id;
+                const actor = app.document.actor;
 
                 if (actor.isToken) {
                     item = canvas.tokens?.get(actor.token.id)?.actor.items?.get(itemId);
@@ -175,8 +204,8 @@ export default class ItemTrack {
 
             //Scenario 2 - world item
             } else {
-                if (app.entity.id) {
-                    item = app.entity;
+                if (app.document.id) {
+                    item = app.document;
                 }
             }
             

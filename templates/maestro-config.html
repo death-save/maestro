@@ -7,7 +7,7 @@
             {{#select criticalSuccessPlaylist}}
                 <option value="">{{localize "MAESTRO.FORM.SelectNone"}}</option>
                 {{#each playlists}}
-                <option value="{{this._id}}">{{this.name}}</option>
+                <option value="{{this.id}}">{{this.name}}</option>
                 {{/each}}
             {{/select}}
         </select>
@@ -24,7 +24,7 @@
                 <option value="play-all">{{localize "MAESTRO.FORM.PlayAll"}}</option>
                 {{/if}}
                 {{#each criticalSuccessPlaylistSounds}}
-                <option value="{{this._id}}">{{this.name}}</option>
+                <option value="{{this.id}}">{{this.name}}</option>
                 {{/each}}
             {{/select}}
         </select>
@@ -37,7 +37,7 @@
             {{#select criticalFailurePlaylist}}
                 <option value="">{{localize "MAESTRO.FORM.SelectNone"}}</option>
                 {{#each playlists}}
-                <option value="{{this._id}}">{{this.name}}</option>
+                <option value="{{this.id}}">{{this.name}}</option>
                 {{/each}}
             {{/select}}
         </select>
@@ -54,7 +54,7 @@
                 <option value="play-all">{{localize "MAESTRO.FORM.PlayAll"}}</option>
                 {{/if}}
                 {{#each criticalFailurePlaylistSounds}}
-                <option value="{{this._id}}">{{this.name}}</option>
+                <option value="{{this.id}}">{{this.name}}</option>
                 {{/each}}
             {{/select}}
         </select>

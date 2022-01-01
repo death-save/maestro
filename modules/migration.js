@@ -56,9 +56,9 @@ async function _migrateScenePlaylists() {
 
         if (!sceneUpdate) {
 
-            console.warn(game.i18n.localize("MAESTRO.LOGS.MigrationSceneFlagsFailed"), s._id, playlist);
+            console.warn(game.i18n.localize("MAESTRO.LOGS.MigrationSceneFlagsFailed"), s.id, playlist);
         } else {
-            console.log(game.i18n.localize("MAESTRO.LOGS.MigrationSceneFlagsSuccessful"), s._id, playlist);
+            console.log(game.i18n.localize("MAESTRO.LOGS.MigrationSceneFlagsSuccessful"), s.id, playlist);
         }
     }
 
@@ -94,13 +94,13 @@ async function _migratePlaylistMode() {
 
     const updates = playlists.map(p => {
         return {
-            _id: p._id,
+            id: p.id,
             mode: 1,
             ["flags." + MAESTRO.MODULE_NAME + MAESTRO.DEFAULT_CONFIG.PlaylistLoop.flagNames.loop]: false
         }
     });
 
-    await Playlist.updateMany(updates);
+    await Playlist.update(updates);
 }
 
 /**
@@ -118,7 +118,7 @@ async function _migrateActorFlags() {
         }
     }).map(a => {
         return {
-            _id: a._id,
+            _id: a.id,
             track: a.getFlag(MAESTRO.MODULE_NAME,MAESTRO.DEFAULT_CONFIG.HypeTrack.flagNames.track)
         }
     });
@@ -140,15 +140,15 @@ async function _migrateActorFlags() {
     console.log(game.i18n.localize("MAESTRO.LOGS.MigrationHypeAttemptingMatch"));
 
     for (const a of actorHypeMap) {
-        const actor = game.actors.get(a._id);
+        const actor = game.actors.get(a.id);
         const newTrack = hypePlaylist.sounds[Number(a.track)-1];
         if (!newTrack) {
             console.warn(game.i18n.localize("MAESTRO.LOGS.MigrationHypeNoMatch"), actor);
             game.maestro.migration.errors += 1;
         }
         
-        await actor.setFlag(MAESTRO.MODULE_NAME, MAESTRO.DEFAULT_CONFIG.HypeTrack.flagNames.track, newTrack._id);
-        return console.log(game.i18n.localize("MAESTRO.LOGS.MigrationHypeSuccessful"), actor._id, newTrack._id);
+        await actor.setFlag(MAESTRO.MODULE_NAME, MAESTRO.DEFAULT_CONFIG.HypeTrack.flagNames.track, newTrack.id);
+        return console.log(game.i18n.localize("MAESTRO.LOGS.MigrationHypeSuccessful"), actor.id, newTrack.id);
     }
 
 }
@@ -164,7 +164,7 @@ async function _migrateItemFlags() {
         }
     }).map(i => {
         return {
-            _id: i._id,
+            _id: i.id,
             playlist: i.getFlag(MAESTRO.MODULE_NAME,MAESTRO.DEFAULT_CONFIG.ItemTrack.flagNames.playlist),
             track: i.getFlag(MAESTRO.MODULE_NAME,MAESTRO.DEFAULT_CONFIG.ItemTrack.flagNames.track)
         }
@@ -178,7 +178,7 @@ async function _migrateItemFlags() {
     console.log(game.i18n.localize("MAESTRO.LOGS.MigrationItemAttemptingMatch"));
 
     for (const i of itemTrackMap) {
-        const item = game.items.get(i._id);
+        const item = game.items.get(i.id);
         const playlist = i.playlist ? game.playlists.get(i.playlist) : game.playlists.entities.find(p => p.name === MAESTRO.DEFAULT_CONFIG.HypeTrack.playlistName);
 
         if (!playlist) {
@@ -195,9 +195,9 @@ async function _migrateItemFlags() {
             continue;
         }
         
-        item.setFlag(MAESTRO.MODULE_NAME, MAESTRO.DEFAULT_CONFIG.ItemTrack.flagNames.playlist, playlist._id);
-        item.setFlag(MAESTRO.MODULE_NAME, MAESTRO.DEFAULT_CONFIG.ItemTrack.flagNames.track, newTrack._id);
-        return console.log(game.i18n.localize("MAESTRO.LOGS.MigrationItemSuccess"), i._id, playlist._id, newTrack._id);
+        item.setFlag(MAESTRO.MODULE_NAME, MAESTRO.DEFAULT_CONFIG.ItemTrack.flagNames.playlist, playlist.id);
+        item.setFlag(MAESTRO.MODULE_NAME, MAESTRO.DEFAULT_CONFIG.ItemTrack.flagNames.track, newTrack.id);
+        return console.log(game.i18n.localize("MAESTRO.LOGS.MigrationItemSuccess"), i.id, playlist.id, newTrack.id);
     }
 
 }
@@ -230,8 +230,8 @@ async function _migrateActorOwnedItemFlags() {
             }
 
             return {
-                _id: i._id, 
-                playlist: playlist._id,
+                _id: i.id, 
+                playlist: playlist.id,
                 track: i.getFlag(MAESTRO.MODULE_NAME, MAESTRO.DEFAULT_CONFIG.ItemTrack.flagNames.track)
             }
         });
@@ -242,17 +242,17 @@ async function _migrateActorOwnedItemFlags() {
 
         const updates = ownedItems.map(i => {
             return {
-                _id: i._id,
-                ["flags."+[MAESTRO.MODULE_NAME]+"."+[MAESTRO.DEFAULT_CONFIG.ItemTrack.flagNames.track]]: game.playlists.get(i.playlist).sounds[Number(i.track)-1]._id,
+                _id: i.id,
+                ["flags."+[MAESTRO.MODULE_NAME]+"."+[MAESTRO.DEFAULT_CONFIG.ItemTrack.flagNames.track]]: game.playlists.get(i.playlist).sounds[Number(i.track)-1].id,
                 ["flags."+[MAESTRO.MODULE_NAME]+"."+[MAESTRO.DEFAULT_CONFIG.ItemTrack.flagNames.playlist]]: i.playlist
             }
         });
 
-        console.log(game.i18n.localize("MAESTRO.LOGS.MigrationOwnedItemFound"), a._id, ownedItems);
+        console.log(game.i18n.localize("MAESTRO.LOGS.MigrationOwnedItemFound"), a.id, ownedItems);
         console.log(game.i18n.localize("MAESTRO.LOGS.MigrationOwnedItemAttemptingMatch"));
 
         // Migrate the flags logging success or failure
-        const itemUpdates = await a.updateEmbeddedEntity("OwnedItem", updates)
+        const itemUpdates = await a.updateEmbeddedDocuments("OwnedItem", updates);
         
         if (!itemUpdates) {
             console.warn(game.i18n.localize("MAESTRO.LOGS.MigrationOwnedItemFailed"), updates);
@@ -280,7 +280,7 @@ async function _migrateTokenOwnedItemFlags() {
     for (let s of scenes) {
         const tokens = s.data.tokens.map(t => {
             return {
-                _id: t._id,
+                _id: t.id,
                 actorId: t.actorId,
                 actorData: t.actorData
             }
@@ -308,7 +308,7 @@ async function _migrateTokenOwnedItemFlags() {
                 continue;
             }
 
-            console.log(game.i18n.localize("MAESTRO.LOGS.MigrationTokenOwnedItemsFound"), t.actorId, t._id, s._id, badFlagItems);
+            console.log(game.i18n.localize("MAESTRO.LOGS.MigrationTokenOwnedItemsFound"), t.actorId, t.id, s.id, badFlagItems);
             
 
             const itemUpdates = await duplicate(ownedItems);
@@ -338,8 +338,8 @@ async function _migrateTokenOwnedItemFlags() {
                 }
                                 
                 if (playlist.sounds[Number(trackFlag)-1]) {
-                    i.flags.maestro.track = playlist.sounds[Number(trackFlag)-1]._id;
-                    i.flags.maestro.playlist = playlist._id;
+                    i.flags.maestro.track = playlist.sounds[Number(trackFlag)-1].id;
+                    i.flags.maestro.playlist = playlist.id;
                     console.log(game.i18n.localize("MAESTRO.LOGS.MigrationTokenOwnedItemsMatched"), i.flags.maestro.playlist, i.flags.maestro.track);
                 } else {
                     i.flags.maestro.track = "";
@@ -350,7 +350,7 @@ async function _migrateTokenOwnedItemFlags() {
 
             
             updates.push({
-                "_id": t._id,
+                "_id": t.id,
                 "actorData": {
                     "items": itemUpdates
                 }
@@ -362,7 +362,7 @@ async function _migrateTokenOwnedItemFlags() {
             continue;
         }
 
-        const sceneUpdate = await s.updateEmbeddedEntity("Token", updates);
+        const sceneUpdate = await s.updateEmbeddedDocuments("Token", updates);
         
         if (!sceneUpdate) {
             console.warn(game.i18n.localize("MAESTRO.LOGS.MigrationTokenOwnedItemFailed"), updates);

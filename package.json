@@ -1,10 +1,10 @@
 {
   "name": "maestro",
-  "version": "0.7.5",
+  "version": "0.8.0",
   "description": "Adds new audio features to Foundry VTT",
   "main": "maestro.js",
   "devDependencies": {
-    "@league-of-foundry-developers/foundry-vtt-types": "^0.8.9-4",
+    "@league-of-foundry-developers/foundry-vtt-types": "^9.238.0",
     "@pixi/jsdoc-template": "^2.6.0",
     "@types/jquery": "^3.5.6",
     "eslint": "^6.8.0",
@@ -12,7 +12,8 @@
     "gulp-zip": "^5.0.2",
     "jquery": "^3.5.1",
     "jsdoc-to-markdown": "^6.0.1",
-    "node-fetch": "^2.6.1"
+    "node-fetch": "^2.6.1",
+    "typescript": "^4.5.4"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
