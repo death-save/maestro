@@ -46,6 +46,9 @@
         "SETTINGS.CriticalSuccessFailureTracks.FailureThresholdN": "Umbral de pifia",
         "SETTINGS.CriticalSuccessFailureTracks.FailureThresholdH": "Valor por debajo del cual (inclusive) se considera que una tirada es una pifia",
 
+        "SETTINGS.ItemTrack.DeletedItemsN": "Objetos borrados",
+        "SETTINGS.ItemTrack.DeletedItemsH": "Ids de objetos borrados y sus pistas de objeto asociadas",
+
         "SETTINGS.Config.ButtonN": "Configuración de maestro",
         "SETTINGS.Config.ButtonH": "Ajustes adicionales de maestro",
 
@@ -95,8 +98,13 @@
         "FORM.PlayRandom": "--Reproducir pista aleatoria--",
         "FORM.PlayAll": "--Reproducir lista de reproducción--",
 
+        "HYPE-TRACK.Form.PlaylistLabel": "Lista para este actor",
+        "HYPE-TRACK.Form.TrackLabel": "Pista de reproducción", 
+        "HYPE-TRACK.FormPlaylistTooltip": "Seleccionar lista",
         "HYPE-TRACK.FormTrackSelection": "Seleccionar pista",
-        "HYPE-TRACK.FormNotes": "Seleccione un fichero de audio para usarlo de pista de actor",
+        "HYPE-TRACK.FormNotes": "Seleccione un fichero de audio para usarlo como pista de actor",
+        "HYPE-TRACK.FormTrackNotes": "Seleccione la pista o el modo de reproducir para usarlo como la pista de este actor",
+        "HYPE-TRACK.FormPlaylistNotes": "Seleccione la lista que contiene la()s pista(s) de actor a reproducir",
         "HYPE-TRACK.FormSaveTrack": "Guardar pista",
         "HYPE-TRACK.FormSelectNone": "--Ninguna--",
 
