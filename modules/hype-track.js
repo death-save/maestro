@@ -7,7 +7,6 @@ export default class HypeTrack {
         this.playlist = null;
         this.pausedSounds = [];
     }
-
     /* -------------------------------------------- */
     /*                 Hook Handlers                */
     /* -------------------------------------------- */
@@ -70,7 +69,7 @@ export default class HypeTrack {
         }
 
         // Stop any active hype tracks
-        if (this.playlist?.playing) await this.playlist.stopAll();
+        if (this.playlist?.playing) await Playback.pauseAllTracks(this.playlist);
 
         // Find the hype track
         const flags = this._getActorHypeFlags(combat?.combatant?.actor);        
@@ -268,13 +267,13 @@ export default class HypeTrack {
 
         return playedTrack;
     }
-
+    
     async _stopHypeTrack() {
         if (!this.playlist || !isFirstGM()) return;
 
         // Stop the playlist if it is playing
         if (this.playlist.playing) {
-            await this.playlist.stopAll();
+            await Playback.pauseAllTracks();
             ui.playlists.render();
         }
 

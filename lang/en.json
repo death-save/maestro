@@ -6,6 +6,8 @@
 
         "SETTINGS.HypeTrackEnableN": "Enable Hype Track",
         "SETTINGS.HypeTrackEnableH": "Enable the ability to set a Track for an Actor",
+        "SETTINGS.restartHypeTracksN": "Restart Hype Track",
+        "SETTINGS.restartHypeTracksH": "Enable the ability to restart a Track for an Actor instead of always running from the beginning",
         "SETTINGS.HypeTrackPauseOthersN": "Pause Other Playlist Sounds (Hype Track)",
         "SETTINGS.HypeTrackPauseOthersH": "Select to pause other Sounds (eg. music) while Hype Track is playing",
         "SETTINGS.ItemTrackEnableN": "Enable Item Track",

@@ -118,10 +118,11 @@ export const SETTINGS_KEYS = {
     get HypeTrack() {
         return {
             enable: "enableHypeTrack",
-            pauseOthers: "hypeTrackPauseOthers"
+            pauseOthers: "hypeTrackPauseOthers",
+            restartHypeTracks: "restartHypeTracks"
         }
     },
-
+    
     get CombatTrack() {
         return {
             enable: "enableCombatTrack",

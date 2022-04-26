@@ -1,5 +1,9 @@
 import * as MAESTRO from "./config.js";
 
+class PlaybackSettings{
+    
+    static pauseDictionary = {}; // for hype tracks restarting handling
+}
 
 /**
 * Get all the sounds in a specific playlist
@@ -52,8 +56,29 @@ export async function playTrack(trackId, playlistId) {
     const sound = playlist.sounds?.get(trackId);
 
     if (!sound) return;
+    
+    
+    const restartHypeTracks = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.HypeTrack.restartHypeTracks);
+    var resumeTime = 0;
+    if(restartHypeTracks && PlaybackSettings.pauseDictionary[trackId]) resumeTime = PlaybackSettings.pauseDictionary[trackId];
+    
+    return await sound.update({pausedTime: resumeTime, playing: true});
+}
 
-    return await sound.update({playing: true});
+export async function pauseAllTracks(playlist) {
+    if(!playlist) return;
+    
+    const restartHypeTracks = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.HypeTrack.restartHypeTracks);
+    if(restartHypeTracks && playlist.data && playlist.data.sounds)
+    {
+        var sounds = playlist.data.sounds;
+        sounds.forEach(sound=>{
+            if(sound.playing)
+            {
+                PlaybackSettings.pauseDictionary[sound.id] = sound.sound.currentTime;
+            }
+    })}
+    await playlist.stopAll();
 }
 
 /**
