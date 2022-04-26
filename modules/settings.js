@@ -22,7 +22,7 @@ export const registerModuleSettings = async function() {
             await game.maestro.hypeTrack._checkForHypeTracksPlaylist();
         }
     }),
-
+	
     game.settings.register(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.HypeTrack.pauseOthers, {
         name: "MAESTRO.SETTINGS.HypeTrackPauseOthersN",
         hint: "MAESTRO.SETTINGS.HypeTrackPauseOthersH",
@@ -31,7 +31,18 @@ export const registerModuleSettings = async function() {
         default: false,
         config: true,
         onChange: async s => {}
-    }),
+    })
+	,
+	
+	game.settings.register(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.HypeTrack.restartHypeTracks, {
+	    name: "MAESTRO.SETTINGS.restartHypeTracksN",
+        hint: "MAESTRO.SETTINGS.restartHypeTracksH",
+        scope: "world",
+        type: Boolean,
+        default: false,
+        config: true,
+        onChange: async s => {}
+	}),
 
     /* -------------------------------------------- */
     /*                  Item Track                  */
