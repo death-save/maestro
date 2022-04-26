@@ -58,7 +58,7 @@ export async function playTrack(trackId, playlistId) {
     if (!sound) return;
     
     
-    const restartHypeTracks = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.HypeTrack.restartHypeTracks,);
+    const restartHypeTracks = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.HypeTrack.restartHypeTracks);
     var resumeTime = 0;
     if(restartHypeTracks && PlaybackSettings.pauseDictionary[trackId]) resumeTime = PlaybackSettings.pauseDictionary[trackId];
     
@@ -68,7 +68,7 @@ export async function playTrack(trackId, playlistId) {
 export async function pauseAllTracks(playlist) {
     if(!playlist) return;
     
-    const restartHypeTracks = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.HypeTrack.restartHypeTracks,);
+    const restartHypeTracks = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.HypeTrack.restartHypeTracks);
     if(restartHypeTracks && playlist.data && playlist.data.sounds)
     {
         var sounds = playlist.data.sounds;
