@@ -251,15 +251,26 @@ export function _onRenderChatMessage(message, html, data) {
 }
 
 /**
- * Play a sound for critical success or failure on d20 rolls
- * Adapted from highlightCriticalSuccessFailure in the dnd5e system
+ * Process Critical Success/Failure for a given message
  * @param {*} message
  */
 function playCriticalSuccessFailure(message) {
-    if ( !isFirstGM() || !message.isRoll || !message.isContentVisible || !message.isRoll ) return;
-  
+    if ( !isFirstGM() || !message.isRoll || !message.isContentVisible ) return;
+    
+    for (const roll of message.rolls) {
+        checkRollSuccessFailure(roll);
+    }
+    
+}
+
+/**
+ * Play a sound for critical success or failure on d20 rolls
+ * Adapted from highlightCriticalSuccessFailure in the dnd5e system
+ * @param {*} roll 
+ * @returns 
+ */
+function checkRollSuccessFailure(roll) {
     // Highlight rolls where the first part is a d20 roll
-    const roll = message.roll;
     if ( !roll.dice.length ) return;
     const d = roll.dice[0];
 
@@ -281,8 +292,8 @@ function playCriticalSuccessFailure(message) {
     const successSetting = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.Misc.criticalSuccessThreshold);
     const failureSetting = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.Misc.criticalFailureThreshold);
     
-    const successThreshold = d.options.critical ?? successSetting;
-    const failureThreshold = d.options.fumble ?? failureSetting;
+    const successThreshold = successSetting ?? d.options.critical;
+    const failureThreshold = failureSetting ?? d.options.fumble;
 
     // Play relevant sound for successes and failures
     if ((successThreshold && (d.total >= successThreshold)) && (criticalSuccessPlaylist && criticalSuccessSound)) {
