@@ -4,31 +4,6 @@ import * as Playback from "./playback.js";
 
 export function _onRenderPlaylistDirectory(app, html, data) {
     _addPlaylistLoopToggle(html);
-    _addMaestroConfig(html);
-}
-
-function _addMaestroConfig(html) {
-    const createPlaylistButton = html.find('button.create-document');
-
-    const footerFlexDivHtml = 
-        `<div class="flexrow"></div>`
-
-    const maestroConfigButtonHtml = 
-        `<button class="maestro-config">
-            <i class="fas fa-cog"></i> Maestro Config
-        </button>`
-
-    createPlaylistButton.wrap(footerFlexDivHtml);
-    createPlaylistButton.after(maestroConfigButtonHtml);
-
-    const maestroConfigButton = html.find("button.maestro-config");
-
-    maestroConfigButton.on("click", event => {
-        event.preventDefault();
-        const data = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.Misc.criticalSuccessFailureTracks);
-        
-        new MaestroConfigForm(data).render(true);
-    });
 }
 
 export class MaestroConfigForm extends FormApplication {
