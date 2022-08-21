@@ -141,7 +141,7 @@ function _addPlaylistLoopToggle(html) {
         const playlist = game.playlists.get(playlistId);
 
         const loop = playlist.getFlag(MAESTRO.MODULE_NAME, MAESTRO.DEFAULT_CONFIG.PlaylistLoop.flagNames.loop);
-        const mode = playlist.data.mode;
+        const mode = playlist.mode;
         if ([-1, 2].includes(mode)) {
             button.setAttribute("class", buttonClass.concat(" disabled"));
             button.setAttribute("title", game.i18n.localize("MAESTRO.PLAYLIST-LOOP.ButtonToolTipDisabled"));
@@ -191,7 +191,7 @@ export function _onPreUpdatePlaylistSound(sound, update, options, userId) {
     sound._maestroSkip = true;
     const playlist = sound.parent;
     // Return if there's no id or the playlist is not in sequential or shuffle mode
-    if (!playlist?.data?.playing || !update?.id || ![0, 1].includes(playlist?.data?.mode)) {
+    if (!playlist?.playing || !update?.id || ![0, 1].includes(playlist?.mode)) {
         return true;
     }
 
@@ -209,7 +209,7 @@ export function _onPreUpdatePlaylistSound(sound, update, options, userId) {
     let order;
 
     // If shuffle order exists, use that, else map the sounds to an order
-    if (playlist?.data?.mode === 1) {
+    if (playlist?.mode === 1) {
         order = playlist.playbackOrder;
     } else {
         order = playlist?.sounds.map(s => s.id);
@@ -221,7 +221,7 @@ export function _onPreUpdatePlaylistSound(sound, update, options, userId) {
     // If the previous sound was the last in the order, and playlist loop is set to false, don't play the incoming sound
     if (previousIdx === (playlist?.sounds?.length - 1) && playlistloop === false) {
         update.playing = false;
-        playlist.data.playing = false;
+        playlist.playing = false;
     }        
 }
 

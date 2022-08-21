@@ -161,7 +161,7 @@ export default class CombatTrack {
         }
 
         // Stop any individual playing or paused sounds in the playlist
-        const soundsToStop = playlist.sounds.contents.filter(s => s.playing || s.data.pausedTime);
+        const soundsToStop = playlist.sounds.contents.filter(s => s.playing || s.pausedTime);
         const updates = soundsToStop.map(s => {
             return {
                 _id: s.id,
@@ -269,7 +269,7 @@ export default class CombatTrack {
      * @returns {Object} flags - an object containing the flags
      */
     static getCombatFlags(combat) {
-        return combat.data.flags[MAESTRO.MODULE_NAME];
+        return combat.flags[MAESTRO.MODULE_NAME];
     }
 
     /**
