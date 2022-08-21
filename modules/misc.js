@@ -112,7 +112,7 @@ export class MaestroConfigForm extends FormApplication {
  * @param {*} html 
  */
 function _addPlaylistLoopToggle(html) {
-    if (!isFirstGM()) return;
+    if (!game.user.isGM) return;
     
     const playlistModeButtons = html.find('[data-action="playlist-mode"]');
     const loopToggleHtml = 

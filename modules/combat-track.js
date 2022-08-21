@@ -197,7 +197,7 @@ export default class CombatTrack {
      * @param {Object} data 
      */
     static async _addCombatTrackButton(app, html, data) {
-        if (!isFirstGM()) {
+        if (!game.user.isGM) {
             return;
         }
 
