@@ -242,7 +242,6 @@ function playCriticalSuccessFailure(message) {
  * Play a sound for critical success or failure on d20 rolls
  * Adapted from highlightCriticalSuccessFailure in the dnd5e system
  * @param {*} roll 
- * @returns 
  */
 function checkRollSuccessFailure(roll) {
     // Highlight rolls where the first part is a d20 roll
