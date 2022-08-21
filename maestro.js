@@ -66,7 +66,6 @@ export default class Conductor {
      */
     static _initHookRegistrations() {
         Conductor._hookOnRenderPlaylistDirectory();
-        Conductor._hookOnRenderCombatTracker();
     }
 
     /**
@@ -77,6 +76,7 @@ export default class Conductor {
         Conductor._hookOnRenderActorSheet();
         Conductor._hookOnRenderItemSheet();
         Conductor._hookOnRenderChatMessage();
+        Conductor._hookOnRenderCombatTrackerConfig();
 
         // Pre-Create Hooks
         Conductor._hookOnPreCreateChatMessage();
@@ -187,11 +187,11 @@ export default class Conductor {
     }
 
     /**
-     * RenderCombatTracker Hook
+     * Render CombatTrackerConfig Hook
      */
-    static _hookOnRenderCombatTracker() {
-        Hooks.on("renderCombatTracker", (app, html, data) => {
-            CombatTrack._onRenderCombatTracker(app, html, data);
+    static _hookOnRenderCombatTrackerConfig() {
+        Hooks.on("renderCombatTrackerConfig", (app, html, data) => {
+            CombatTrack._onRenderCombatTrackerConfig(app, html, data);
         });
     }
 
