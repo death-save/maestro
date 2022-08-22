@@ -176,7 +176,7 @@ export default class HypeTrack {
      * @param {Object} data 
      */
     async _addHypeButton (app, html, data) {
-        if(!isFirstGM() && !app?.document?.owner) {
+        if(!game.user.isGM && !app?.document?.isOwner) {
             return;
         }
 
