@@ -113,6 +113,7 @@
         "ITEM-TRACK.FormPlayRandom": "--Play Random Track--",
         "ITEM-TRACK.FormPlayAll": "--Play Playlist--",
 
+        "COMBAT-TRACK.FormButtonTitle": "Combat Track Config",
         "COMBAT-TRACK.FormDefaultsHeading": "DEFAULTS",
         "COMBAT-TRACK.FormEncounterHeading": "Encounter",
         "COMBAT-TRACK.FormDefaultPlaylistLabel": "Default Playlist",

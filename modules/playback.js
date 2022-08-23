@@ -53,7 +53,7 @@ export async function playTrack(trackId, playlistId) {
 
     if (!sound) return;
 
-    return await sound.update({playing: true});
+    return await playlist.playSound(sound);
 }
 
 /**

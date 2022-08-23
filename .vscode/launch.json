@@ -8,7 +8,8 @@
             "type": "chrome",
             "request": "launch",
             "name": "Launch Chrome against localhost",
-            "url": "http://localhost:59999",
+            "url": "http://localhost:49998",
+            "webRoot": "http://localhost:49998",
             "pathMapping": {
                 "/modules/maestro": "${workspaceFolder}"
             },
@@ -16,22 +17,6 @@
                 "${workspaceFolder}/libs/**",
                 "<node_internals>/**"
             ]
-        },
-        {
-            "name": "Launch Edge",
-            "request": "launch",
-            "type": "edge",
-            "url": "http://192.168.1.69:59999",
-            "pathMapping": {
-                "/modules/maestro": "${workspaceFolder}"
-            }
-        },
-        {
-            "name": "Attach to Edge",
-            "request": "attach",
-            "type": "edge",
-            "port":50080,
-            "webRoot": "${workspaceFolder}"
         }
     ]
 }

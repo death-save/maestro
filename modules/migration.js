@@ -36,12 +36,12 @@ export function migrationHandler() {
         ui.notifications.info(migrationEndMessage);
     }
 
-    game.settings.set(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.Migration.currentVersion, game.modules.get(MAESTRO.MODULE_NAME).data.version);
+    game.settings.set(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.Migration.currentVersion, game.modules.get(MAESTRO.MODULE_NAME).version);
 }
 
 // Migrate playlists on scenes to the new core playlist
 async function _migrateScenePlaylists() {
-    const scenePlaylists = game.scenes.entities.filter(s => !!s.getFlag(MAESTRO.MODULE_NAME, MAESTRO.DEFAULT_CONFIG.SceneMusic.flagNames.playlist));
+    const scenePlaylists = game.scenes.contents.filter(s => !!s.getFlag(MAESTRO.MODULE_NAME, MAESTRO.DEFAULT_CONFIG.SceneMusic.flagNames.playlist));
 
     if (scenePlaylists.length === 0) {
         return;
@@ -86,7 +86,7 @@ async function _migrateScenePlaylists() {
  * 
  */
 async function _migratePlaylistMode() {
-    const playlists = game.playlists.entities.filter(p => p.mode === 3);
+    const playlists = game.playlists.contents.filter(p => p.mode === 3);
 
     if (playlists.length === 0) {
         return;
@@ -107,7 +107,7 @@ async function _migratePlaylistMode() {
  * 
  */
 async function _migrateActorFlags() {
-    const worldActors = game.actors.entities;
+    const worldActors = game.actors.contents;
     const tokenActors = Object.values(game.actors.tokens);
     const actors = worldActors.concat(tokenActors);
 
@@ -127,7 +127,7 @@ async function _migrateActorFlags() {
         return;
     }
     
-    const hypePlaylist = game.playlists.entities.find(p => p.name === MAESTRO.DEFAULT_CONFIG.HypeTrack.playlistName);
+    const hypePlaylist = game.playlists.contents.find(p => p.name === MAESTRO.DEFAULT_CONFIG.HypeTrack.playlistName);
 
     if (!hypePlaylist) {
         console.warn(game.i18n.localize("MAESTRO.LOGS.MigrationHypeNoPlaylist"));
@@ -157,7 +157,7 @@ async function _migrateActorFlags() {
  * 
  */
 async function _migrateItemFlags() {
-    const itemTrackMap = game.items.entities.filter(i => {
+    const itemTrackMap = game.items.contents.filter(i => {
         const flag = i.getFlag(MAESTRO.MODULE_NAME,MAESTRO.DEFAULT_CONFIG.ItemTrack.flagNames.track);
         if (flag !== undefined && flag !== "" && !isNaN(flag)) {
             return true
@@ -179,7 +179,7 @@ async function _migrateItemFlags() {
 
     for (const i of itemTrackMap) {
         const item = game.items.get(i.id);
-        const playlist = i.playlist ? game.playlists.get(i.playlist) : game.playlists.entities.find(p => p.name === MAESTRO.DEFAULT_CONFIG.HypeTrack.playlistName);
+        const playlist = i.playlist ? game.playlists.get(i.playlist) : game.playlists.contents.find(p => p.name === MAESTRO.DEFAULT_CONFIG.HypeTrack.playlistName);
 
         if (!playlist) {
             console.warn(game.i18n.localize("MAESTRO.LOGS.MigrationItemNoPlaylist"), i.playlist);
@@ -206,7 +206,7 @@ async function _migrateItemFlags() {
  * 
  */
 async function _migrateActorOwnedItemFlags() {
-    const worldActors = game.actors.entities.filter(a => a.items.length > 0);
+    const worldActors = game.actors.contents.filter(a => a.items.length > 0);
     
     // Migrate OwnedItems on Actors
     for (const a of worldActors) {
@@ -220,7 +220,7 @@ async function _migrateActorOwnedItemFlags() {
             let playlist;
 
             if (!playlistFlag) {
-                playlist = game.playlists.entities.find(p => p.name === MAESTRO.DEFAULT_CONFIG.ItemTrack.playlistName);
+                playlist = game.playlists.contents.find(p => p.name === MAESTRO.DEFAULT_CONFIG.ItemTrack.playlistName);
             } else {
                 playlist = game.playlists.get(playlistFlag);
             }
@@ -268,8 +268,8 @@ async function _migrateActorOwnedItemFlags() {
  * 
  */
 async function _migrateTokenOwnedItemFlags() {
-    const scenes = game.scenes.entities.filter(s =>
-        s.data.tokens.length > 0 && s.data.tokens.filter(t => t.isLinked === false && t.actorData.items && t.actorData.items.length > 0)
+    const scenes = game.scenes.contents.filter(s =>
+        s.tokens.length > 0 && s.tokens.filter(t => t.isLinked === false && t.actorData.items && t.actorData.items.length > 0)
     );
 
     if (scenes.length === 0) {
@@ -278,7 +278,7 @@ async function _migrateTokenOwnedItemFlags() {
 
     // Migrate OwnedItems on Tokens
     for (let s of scenes) {
-        const tokens = s.data.tokens.map(t => {
+        const tokens = s.tokens.map(t => {
             return {
                 _id: t.id,
                 actorId: t.actorId,
@@ -326,7 +326,7 @@ async function _migrateTokenOwnedItemFlags() {
                 let playlist;
 
                 if (!playlistFlag) {
-                    playlist = game.playlists.entities.find(i => i.name === "Item Tracks");     
+                    playlist = game.playlists.contents.find(i => i.name === "Item Tracks");     
                 } else {
                     playlist = game.playlists.get(playlistFlag);
                 }

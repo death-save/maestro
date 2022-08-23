@@ -27,17 +27,26 @@
 <dt><a href="#_checkForHypeTracksPlaylist">_checkForHypeTracksPlaylist()</a></dt>
 <dd><p>Checks for the presence of the Hype Tracks playlist, creates one if none exist</p>
 </dd>
-<dt><a href="#_createHypeTracksPlaylist">_createHypeTracksPlaylist(create)</a></dt>
+<dt><a href="#_createHypeTracksPlaylist">_createHypeTracksPlaylist()</a></dt>
 <dd><p>Create the Hype Tracks playlist if the create param is true</p>
 </dd>
 <dt><a href="#_processHype">_processHype(combat, update)</a></dt>
 <dd><p>Checks for the existence of the Hype Track actor flag, then plays the track</p>
+</dd>
+<dt><a href="#_resumeOthers">_resumeOthers()</a></dt>
+<dd><p>Resumes previously paused sounds</p>
 </dd>
 <dt><a href="#_getActorHypeTrack">_getActorHypeTrack(actor)</a></dt>
 <dd><p>Get the Hype Track flag if it exists on an actor</p>
 </dd>
 <dt><a href="#_setActorHypeTrack">_setActorHypeTrack(trackId)</a></dt>
 <dd><p>Sets the Hype Track</p>
+</dd>
+<dt><a href="#_getActorHypeFlags">_getActorHypeFlags(actor)</a> ⇒ <code>Object</code></dt>
+<dd><p>Gets the Hype Flags</p>
+</dd>
+<dt><a href="#_setActorHypeFlags">_setActorHypeFlags(trackId)</a></dt>
+<dd><p>Sets the Hype Flags</p>
 </dd>
 <dt><a href="#_addHypeButton">_addHypeButton(app, html, data)</a></dt>
 <dd><p>Adds a button to the Actor sheet to open the Hype Track form</p>
@@ -71,6 +80,9 @@
 <dd><p>Render Chat Message handler</p>
 </dd>
 <dt><a href="#playCriticalSuccessFailure">playCriticalSuccessFailure(message)</a></dt>
+<dd><p>Process Critical Success/Failure for a given message</p>
+</dd>
+<dt><a href="#checkRollSuccessFailure">checkRollSuccessFailure(roll)</a></dt>
 <dd><p>Play a sound for critical success or failure on d20 rolls
 Adapted from highlightCriticalSuccessFailure in the dnd5e system</p>
 </dd>
@@ -86,6 +98,12 @@ Adapted from highlightCriticalSuccessFailure in the dnd5e system</p>
 <dt><a href="#_createFailurePlaylist">_createFailurePlaylist(create)</a></dt>
 <dd><p>Create the Failure playlist if the create param is true</p>
 </dd>
+<dt><a href="#getFirstActiveGM">getFirstActiveGM()</a> ⇒ <code>User</code> | <code>undefined</code></dt>
+<dd><p>Gets the first (sorted by userId) active GM user</p>
+</dd>
+<dt><a href="#isFirstGM">isFirstGM()</a> ⇒ <code>Boolean</code></dt>
+<dd><p>Checks if the current user is the first active GM user</p>
+</dd>
 <dt><a href="#getPlaylistSounds">getPlaylistSounds()</a></dt>
 <dd><p>Get all the sounds in a specific playlist</p>
 </dd>
@@ -99,7 +117,7 @@ Adapted from highlightCriticalSuccessFailure in the dnd5e system</p>
 <dd><p>Play a playlist using its default playback method</p>
 </dd>
 <dt><a href="#findPlaylistSound">findPlaylistSound(name)</a></dt>
-<dd><p>Finds a sound EmbeddedEntity by its name</p>
+<dd><p>Finds a Playlist sound by its name</p>
 </dd>
 <dt><a href="#playSoundByName">playSoundByName(name, options)</a></dt>
 <dd><p>Play a sound by its name rather than id</p>
@@ -125,15 +143,18 @@ Attach a track or playlist to combat encounters that plays when the combat begin
 * [CombatTrack](#CombatTrack)
     * _instance_
         * [._checkForCombatTracksPlaylist()](#CombatTrack+_checkForCombatTracksPlaylist)
-        * [._createCombatTracksPlaylist(create)](#CombatTrack+_createCombatTracksPlaylist)
-        * [._checkCombatTrack(combat, update)](#CombatTrack+_checkCombatTrack)
+        * [._createCombatTracksPlaylist()](#CombatTrack+_createCombatTracksPlaylist)
+        * [._getCombatTrack(combat, update)](#CombatTrack+_getCombatTrack)
         * [._stopCombatTrack(combat)](#CombatTrack+_stopCombatTrack)
+        * [._resumeOtherSounds()](#CombatTrack+_resumeOtherSounds)
         * [.setCombatFlags(combat, playlistId, trackId)](#CombatTrack+setCombatFlags)
         * [._setDefaultCombatTrack(defaults)](#CombatTrack+_setDefaultCombatTrack)
     * _static_
-        * [.getCombatFlags(combat)](#CombatTrack.getCombatFlags) ⇒ <code>Object</code>
+        * [._checkCombatStart(combat, update, options)](#CombatTrack._checkCombatStart)
         * [._addCombatTrackButton(app, html, data)](#CombatTrack._addCombatTrackButton)
+        * [._onCombatTrackButtonClick(event)](#CombatTrack._onCombatTrackButtonClick)
         * [._openTrackForm(combat, track, options)](#CombatTrack._openTrackForm)
+        * [.getCombatFlags(combat)](#CombatTrack.getCombatFlags) ⇒ <code>Object</code>
 
 <a name="CombatTrack+_checkForCombatTracksPlaylist"></a>
 
@@ -143,18 +164,13 @@ Checks for the presence of the Hype Tracks playlist, creates one if none exist
 **Kind**: instance method of [<code>CombatTrack</code>](#CombatTrack)  
 <a name="CombatTrack+_createCombatTracksPlaylist"></a>
 
-### combatTrack.\_createCombatTracksPlaylist(create)
+### combatTrack.\_createCombatTracksPlaylist()
 Create the Hype Tracks playlist if the create param is true
 
 **Kind**: instance method of [<code>CombatTrack</code>](#CombatTrack)  
+<a name="CombatTrack+_getCombatTrack"></a>
 
-| Param | Type | Description |
-| --- | --- | --- |
-| create | <code>Boolean</code> | whether or not to create the playlist |
-
-<a name="CombatTrack+_checkCombatTrack"></a>
-
-### combatTrack.\_checkCombatTrack(combat, update)
+### combatTrack.\_getCombatTrack(combat, update)
 Checks for the existence of a Combat Track and initiates playback
 
 **Kind**: instance method of [<code>CombatTrack</code>](#CombatTrack)  
@@ -175,6 +191,12 @@ Stops any playing combat tracks
 | --- | --- |
 | combat | <code>\*</code> | 
 
+<a name="CombatTrack+_resumeOtherSounds"></a>
+
+### combatTrack.\_resumeOtherSounds()
+Resume any paused Sounds
+
+**Kind**: instance method of [<code>CombatTrack</code>](#CombatTrack)  
 <a name="CombatTrack+setCombatFlags"></a>
 
 ### combatTrack.setCombatFlags(combat, playlistId, trackId)
@@ -198,17 +220,18 @@ Handled as an update so all flags can be set at once
 | --- | --- |
 | defaults | <code>\*</code> | 
 
-<a name="CombatTrack.getCombatFlags"></a>
+<a name="CombatTrack._checkCombatStart"></a>
 
-### CombatTrack.getCombatFlags(combat) ⇒ <code>Object</code>
-Gets the combat Track flags on an combat
+### CombatTrack.\_checkCombatStart(combat, update, options)
+Checks the updating Combat instance to determine if it just starting (round 0 => round 1)
 
 **Kind**: static method of [<code>CombatTrack</code>](#CombatTrack)  
-**Returns**: <code>Object</code> - flags - an object containing the flags  
 
-| Param | Type | Description |
-| --- | --- | --- |
-| combat | <code>Object</code> | the combat to get flags from |
+| Param | Type |
+| --- | --- |
+| combat | <code>\*</code> | 
+| update | <code>\*</code> | 
+| options | <code>\*</code> | 
 
 <a name="CombatTrack._addCombatTrackButton"></a>
 
@@ -223,6 +246,17 @@ Adds a button to the Combat sheet to open the Combat Track form
 | html | <code>Object</code> | 
 | data | <code>Object</code> | 
 
+<a name="CombatTrack._onCombatTrackButtonClick"></a>
+
+### CombatTrack.\_onCombatTrackButtonClick(event)
+Click handler for Combat Track button
+
+**Kind**: static method of [<code>CombatTrack</code>](#CombatTrack)  
+
+| Param | Type |
+| --- | --- |
+| event | <code>\*</code> | 
+
 <a name="CombatTrack._openTrackForm"></a>
 
 ### CombatTrack.\_openTrackForm(combat, track, options)
@@ -235,6 +269,18 @@ Builds data object and opens the Combat Track form
 | combat | <code>Object</code> | the reference combat |
 | track | <code>String</code> | any existing track |
 | options | <code>Object</code> | form options |
+
+<a name="CombatTrack.getCombatFlags"></a>
+
+### CombatTrack.getCombatFlags(combat) ⇒ <code>Object</code>
+Gets the combat Track flags on an combat
+
+**Kind**: static method of [<code>CombatTrack</code>](#CombatTrack)  
+**Returns**: <code>Object</code> - flags - an object containing the flags  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| combat | <code>Object</code> | the combat to get flags from |
 
 <a name="CombatTrackForm"></a>
 
@@ -298,6 +344,8 @@ A FormApplication for setting the Actor's Hype Track
     * _instance_
         * [.getData()](#HypeTrackActorForm+getData)
         * [._updateObject(event, formData)](#HypeTrackActorForm+_updateObject)
+        * [.activateListeners(html)](#HypeTrackActorForm+activateListeners)
+        * [._onPlaylistChange(event)](#HypeTrackActorForm+_onPlaylistChange)
     * _static_
         * [.defaultOptions](#HypeTrackActorForm.defaultOptions)
 
@@ -320,6 +368,28 @@ Set the Hype Track flag on the specified Actor
 | event | <code>Object</code> | the form submission event |
 | formData | <code>Object</code> | the form data |
 
+<a name="HypeTrackActorForm+activateListeners"></a>
+
+### hypeTrackActorForm.activateListeners(html)
+Activates listeners on the form html
+
+**Kind**: instance method of [<code>HypeTrackActorForm</code>](#HypeTrackActorForm)  
+
+| Param | Type |
+| --- | --- |
+| html | <code>\*</code> | 
+
+<a name="HypeTrackActorForm+_onPlaylistChange"></a>
+
+### hypeTrackActorForm.\_onPlaylistChange(event)
+Playlist select change handler
+
+**Kind**: instance method of [<code>HypeTrackActorForm</code>](#HypeTrackActorForm)  
+
+| Param | Type |
+| --- | --- |
+| event | <code>\*</code> | 
+
 <a name="HypeTrackActorForm.defaultOptions"></a>
 
 ### HypeTrackActorForm.defaultOptions
@@ -335,12 +405,12 @@ Attach a track to an item that plays when the item is rolled
 
 * [ItemTrack](#ItemTrack)
     * [._checkForItemTracksPlaylist()](#ItemTrack+_checkForItemTracksPlaylist)
-    * [._createItemTracksPlaylist(create)](#ItemTrack+_createItemTracksPlaylist)
-    * [.chatMessageHandler(message, html, data)](#ItemTrack+chatMessageHandler)
-    * [.getItemFlags(item)](#ItemTrack+getItemFlags) ⇒ <code>Promise</code>
-    * [.setItemFlags(item, playlistId, trackId)](#ItemTrack+setItemFlags)
+    * [._createItemTracksPlaylist()](#ItemTrack+_createItemTracksPlaylist)
+    * [._chatMessageHandler(message, html, data)](#ItemTrack+_chatMessageHandler)
     * [._addItemTrackButton(app, html, data)](#ItemTrack+_addItemTrackButton)
     * [._openTrackForm(item, track, options)](#ItemTrack+_openTrackForm)
+    * [.getItemFlags(item)](#ItemTrack+getItemFlags) ⇒ <code>Promise</code>
+    * [.setItemFlags(item, playlistId, trackId)](#ItemTrack+setItemFlags)
     * [._setChatMessageFlag(message)](#ItemTrack+_setChatMessageFlag)
 
 <a name="ItemTrack+_checkForItemTracksPlaylist"></a>
@@ -351,18 +421,13 @@ Checks for the presence of the Hype Tracks playlist, creates one if none exist
 **Kind**: instance method of [<code>ItemTrack</code>](#ItemTrack)  
 <a name="ItemTrack+_createItemTracksPlaylist"></a>
 
-### itemTrack.\_createItemTracksPlaylist(create)
+### itemTrack.\_createItemTracksPlaylist()
 Create the Hype Tracks playlist if the create param is true
 
 **Kind**: instance method of [<code>ItemTrack</code>](#ItemTrack)  
+<a name="ItemTrack+_chatMessageHandler"></a>
 
-| Param | Type | Description |
-| --- | --- | --- |
-| create | <code>Boolean</code> | whether or not to create the playlist |
-
-<a name="ItemTrack+chatMessageHandler"></a>
-
-### itemTrack.chatMessageHandler(message, html, data)
+### itemTrack.\_chatMessageHandler(message, html, data)
 Handles module logic for chat message card
 
 **Kind**: instance method of [<code>ItemTrack</code>](#ItemTrack)  
@@ -372,32 +437,6 @@ Handles module logic for chat message card
 | message | <code>Object</code> | the chat message object |
 | html | <code>Object</code> | the jquery object |
 | data | <code>Object</code> | the data in the message update |
-
-<a name="ItemTrack+getItemFlags"></a>
-
-### itemTrack.getItemFlags(item) ⇒ <code>Promise</code>
-Gets the Item Track flags on an Item
-
-**Kind**: instance method of [<code>ItemTrack</code>](#ItemTrack)  
-**Returns**: <code>Promise</code> - flags - an object containing the flags  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| item | <code>Object</code> | the item to get flags from |
-
-<a name="ItemTrack+setItemFlags"></a>
-
-### itemTrack.setItemFlags(item, playlistId, trackId)
-Sets the Item Track flags on an Item instance
-Handled as an update so all flags can be set at once
-
-**Kind**: instance method of [<code>ItemTrack</code>](#ItemTrack)  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| item | <code>Object</code> | the item to set flags on |
-| playlistId | <code>String</code> | the playlist id to set |
-| trackId | <code>String</code> | the trackId or playback mode to set |
 
 <a name="ItemTrack+_addItemTrackButton"></a>
 
@@ -424,6 +463,32 @@ Builds data object and opens the Item Track form
 | item | <code>Object</code> | the reference item |
 | track | <code>String</code> | any existing track |
 | options | <code>Object</code> | form options |
+
+<a name="ItemTrack+getItemFlags"></a>
+
+### itemTrack.getItemFlags(item) ⇒ <code>Promise</code>
+Gets the Item Track flags on an Item
+
+**Kind**: instance method of [<code>ItemTrack</code>](#ItemTrack)  
+**Returns**: <code>Promise</code> - flags - an object containing the flags  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| item | <code>Object</code> | the item to get flags from |
+
+<a name="ItemTrack+setItemFlags"></a>
+
+### itemTrack.setItemFlags(item, playlistId, trackId)
+Sets the Item Track flags on an Item instance
+Handled as an update so all flags can be set at once
+
+**Kind**: instance method of [<code>ItemTrack</code>](#ItemTrack)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| item | <code>Object</code> | the item to set flags on |
+| playlistId | <code>String</code> | the playlist id to set |
+| trackId | <code>String</code> | the trackId or playback mode to set |
 
 <a name="ItemTrack+_setChatMessageFlag"></a>
 
@@ -508,7 +573,7 @@ Orchestrates (pun) module functionality
     * [._hookOnRenderActorSheet()](#Conductor._hookOnRenderActorSheet)
     * [._hookOnRenderChatMessage()](#Conductor._hookOnRenderChatMessage)
     * [._hookOnRenderPlaylistDirectory()](#Conductor._hookOnRenderPlaylistDirectory)
-    * [._hookOnRenderCombatTracker()](#Conductor._hookOnRenderCombatTracker)
+    * [._hookOnRenderCombatTrackerConfig()](#Conductor._hookOnRenderCombatTrackerConfig)
     * [._hookOnRenderItemSheet()](#Conductor._hookOnRenderItemSheet)
 
 <a name="Conductor._hookOnInit"></a>
@@ -589,10 +654,10 @@ RenderChatMessage Hook
 RenderPlaylistDirectory Hook
 
 **Kind**: static method of [<code>Conductor</code>](#Conductor)  
-<a name="Conductor._hookOnRenderCombatTracker"></a>
+<a name="Conductor._hookOnRenderCombatTrackerConfig"></a>
 
-### Conductor.\_hookOnRenderCombatTracker()
-RenderCombatTracker Hook
+### Conductor.\_hookOnRenderCombatTrackerConfig()
+Render CombatTrackerConfig Hook
 
 **Kind**: static method of [<code>Conductor</code>](#Conductor)  
 <a name="Conductor._hookOnRenderItemSheet"></a>
@@ -609,15 +674,10 @@ Checks for the presence of the Hype Tracks playlist, creates one if none exist
 **Kind**: global function  
 <a name="_createHypeTracksPlaylist"></a>
 
-## \_createHypeTracksPlaylist(create)
+## \_createHypeTracksPlaylist()
 Create the Hype Tracks playlist if the create param is true
 
 **Kind**: global function  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| create | <code>Boolean</code> | whether or not to create the playlist |
-
 <a name="_processHype"></a>
 
 ## \_processHype(combat, update)
@@ -630,6 +690,12 @@ Checks for the existence of the Hype Track actor flag, then plays the track
 | combat | <code>Object</code> | the combat instance |
 | update | <code>\*</code> | the update data |
 
+<a name="_resumeOthers"></a>
+
+## \_resumeOthers()
+Resumes previously paused sounds
+
+**Kind**: global function  
 <a name="_getActorHypeTrack"></a>
 
 ## \_getActorHypeTrack(actor)
@@ -651,6 +717,29 @@ Sets the Hype Track
 | Param | Type | Description |
 | --- | --- | --- |
 | trackId | <code>Number</code> | Id of the track in the playlist |
+
+<a name="_getActorHypeFlags"></a>
+
+## \_getActorHypeFlags(actor) ⇒ <code>Object</code>
+Gets the Hype Flags
+
+**Kind**: global function  
+**Returns**: <code>Object</code> - the Hype flags object  
+
+| Param | Type |
+| --- | --- |
+| actor | <code>Actor</code> | 
+
+<a name="_setActorHypeFlags"></a>
+
+## \_setActorHypeFlags(trackId)
+Sets the Hype Flags
+
+**Kind**: global function  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| trackId | <code>String</code> | Id of the track in the playlist |
 
 <a name="_addHypeButton"></a>
 
@@ -758,6 +847,17 @@ Render Chat Message handler
 <a name="playCriticalSuccessFailure"></a>
 
 ## playCriticalSuccessFailure(message)
+Process Critical Success/Failure for a given message
+
+**Kind**: global function  
+
+| Param | Type |
+| --- | --- |
+| message | <code>\*</code> | 
+
+<a name="checkRollSuccessFailure"></a>
+
+## checkRollSuccessFailure(roll)
 Play a sound for critical success or failure on d20 rolls
 Adapted from highlightCriticalSuccessFailure in the dnd5e system
 
@@ -765,7 +865,7 @@ Adapted from highlightCriticalSuccessFailure in the dnd5e system
 
 | Param | Type |
 | --- | --- |
-| message | <code>\*</code> | 
+| roll | <code>\*</code> | 
 
 <a name="_checkForCriticalPlaylist"></a>
 
@@ -801,6 +901,20 @@ Create the Failure playlist if the create param is true
 | --- | --- | --- |
 | create | <code>Boolean</code> | whether or not to create the playlist |
 
+<a name="getFirstActiveGM"></a>
+
+## getFirstActiveGM() ⇒ <code>User</code> \| <code>undefined</code>
+Gets the first (sorted by userId) active GM user
+
+**Kind**: global function  
+**Returns**: <code>User</code> \| <code>undefined</code> - the GM user document or undefined if none found  
+<a name="isFirstGM"></a>
+
+## isFirstGM() ⇒ <code>Boolean</code>
+Checks if the current user is the first active GM user
+
+**Kind**: global function  
+**Returns**: <code>Boolean</code> - Boolean indicating whether the user is the first active GM or not  
 <a name="getPlaylistSounds"></a>
 
 ## getPlaylistSounds()
@@ -844,7 +958,7 @@ Play a playlist using its default playback method
 <a name="findPlaylistSound"></a>
 
 ## findPlaylistSound(name)
-Finds a sound EmbeddedEntity by its name
+Finds a Playlist sound by its name
 
 **Kind**: global function  
 

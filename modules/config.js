@@ -57,7 +57,7 @@ export const DEFAULT_CONFIG = {
             playlistName: "Combat Tracks",
             buttonIcon: "fas fa-music",
             buttonText: "",
-            aTitle: "Combat Track",
+            aTitle: game.i18n.localize("MAESTRO.COMBAT-TRACK.FormButtonTitle"),
             flagNames: {
                 track: "track",
                 playlist: "playlist"
@@ -90,7 +90,7 @@ export const DEFAULT_CONFIG = {
         return {
             criticalSuccessPlaylistName: "Critical Success Tracks",
             criticalFailurePlaylistName: "Critical Failure Tracks",
-            maestroConfigTitle: "Maestro Configuration",
+            maestroConfigTitle: "Additional Configuration",
             maestroConfigTemplatePath: "./modules/maestro/templates/maestro-config.html"
         }
     }

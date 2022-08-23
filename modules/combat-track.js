@@ -39,7 +39,7 @@ export default class CombatTrack {
         }
     }
 
-    static async _onRenderCombatTracker(app, html, data) {
+    static async _onRenderCombatTrackerConfig(app, html, data) {
         CombatTrack._addCombatTrackButton(app, html, data);
     }
 
@@ -161,7 +161,7 @@ export default class CombatTrack {
         }
 
         // Stop any individual playing or paused sounds in the playlist
-        const soundsToStop = playlist.sounds.contents.filter(s => s.playing || s.data.pausedTime);
+        const soundsToStop = playlist.sounds.contents.filter(s => s.playing || s.pausedTime);
         const updates = soundsToStop.map(s => {
             return {
                 _id: s.id,
@@ -197,7 +197,7 @@ export default class CombatTrack {
      * @param {Object} data 
      */
     static async _addCombatTrackButton(app, html, data) {
-        if (!isFirstGM()) {
+        if (!game.user.isGM) {
             return;
         }
 
@@ -210,35 +210,32 @@ export default class CombatTrack {
          * Combat Track Button html literal
          * @todo replace with a template instead
          */
-        const combatTrackButton = $(
-            `<a class="${MAESTRO.DEFAULT_CONFIG.CombatTrack.name}" title="${MAESTRO.DEFAULT_CONFIG.CombatTrack.aTitle}">
+        const combatTrackConfigButton = $(
+            `<a class="${MAESTRO.DEFAULT_CONFIG.CombatTrack.name}" title="${MAESTRO.MODULE_LABEL} ${MAESTRO.DEFAULT_CONFIG.CombatTrack.aTitle}">
                 <i class="${MAESTRO.DEFAULT_CONFIG.CombatTrack.buttonIcon}"></i>
                 <span> ${MAESTRO.DEFAULT_CONFIG.CombatTrack.buttonText}</span>
             </a>`
         );
 
-        /**
-         * Finds the header and the close button
-         */
-        const combatHeader = html.find("#combat-round");
-        const settingsButton = combatHeader.find(".combat-settings");
-    
-        /**
-         * Create an instance of the combat track Button before the settings button
-         */
-        settingsButton.before(combatTrackButton);
-    
-        /**
-         * Register a click listener that opens the Combat Track form
-         */
-        combatTrackButton.on("click", async (event) => {
-            const combat = game.combat || null,
-                  flags = combat ? await CombatTrack.getCombatFlags(combat) : null,
-                  track = flags ? flags.track : "",
-                  playlist = flags ? flags.playlist : "";
+        const header = html.find(".window-header");
+        const closeButton = header.find("a.close");
+        closeButton.before(combatTrackConfigButton);
 
-            CombatTrack._openTrackForm(combat, track, playlist, {closeOnSubmit: true});
-        });
+        combatTrackConfigButton.on("click", async (event) => CombatTrack._onCombatTrackButtonClick(event));
+        await app.setPosition({height: "auto"});
+    }
+
+    /**
+     * Click handler for Combat Track button
+     * @param {*} event 
+     */
+    static async _onCombatTrackButtonClick(event) {
+        const combat = game.combat || null;
+        const flags = combat ? await CombatTrack.getCombatFlags(combat) : null;
+        const track = flags ? flags.track : "";
+        const playlist = flags ? flags.playlist : "";
+
+        CombatTrack._openTrackForm(combat, track, playlist, {closeOnSubmit: true});
     }
     
     /**
@@ -269,7 +266,7 @@ export default class CombatTrack {
      * @returns {Object} flags - an object containing the flags
      */
     static getCombatFlags(combat) {
-        return combat.data.flags[MAESTRO.MODULE_NAME];
+        return combat.flags[MAESTRO.MODULE_NAME];
     }
 
     /**

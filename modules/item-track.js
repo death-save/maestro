@@ -105,9 +105,9 @@ export default class ItemTrack {
 
         if (!itemId) return;
         
-        const tokenId = message.data.speaker?.token;
-        const sceneId = message.data.speaker?.scene;
-        const actorId = message.data.speaker?.actor;
+        const tokenId = message.speaker?.token;
+        const sceneId = message.speaker?.scene;
+        const actorId = message.speaker?.actor;
 
         const token = await fromUuid(`Scene.${sceneId}.Token.${tokenId}`);
         const actor = token?.actor ?? game.actors.get(actorId);
@@ -241,7 +241,7 @@ export default class ItemTrack {
      * @returns {Promise} flags - an object containing the flags
      */
     getItemFlags(item) {
-        return item?.data?.flags[MAESTRO.MODULE_NAME];
+        return item?.flags[MAESTRO.MODULE_NAME];
     }
 
     /**

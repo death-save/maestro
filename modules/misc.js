@@ -4,31 +4,6 @@ import * as Playback from "./playback.js";
 
 export function _onRenderPlaylistDirectory(app, html, data) {
     _addPlaylistLoopToggle(html);
-    _addMaestroConfig(html);
-}
-
-function _addMaestroConfig(html) {
-    const createPlaylistButton = html.find('button.create-document');
-
-    const footerFlexDivHtml = 
-        `<div class="flexrow"></div>`
-
-    const maestroConfigButtonHtml = 
-        `<button class="maestro-config">
-            <i class="fas fa-cog"></i> Maestro Config
-        </button>`
-
-    createPlaylistButton.wrap(footerFlexDivHtml);
-    createPlaylistButton.after(maestroConfigButtonHtml);
-
-    const maestroConfigButton = html.find("button.maestro-config");
-
-    maestroConfigButton.on("click", event => {
-        event.preventDefault();
-        const data = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.Misc.criticalSuccessFailureTracks);
-        
-        new MaestroConfigForm(data).render(true);
-    });
 }
 
 export class MaestroConfigForm extends FormApplication {
@@ -112,7 +87,7 @@ export class MaestroConfigForm extends FormApplication {
  * @param {*} html 
  */
 function _addPlaylistLoopToggle(html) {
-    if (!isFirstGM()) return;
+    if (!game.user.isGM) return;
     
     const playlistModeButtons = html.find('[data-action="playlist-mode"]');
     const loopToggleHtml = 
@@ -141,7 +116,7 @@ function _addPlaylistLoopToggle(html) {
         const playlist = game.playlists.get(playlistId);
 
         const loop = playlist.getFlag(MAESTRO.MODULE_NAME, MAESTRO.DEFAULT_CONFIG.PlaylistLoop.flagNames.loop);
-        const mode = playlist.data.mode;
+        const mode = playlist.mode;
         if ([-1, 2].includes(mode)) {
             button.setAttribute("class", buttonClass.concat(" disabled"));
             button.setAttribute("title", game.i18n.localize("MAESTRO.PLAYLIST-LOOP.ButtonToolTipDisabled"));
@@ -191,7 +166,7 @@ export function _onPreUpdatePlaylistSound(sound, update, options, userId) {
     sound._maestroSkip = true;
     const playlist = sound.parent;
     // Return if there's no id or the playlist is not in sequential or shuffle mode
-    if (!playlist?.data?.playing || !update?.id || ![0, 1].includes(playlist?.data?.mode)) {
+    if (!playlist?.playing || !update?.id || ![0, 1].includes(playlist?.mode)) {
         return true;
     }
 
@@ -209,7 +184,7 @@ export function _onPreUpdatePlaylistSound(sound, update, options, userId) {
     let order;
 
     // If shuffle order exists, use that, else map the sounds to an order
-    if (playlist?.data?.mode === 1) {
+    if (playlist?.mode === 1) {
         order = playlist.playbackOrder;
     } else {
         order = playlist?.sounds.map(s => s.id);
@@ -221,7 +196,7 @@ export function _onPreUpdatePlaylistSound(sound, update, options, userId) {
     // If the previous sound was the last in the order, and playlist loop is set to false, don't play the incoming sound
     if (previousIdx === (playlist?.sounds?.length - 1) && playlistloop === false) {
         update.playing = false;
-        playlist.data.playing = false;
+        playlist.playing = false;
     }        
 }
 
@@ -251,15 +226,25 @@ export function _onRenderChatMessage(message, html, data) {
 }
 
 /**
- * Play a sound for critical success or failure on d20 rolls
- * Adapted from highlightCriticalSuccessFailure in the dnd5e system
+ * Process Critical Success/Failure for a given message
  * @param {*} message
  */
 function playCriticalSuccessFailure(message) {
-    if ( !isFirstGM() || !message.isRoll || !message.isContentVisible || !message.isRoll ) return;
-  
+    if ( !isFirstGM() || !message.isRoll || !message.isContentVisible ) return;
+    
+    for (const roll of message.rolls) {
+        checkRollSuccessFailure(roll);
+    }
+    
+}
+
+/**
+ * Play a sound for critical success or failure on d20 rolls
+ * Adapted from highlightCriticalSuccessFailure in the dnd5e system
+ * @param {*} roll 
+ */
+function checkRollSuccessFailure(roll) {
     // Highlight rolls where the first part is a d20 roll
-    const roll = message.roll;
     if ( !roll.dice.length ) return;
     const d = roll.dice[0];
 
@@ -281,8 +266,8 @@ function playCriticalSuccessFailure(message) {
     const successSetting = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.Misc.criticalSuccessThreshold);
     const failureSetting = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.Misc.criticalFailureThreshold);
     
-    const successThreshold = d.options.critical ?? successSetting;
-    const failureThreshold = d.options.fumble ?? failureSetting;
+    const successThreshold = successSetting ?? d.options.critical;
+    const failureThreshold = failureSetting ?? d.options.fumble;
 
     // Play relevant sound for successes and failures
     if ((successThreshold && (d.total >= successThreshold)) && (criticalSuccessPlaylist && criticalSuccessSound)) {

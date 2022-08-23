@@ -1,11 +1,31 @@
 # Changelog
 
 ## Known Issues
-1. Critical Sounds do not play when roll made with advantage/disadvantage
+1. ~~Critical Sounds do not play when roll made with advantage/disadvantage~~ (resolved in 0.9.0)
 2. Critical Sounds ~~do~~ may not play with modules such as BetterRolls5e (possibly resolved in 0.7.6)
 3. A GM must be logged in for many of the Maestro functions to work due to underlying Foundry permission requirements.
 4. Game systems that do not include an Item Id reference in their item roll chat messages **cannot** be used with Item Tracks
 ---
+## [0.9.0] - 2022-08-22
+> This update adds support for Foundry VTT v10
+
+### Combat Tracks
+- **Combat Track Config** is no longer accessible from the Combat Tracker tab and is now available from the Combat Tracker Config form instead (the cog/gear icon in the Combat Tracker).
+- - This change was made to avoid overloading the Combat Tracker controls.
+- All GMs in a game can now access the **Combat Track Config**. 
+
+### Hype Tracks
+- Players can once again configure **Hype Tracks** for Actors they are the Owner of.
+
+### Miscellaneous
+- **Maesto Config** (aka Crit Success/Failure config) is no longer available in the Playlist tab in the sidebar. It is still available in the Module Settings.
+- - This change was made to avoid overloading the Playlist tab actions.
+- **Crit Success/Failure Tracks** should now work for modified rolls (eg. advantage/disadvantage in dnd5e)
+- All GMs in a game can now edit the **Critical Success/Failure Tracks** config. 
+
+### Localization
+- Updated Spanish translation (thanks @lozanoje 🎉)
+
 ## [0.8.0] - 2021-12-31
 > This update adds support for Foundry VTT v9
 ### Hype Tracks

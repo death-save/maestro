@@ -138,7 +138,7 @@ export default class HypeTrack {
      * 
      */
     _getActorHypeTrack(actor) {
-        return getProperty(actor, `data.flags.${MAESTRO.MODULE_NAME}.${MAESTRO.DEFAULT_CONFIG.HypeTrack.flagNames.track}`);
+        return getProperty(actor, `flags.${MAESTRO.MODULE_NAME}.${MAESTRO.DEFAULT_CONFIG.HypeTrack.flagNames.track}`);
     }
     
     /**
@@ -155,7 +155,7 @@ export default class HypeTrack {
      * @returns {Object} the Hype flags object
      */
     _getActorHypeFlags(actor) {
-        return actor?.data?.flags[MAESTRO.MODULE_NAME];
+        return actor?.flags[MAESTRO.MODULE_NAME];
     }
 
     /**
@@ -176,7 +176,7 @@ export default class HypeTrack {
      * @param {Object} data 
      */
     async _addHypeButton (app, html, data) {
-        if(!isFirstGM() && !app?.document?.owner) {
+        if(!game.user.isGM && !app?.document?.isOwner) {
             return;
         }
 
@@ -279,7 +279,7 @@ export default class HypeTrack {
         }
 
         // Stop any sounds playing individually
-        const playingSounds = this.playlist.sounds.filter(s => s.playing || s.data.pausedTime);
+        const playingSounds = this.playlist.sounds.filter(s => s.playing || s.pausedTime);
         const updates = playingSounds.map(s => {
             return {
                 _id: s.id,
