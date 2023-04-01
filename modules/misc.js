@@ -237,8 +237,10 @@ function playCriticalSuccessFailure(message) {
     && message.blind
     ) return;
 
+    let successCheckFn = checkSuccessOfRoll_system_less;
+
     for (const roll of message.rolls) {
-        checkRollSuccessFailure(roll);
+        checkRollSuccessFailure(roll, successCheckFn);
     }
 
 }
@@ -247,31 +249,52 @@ function playCriticalSuccessFailure(message) {
 * Play a sound for critical success or failure on d20 rolls
 * Adapted from highlightCriticalSuccessFailure in the dnd5e system
 * @param {*} roll
+* @param {((arg0: DiceTerm) => { isCritical: boolean; isSuccess: boolean; })} [checkSuccessFn]
 */
-function checkRollSuccessFailure(roll) {
-    // Highlight rolls where the first part is a d20 roll
+function checkRollSuccessFailure(roll, checkSuccessFn) {
     if ( !roll.dice.length ) return;
-    const d = roll.dice[0];
 
+    let { isCritical, isSuccess } = checkSuccessFn(roll.dice[0]);
+
+    // If it's not a critical success nor a critical failure, don't play sound
+    if (!isCritical) {
+        return
+    }
+
+    // Play relevant sound for critical successes and failures
+    if (isSuccess) {
+        playSuccess();
+    } else {
+        playFailure();
+    }
+}
+
+/**
+*  Check if a diceTerm is a critical success or failure or none of those based on the dice rolled
+* @param {DiceTerm} diceTerm
+* @returns { isCritical: boolean; isSuccess: boolean; }
+*      isCritical=true if the value is a critical success or failure
+*      isSuccess=true if the value is a critical success. Otherwise, it's a critical failure
+*/
+function checkSuccessOfRoll_system_less(diceTerm) {
     // Ensure it is the configured die type and unmodified
     const faceSetting = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.Misc.criticalDieFaces);
-    const facesMatch = (d.faces === faceSetting) && ( d.results.length === 1 );
+    const facesMatch = (diceTerm.faces === faceSetting) && ( diceTerm.results.length === 1 );
     if ( !facesMatch ) return;
-    const isModifiedRoll = ("success" in d.results[0]) || d.options.marginSuccess || d.options.marginFailure;
+    const isModifiedRoll = ("success" in diceTerm.results[0]) || diceTerm.options.marginSuccess || diceTerm.options.marginFailure;
     if ( isModifiedRoll ) return;
 
     // Get the success/failure criteria
     const successSetting = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.Misc.criticalSuccessThreshold);
     const failureSetting = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.Misc.criticalFailureThreshold);
 
-    const successThreshold = successSetting ?? d.options.critical;
-    const failureThreshold = failureSetting ?? d.options.fumble;
+    const successThreshold = successSetting ?? diceTerm.options.critical;
+    const failureThreshold = failureSetting ?? diceTerm.options.fumble;
 
-    // Play relevant sound for successes and failures
-    if ((successThreshold && (d.total >= successThreshold))) {
-        playSuccess();
-    } else if ((failureThreshold && (d.total <= failureThreshold))) {
-        playFailure();
+    if ((successThreshold && (diceRoll.total >= successThreshold))) {
+        return {"isCritical":true,"isSuccess":true};
+    } else if ((failureThreshold && (diceRoll.total <= failureThreshold))) {
+        return {"isCritical":true,"isSuccess":false};
     }
 }
 
@@ -334,24 +357,24 @@ async function _createFailurePlaylist(create) {
 }
 
 /**
- * Play critical success sound
- */
+* Play critical success sound
+*/
 function playSuccess() {
     playCriticalSound(true)
 }
 
 /**
- * Play critical failure sound
- */
+* Play critical failure sound
+*/
 function playFailure() {
     playCriticalSound(false);
 }
 
 
 /**
- * Play critical sound depending on success kind.
- * @param {boolean} isSuccess
- */
+* Play critical sound depending on success kind.
+* @param {boolean} isSuccess
+*/
 function playCriticalSound(isSuccess) {
     const criticalSuccessFailureTracks = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.Misc.criticalSuccessFailureTracks);
     let playlist, sound;
