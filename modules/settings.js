@@ -249,6 +249,14 @@ export const registerModuleSettings = async function() {
         default: true,
         config: true,
     }),
+
+    game.settings.register(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.PF2eSpecific.enablePF2RulesCriticals, {
+        name: "MAESTRO.SETTINGS.PF2eSpecific.enableN",
+        hint: "MAESTRO.SETTINGS.PF2eSpecific.enableH",
+        scope: "world",
+        type: Boolean,
+        default: false,
+        config: true,
     }),
 
     game.settings.registerMenu(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.Misc.maestroConfigMenu,{

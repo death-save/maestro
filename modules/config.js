@@ -151,7 +151,11 @@ export const SETTINGS_KEYS = {
             criticalOnBlindRoll: "criticalOnBlindRoll",
             maestroConfigMenu: "maestroConfigMenu"
         }
-    }
+    },
 
-    
+    get PF2eSpecific() {
+      return {
+        enablePF2RulesCriticals: "enablePF2RulesCriticals"
+      }
+    }
 }

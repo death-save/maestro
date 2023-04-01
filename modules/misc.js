@@ -239,6 +239,15 @@ function playCriticalSuccessFailure(message) {
 
     let successCheckFn = checkSuccessOfRoll_system_less;
 
+    // Check if pf2 settings is enable and if message is a PF2e roll message with a rolling actor
+    if (game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.PF2eSpecific.enablePF2RulesCriticals)
+    && message.flags
+    && message.flags.pf2e
+    && message.flags.pf2e.context.dc
+    && message.flags.pf2e.context.outcome) {
+        successCheckFn = checkSuccessOfRoll_pf2e(message);
+    }
+
     for (const roll of message.rolls) {
         checkRollSuccessFailure(roll, successCheckFn);
     }
@@ -297,6 +306,31 @@ function checkSuccessOfRoll_system_less(diceTerm) {
         return {"isCritical":true,"isSuccess":false};
     }
 }
+
+/**
+ * Use pathfinder 2e rules to check for critical success or failure.
+ *
+ * The context of the message already contains the outcome of the roll so we reuse it directly
+ * and don't use the result of the roll.
+ * @param {ChatMessage} message
+ * @returns {((arg0: any) => { isCritical: boolean; isSuccess: boolean; })}
+ */
+function checkSuccessOfRoll_pf2e(message) {
+    let returnValue;
+    switch (message.flags.pf2e.context.outcome) {
+        case "criticalFailure":
+        returnValue = { "isCritical": true, "isSuccess": false };
+        break;
+        case "criticalSuccess":
+        returnValue = { "isCritical": true, "isSuccess": true };
+        break;
+        default:
+        returnValue = { "isCritical": false, "isSuccess": null };
+    }
+
+    return (__) => returnValue;
+}
+
 
 /**
 * Checks for the presence of the Critical playlist, creates one if none exist

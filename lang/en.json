@@ -45,6 +45,9 @@
         "SETTINGS.CriticalSuccessFailureTracks.criticalOnBlindRollN": "Play sound on blind roll",
         "SETTINGS.CriticalSuccessFailureTracks.criticalOnBlindRollH": "Play a sound on critical success/failure on blind rolls too",
 
+        "SETTINGS.PF2eSpecific.enableN":"Use pathfinder 2 critical success/failure",
+        "SETTINGS.PF2eSpecific.enableH":"Enable pathfinder 2 system-specific rules to define critical success and failures instead of thresholds",
+
         "SETTINGS.ItemTrack.DeletedItemsN": "Deleted Items",
         "SETTINGS.ItemTrack.DeletedItemsH": "Deleted Item Ids and and their associated Item Tracks",
 
