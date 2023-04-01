@@ -11,7 +11,7 @@ export const DEFAULT_CONFIG = {
             },
             templatePath: "./modules/maestro/templates/playlist-select.html"
         }
-       
+
     },
 
     get HypeTrack() {
@@ -27,9 +27,9 @@ export const DEFAULT_CONFIG = {
             },
             templatePath: "./modules/maestro/templates/hype-track-form.html"
         }
-        
+
     },
-    
+
     get ItemTrack() {
         return {
             name: "item-track",
@@ -103,7 +103,7 @@ export const FLAGS = {
         }
     }
 }
-        
+
 
 export const SETTINGS_KEYS = {
     get ItemTrack() {

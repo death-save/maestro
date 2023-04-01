@@ -156,7 +156,7 @@ export default class Conductor {
             CombatTrack._onDeleteCombat(combat, options, userId);
         });
     }
-    
+
     /**
      * Render Actor SheetsHook
      */
@@ -164,7 +164,7 @@ export default class Conductor {
         Hooks.on("renderActorSheet", (app, html, data) => {
             HypeTrack._onRenderActorSheet(app, html, data);
         });
-       
+
     }
 
     /**
@@ -202,14 +202,15 @@ export default class Conductor {
         Hooks.on("renderItemSheet", (app, html, data) => {
             ItemTrack._onRenderItemSheet(app, html, data);
         });
-        
+
     }
+
 }
 
 /**
  * Tap, tap, tap, ahem
  * Shall we begin?
- * 
+ *
  * Initiates the module
  */
 Conductor.begin();

@@ -24,7 +24,7 @@ export class MaestroConfigForm extends FormApplication {
             width: 500
         });
     }
-    
+
     /**
      * Provide data to the template
      */
@@ -34,7 +34,7 @@ export class MaestroConfigForm extends FormApplication {
         if (!this.data && criticalSuccessFailureTracks) {
             this.data = criticalSuccessFailureTracks;
         }
-        
+
         return {
             playlists: game.playlists.contents,
             criticalSuccessPlaylist: this.data.criticalSuccessPlaylist,
@@ -43,13 +43,13 @@ export class MaestroConfigForm extends FormApplication {
             criticalFailurePlaylist: this.data.criticalFailurePlaylist,
             criticalFailurePlaylistSounds: this.data.criticalFailurePlaylist ? Playback.getPlaylistSounds(this.data.criticalFailurePlaylist) : null,
             criticalFailureSound: this.data.criticalFailureSound
-        } 
+        }
     }
 
     /**
      * Update on form submit
-     * @param {*} event 
-     * @param {*} formData 
+     * @param {*} event
+     * @param {*} formData
      */
     async _updateObject(event, formData) {
         await game.settings.set(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.Misc.criticalSuccessFailureTracks, {
@@ -78,19 +78,19 @@ export class MaestroConfigForm extends FormApplication {
                 this.data.criticalFailurePlaylist = event.target.value;
                 this.render();
             });
-        } 
+        }
     }
 }
 
 /**
  * Adds a new toggle for loop to the playlist controls
- * @param {*} html 
+ * @param {*} html
  */
 function _addPlaylistLoopToggle(html) {
     if (!game.user.isGM) return;
-    
+
     const playlistModeButtons = html.find('[data-action="playlist-mode"]');
-    const loopToggleHtml = 
+    const loopToggleHtml =
         `<a class="sound-control" data-action="playlist-loop" title="${game.i18n.localize("MAESTRO.PLAYLIST-LOOP.ButtonTooltipLoop")}">
             <i class="fas fa-sync"></i>
         </a>`;
@@ -145,7 +145,7 @@ function _addPlaylistLoopToggle(html) {
             game.playlists.get(playlistId).unsetFlag(MAESTRO.MODULE_NAME, MAESTRO.DEFAULT_CONFIG.PlaylistLoop.flagNames.loop);
             button.setAttribute("class", buttonClass.replace(" inactive", ""));
             button.setAttribute("title", game.i18n.localize("MAESTRO.PLAYLIST-LOOP.ButtonTooltipLoop"));
-        } else { 
+        } else {
             game.playlists.get(playlistId).setFlag(MAESTRO.MODULE_NAME, MAESTRO.DEFAULT_CONFIG.PlaylistLoop.flagNames.loop, false);
             button.setAttribute("class", buttonClass.concat(" inactive"));
             button.setAttribute("title", game.i18n.localize("MAESTRO.PLAYLIST-LOOP.ButtonTooltipNoLoop"));
@@ -155,8 +155,8 @@ function _addPlaylistLoopToggle(html) {
 
 /**
  * PreUpdate Playlist Sound handler
- * @param {*} playlist 
- * @param {*} update 
+ * @param {*} playlist
+ * @param {*} update
  * @todo maybe return early if no flag set?
  */
 export function _onPreUpdatePlaylistSound(sound, update, options, userId) {
@@ -188,8 +188,8 @@ export function _onPreUpdatePlaylistSound(sound, update, options, userId) {
         order = playlist.playbackOrder;
     } else {
         order = playlist?.sounds.map(s => s.id);
-    }        
-    
+    }
+
     const previousIdx = order.indexOf(previousSound);
     const playlistloop = playlist.getFlag(MAESTRO.MODULE_NAME, MAESTRO.DEFAULT_CONFIG.PlaylistLoop.flagNames.loop);
 
@@ -197,7 +197,7 @@ export function _onPreUpdatePlaylistSound(sound, update, options, userId) {
     if (previousIdx === (playlist?.sounds?.length - 1) && playlistloop === false) {
         update.playing = false;
         playlist.playing = false;
-    }        
+    }
 }
 
 /**
@@ -213,9 +213,9 @@ export function _onPreCreateChatMessage(message, options, userId) {
 
 /**
  * Render Chat Message handler
- * @param {*} message 
- * @param {*} html 
- * @param {*} data 
+ * @param {*} message
+ * @param {*} html
+ * @param {*} data
  */
 export function _onRenderChatMessage(message, html, data) {
     const enableCriticalSuccessFailureTracks = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.Misc.enableCriticalSuccessFailureTracks);
@@ -231,17 +231,17 @@ export function _onRenderChatMessage(message, html, data) {
  */
 function playCriticalSuccessFailure(message) {
     if ( !isFirstGM() || !message.isRoll || !message.isContentVisible ) return;
-    
+
     for (const roll of message.rolls) {
         checkRollSuccessFailure(roll);
     }
-    
+
 }
 
 /**
  * Play a sound for critical success or failure on d20 rolls
  * Adapted from highlightCriticalSuccessFailure in the dnd5e system
- * @param {*} roll 
+ * @param {*} roll
  */
 function checkRollSuccessFailure(roll) {
     // Highlight rolls where the first part is a d20 roll
@@ -265,7 +265,7 @@ function checkRollSuccessFailure(roll) {
     // Get the success/failure criteria
     const successSetting = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.Misc.criticalSuccessThreshold);
     const failureSetting = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.Misc.criticalFailureThreshold);
-    
+
     const successThreshold = successSetting ?? d.options.critical;
     const failureThreshold = failureSetting ?? d.options.fumble;
 
