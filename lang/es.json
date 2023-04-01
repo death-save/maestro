@@ -116,6 +116,7 @@
         "ITEM-TRACK.FormPlayRandom": "--Reproducir pista aleatoria--",
         "ITEM-TRACK.FormPlayAll": "--Reproducir lista de reproducción--",
 
+        "COMBAT-TRACK.FormButtonTitle": "Ajustes del asistente de combate",
         "COMBAT-TRACK.FormDefaultsHeading": "POR DEFECTO",
         "COMBAT-TRACK.FormEncounterHeading": "Encuentro",
         "COMBAT-TRACK.FormDefaultPlaylistLabel": "Lista de reproducción por defecto",
