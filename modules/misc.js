@@ -234,7 +234,7 @@ function playCriticalSuccessFailure(message) {
 
     // if message is blind and we settings say we shouldn't play sound on critical, early exit
     if (!game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.Misc.criticalOnBlindRoll)
-        && message.blind
+    && message.blind
     ) return;
 
     for (const roll of message.rolls) {
@@ -260,13 +260,6 @@ function checkRollSuccessFailure(roll) {
     const isModifiedRoll = ("success" in d.results[0]) || d.options.marginSuccess || d.options.marginFailure;
     if ( isModifiedRoll ) return;
 
-    // Get the sounds
-    const criticalSuccessFailureTracks = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.Misc.criticalSuccessFailureTracks);
-    const criticalSuccessPlaylist = criticalSuccessFailureTracks.criticalSuccessPlaylist;
-    const criticalSuccessSound = criticalSuccessFailureTracks.criticalSuccessSound;
-    const criticalFailurePlaylist = criticalSuccessFailureTracks.criticalFailurePlaylist;
-    const criticalFailureSound = criticalSuccessFailureTracks.criticalFailureSound;
-
     // Get the success/failure criteria
     const successSetting = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.Misc.criticalSuccessThreshold);
     const failureSetting = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.Misc.criticalFailureThreshold);
@@ -275,10 +268,10 @@ function checkRollSuccessFailure(roll) {
     const failureThreshold = failureSetting ?? d.options.fumble;
 
     // Play relevant sound for successes and failures
-    if ((successThreshold && (d.total >= successThreshold)) && (criticalSuccessPlaylist && criticalSuccessSound)) {
-        Playback.playTrack(criticalSuccessSound, criticalSuccessPlaylist);
-    } else if ((failureThreshold && (d.total <= failureThreshold)) && (criticalFailurePlaylist && criticalFailureSound)) {
-        Playback.playTrack(criticalFailureSound, criticalFailurePlaylist)
+    if ((successThreshold && (d.total >= successThreshold))) {
+        playSuccess();
+    } else if ((failureThreshold && (d.total <= failureThreshold))) {
+        playFailure();
     }
 }
 
@@ -339,6 +332,41 @@ async function _createFailurePlaylist(create) {
     }
     return await Playlist.create({"name": MAESTRO.DEFAULT_CONFIG.Misc.criticalFailurePlaylistName});
 }
+
+/**
+ * Play critical success sound
+ */
+function playSuccess() {
+    playCriticalSound(true)
+}
+
+/**
+ * Play critical failure sound
+ */
+function playFailure() {
+    playCriticalSound(false);
+}
+
+
+/**
+ * Play critical sound depending on success kind.
+ * @param {boolean} isSuccess
+ */
+function playCriticalSound(isSuccess) {
+    const criticalSuccessFailureTracks = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.Misc.criticalSuccessFailureTracks);
+    let playlist, sound;
+    if (isSuccess) {
+        playlist = criticalSuccessFailureTracks.criticalSuccessPlaylist;
+        sound = criticalSuccessFailureTracks.criticalSuccessSound;
+    } else {
+        playlist = criticalSuccessFailureTracks.criticalFailurePlaylist;
+        sound = criticalSuccessFailureTracks.criticalFailureSound;
+    }
+    if (playlist && sound) {
+        Playback.playTrack(sound, playlist);
+    }
+}
+
 
 /**
 * Gets the first (sorted by userId) active GM user
