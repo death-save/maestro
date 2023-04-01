@@ -42,6 +42,8 @@
         "SETTINGS.CriticalSuccessFailureTracks.SuccessThresholdH": "What is the value that a roll must be at or above to critically succeed",
         "SETTINGS.CriticalSuccessFailureTracks.FailureThresholdN": "Failure Threshold",
         "SETTINGS.CriticalSuccessFailureTracks.FailureThresholdH": "What is the value that a roll must be at or below to critically fail",
+        "SETTINGS.CriticalSuccessFailureTracks.criticalOnBlindRollN": "Play sound on blind roll",
+        "SETTINGS.CriticalSuccessFailureTracks.criticalOnBlindRollH": "Play a sound on critical success/failure on blind rolls too",
 
         "SETTINGS.ItemTrack.DeletedItemsN": "Deleted Items",
         "SETTINGS.ItemTrack.DeletedItemsH": "Deleted Item Ids and and their associated Item Tracks",

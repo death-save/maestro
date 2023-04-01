@@ -240,6 +240,15 @@ export const registerModuleSettings = async function() {
         default: 1,
         config: true,
     }),
+
+      game.settings.register(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.Misc.criticalOnBlindRoll, {
+        name: "MAESTRO.SETTINGS.CriticalSuccessFailureTracks.criticalOnBlindRollN",
+        hint: "MAESTRO.SETTINGS.CriticalSuccessFailureTracks.criticalOnBlindRollH",
+        scope: "world",
+        type: Boolean,
+        default: true,
+        config: true,
+    }),
     }),
 
     game.settings.registerMenu(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.Misc.maestroConfigMenu,{

@@ -148,6 +148,7 @@ export const SETTINGS_KEYS = {
             criticalDieFaces: "dieFaces",
             criticalSuccessThreshold: "successThreshold",
             criticalFailureThreshold: "failureThreshold",
+            criticalOnBlindRoll: "criticalOnBlindRoll",
             maestroConfigMenu: "maestroConfigMenu"
         }
     }

@@ -232,6 +232,11 @@ export function _onRenderChatMessage(message, html, data) {
 function playCriticalSuccessFailure(message) {
     if ( !isFirstGM() || !message.isRoll || !message.isContentVisible ) return;
 
+    // if message is blind and we settings say we shouldn't play sound on critical, early exit
+    if (!game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.Misc.criticalOnBlindRoll)
+        && message.blind
+    ) return;
+
     for (const roll of message.rolls) {
         checkRollSuccessFailure(roll);
     }
