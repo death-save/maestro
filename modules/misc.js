@@ -13,8 +13,8 @@ export class MaestroConfigForm extends FormApplication {
     }
 
     /**
-     * Default Options for this FormApplication
-     */
+    * Default Options for this FormApplication
+    */
     static get defaultOptions() {
         return mergeObject(super.defaultOptions, {
             id: "maestro-config",
@@ -26,8 +26,8 @@ export class MaestroConfigForm extends FormApplication {
     }
 
     /**
-     * Provide data to the template
-     */
+    * Provide data to the template
+    */
     getData() {
         const criticalSuccessFailureTracks = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.Misc.criticalSuccessFailureTracks);
 
@@ -47,10 +47,10 @@ export class MaestroConfigForm extends FormApplication {
     }
 
     /**
-     * Update on form submit
-     * @param {*} event
-     * @param {*} formData
-     */
+    * Update on form submit
+    * @param {*} event
+    * @param {*} formData
+    */
     async _updateObject(event, formData) {
         await game.settings.set(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.Misc.criticalSuccessFailureTracks, {
             criticalSuccessPlaylist: formData["critical-success-playlist"],
@@ -83,17 +83,17 @@ export class MaestroConfigForm extends FormApplication {
 }
 
 /**
- * Adds a new toggle for loop to the playlist controls
- * @param {*} html
- */
+* Adds a new toggle for loop to the playlist controls
+* @param {*} html
+*/
 function _addPlaylistLoopToggle(html) {
     if (!game.user.isGM) return;
 
     const playlistModeButtons = html.find('[data-action="playlist-mode"]');
     const loopToggleHtml =
-        `<a class="sound-control" data-action="playlist-loop" title="${game.i18n.localize("MAESTRO.PLAYLIST-LOOP.ButtonTooltipLoop")}">
-            <i class="fas fa-sync"></i>
-        </a>`;
+    `<a class="sound-control" data-action="playlist-loop" title="${game.i18n.localize("MAESTRO.PLAYLIST-LOOP.ButtonTooltipLoop")}">
+    <i class="fas fa-sync"></i>
+    </a>`;
 
     playlistModeButtons.after(loopToggleHtml);
 
@@ -154,11 +154,11 @@ function _addPlaylistLoopToggle(html) {
 }
 
 /**
- * PreUpdate Playlist Sound handler
- * @param {*} playlist
- * @param {*} update
- * @todo maybe return early if no flag set?
- */
+* PreUpdate Playlist Sound handler
+* @param {*} playlist
+* @param {*} update
+* @todo maybe return early if no flag set?
+*/
 export function _onPreUpdatePlaylistSound(sound, update, options, userId) {
     // skip this method if the playlist sound has already been processed
     if (sound?._maestroSkip) return true;
@@ -201,8 +201,8 @@ export function _onPreUpdatePlaylistSound(sound, update, options, userId) {
 }
 
 /**
- * PreCreate Chat Message handler
- */
+* PreCreate Chat Message handler
+*/
 export function _onPreCreateChatMessage(message, options, userId) {
     const removeDiceSound = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.Misc.disableDiceSound);
 
@@ -212,11 +212,11 @@ export function _onPreCreateChatMessage(message, options, userId) {
 }
 
 /**
- * Render Chat Message handler
- * @param {*} message
- * @param {*} html
- * @param {*} data
- */
+* Render Chat Message handler
+* @param {*} message
+* @param {*} html
+* @param {*} data
+*/
 export function _onRenderChatMessage(message, html, data) {
     const enableCriticalSuccessFailureTracks = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.Misc.enableCriticalSuccessFailureTracks);
 
@@ -226,9 +226,9 @@ export function _onRenderChatMessage(message, html, data) {
 }
 
 /**
- * Process Critical Success/Failure for a given message
- * @param {*} message
- */
+* Process Critical Success/Failure for a given message
+* @param {*} message
+*/
 function playCriticalSuccessFailure(message) {
     if ( !isFirstGM() || !message.isRoll || !message.isContentVisible ) return;
 
@@ -239,10 +239,10 @@ function playCriticalSuccessFailure(message) {
 }
 
 /**
- * Play a sound for critical success or failure on d20 rolls
- * Adapted from highlightCriticalSuccessFailure in the dnd5e system
- * @param {*} roll
- */
+* Play a sound for critical success or failure on d20 rolls
+* Adapted from highlightCriticalSuccessFailure in the dnd5e system
+* @param {*} roll
+*/
 function checkRollSuccessFailure(roll) {
     // Highlight rolls where the first part is a d20 roll
     if ( !roll.dice.length ) return;
@@ -278,8 +278,8 @@ function checkRollSuccessFailure(roll) {
 }
 
 /**
- * Checks for the presence of the Critical playlist, creates one if none exist
- */
+* Checks for the presence of the Critical playlist, creates one if none exist
+*/
 export async function _checkForCriticalPlaylist() {
     const enabled = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.Misc.enableCriticalSuccessFailureTracks);
     const createPlaylist = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.Misc.createCriticalSuccessPlaylist);
@@ -296,9 +296,9 @@ export async function _checkForCriticalPlaylist() {
 }
 
 /**
- * Create the Critical playlist if the create param is true
- * @param {Boolean} create - whether or not to create the playlist
- */
+* Create the Critical playlist if the create param is true
+* @param {Boolean} create - whether or not to create the playlist
+*/
 async function _createCriticalPlaylist(create) {
     if (!create) {
         return;
@@ -307,8 +307,8 @@ async function _createCriticalPlaylist(create) {
 }
 
 /**
- * Checks for the presence of the Failure playlist, creates one if none exist
- */
+* Checks for the presence of the Failure playlist, creates one if none exist
+*/
 export async function _checkForFailurePlaylist() {
     const enabled = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.Misc.enableCriticalSuccessFailureTracks);
     const createPlaylist = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.Misc.createCriticalFailurePlaylist);
@@ -325,9 +325,9 @@ export async function _checkForFailurePlaylist() {
 }
 
 /**
- * Create the Failure playlist if the create param is true
- * @param {Boolean} create - whether or not to create the playlist
- */
+* Create the Failure playlist if the create param is true
+* @param {Boolean} create - whether or not to create the playlist
+*/
 async function _createFailurePlaylist(create) {
     if (!create) {
         return;
@@ -336,17 +336,17 @@ async function _createFailurePlaylist(create) {
 }
 
 /**
- * Gets the first (sorted by userId) active GM user
- * @returns {User | undefined} the GM user document or undefined if none found
- */
+* Gets the first (sorted by userId) active GM user
+* @returns {User | undefined} the GM user document or undefined if none found
+*/
 export function getFirstActiveGM() {
     return game.users.filter(u => u.isGM && u.active).sort((a, b) => a.id?.localeCompare(b.id)).shift();
 }
 
 /**
- * Checks if the current user is the first active GM user
- * @returns {Boolean} Boolean indicating whether the user is the first active GM or not
- */
+* Checks if the current user is the first active GM user
+* @returns {Boolean} Boolean indicating whether the user is the first active GM or not
+*/
 export function isFirstGM() {
     return game.userId === getFirstActiveGM()?.id;
 }
