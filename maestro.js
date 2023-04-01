@@ -8,8 +8,8 @@ import * as Playback from "./modules/playback.js";
 import { registerModuleSettings } from "./modules/settings.js";
 
 /**
- * Orchestrates (pun) module functionality
- */
+* Orchestrates (pun) module functionality
+*/
 export default class Conductor {
     static begin() {
         Conductor._hookOnInit();
@@ -17,8 +17,8 @@ export default class Conductor {
     }
 
     /**
-     * Init Hook
-     */
+    * Init Hook
+    */
     static async _hookOnInit() {
         Hooks.on("init", async () => {
             game.maestro = {};
@@ -28,8 +28,8 @@ export default class Conductor {
     }
 
     /**
-     * Ready Hook
-     */
+    * Ready Hook
+    */
     static async _hookOnReady() {
         Hooks.on("ready", async () => {
             game.maestro.hypeTrack = new HypeTrack();
@@ -62,15 +62,15 @@ export default class Conductor {
     }
 
     /**
-     * Init Hook Registrations
-     */
+    * Init Hook Registrations
+    */
     static _initHookRegistrations() {
         Conductor._hookOnRenderPlaylistDirectory();
     }
 
     /**
-     * Ready Hook Registrations
-     */
+    * Ready Hook Registrations
+    */
     static _readyHookRegistrations() {
         // Sheet/App Render Hooks
         Conductor._hookOnRenderActorSheet();
@@ -96,8 +96,8 @@ export default class Conductor {
     }
 
     /**
-     * PreUpdate Playlist Hook
-     */
+    * PreUpdate Playlist Hook
+    */
     static _hookOnPreUpdatePlaylist() {
         Hooks.on("preUpdatePlaylist", (playlist, update, options, userId) => {
             // unused
@@ -105,8 +105,8 @@ export default class Conductor {
     }
 
     /**
-     * PreUpdate Playlist Sound Hook
-     */
+    * PreUpdate Playlist Sound Hook
+    */
     static _hookOnPreUpdatePlaylistSound() {
         Hooks.on("preUpdatePlaylistSound", (sound, update, options, userId) => {
             Misc._onPreUpdatePlaylistSound(sound, update, options, userId);
@@ -114,8 +114,8 @@ export default class Conductor {
     }
 
     /**
-     * PreCreate Chat Message Hook
-     */
+    * PreCreate Chat Message Hook
+    */
     static _hookOnPreCreateChatMessage() {
         Hooks.on("preCreateChatMessage", (message, options, userId) => {
             Misc._onPreCreateChatMessage(message, options);
@@ -129,8 +129,8 @@ export default class Conductor {
     }
 
     /**
-     * PreUpdate Combat Hook
-     */
+    * PreUpdate Combat Hook
+    */
     static _hookOnPreUpdateCombat() {
         Hooks.on("preUpdateCombat", (combat, update, options, userId) => {
             CombatTrack._onPreUpdateCombat(combat, update, options, userId);
@@ -138,8 +138,8 @@ export default class Conductor {
     }
 
     /**
-     * Update Combat Hook
-     */
+    * Update Combat Hook
+    */
     static _hookOnUpdateCombat() {
         Hooks.on("updateCombat", (combat, update, options, userId) => {
             HypeTrack._onUpdateCombat(combat, update, options, userId);
@@ -148,28 +148,28 @@ export default class Conductor {
     }
 
     /**
-     * Delete Combat Hook
-     */
+    * Delete Combat Hook
+    */
     static _hookOnDeleteCombat() {
         Hooks.on("deleteCombat", (combat, options, userId) => {
             HypeTrack._onDeleteCombat(combat, options, userId);
             CombatTrack._onDeleteCombat(combat, options, userId);
         });
     }
-    
+
     /**
-     * Render Actor SheetsHook
-     */
+    * Render Actor SheetsHook
+    */
     static _hookOnRenderActorSheet() {
         Hooks.on("renderActorSheet", (app, html, data) => {
             HypeTrack._onRenderActorSheet(app, html, data);
         });
-       
+
     }
 
     /**
-     * RenderChatMessage Hook
-     */
+    * RenderChatMessage Hook
+    */
     static _hookOnRenderChatMessage() {
         Hooks.on("renderChatMessage", (message, html, data) => {
             ItemTrack._onRenderChatMessage(message, html, data);
@@ -178,8 +178,8 @@ export default class Conductor {
     }
 
     /**
-     * RenderPlaylistDirectory Hook
-     */
+    * RenderPlaylistDirectory Hook
+    */
     static _hookOnRenderPlaylistDirectory() {
         Hooks.on("renderPlaylistDirectory", (app, html, data) => {
             Misc._onRenderPlaylistDirectory(app, html, data);
@@ -187,8 +187,8 @@ export default class Conductor {
     }
 
     /**
-     * Render CombatTrackerConfig Hook
-     */
+    * Render CombatTrackerConfig Hook
+    */
     static _hookOnRenderCombatTrackerConfig() {
         Hooks.on("renderCombatTrackerConfig", (app, html, data) => {
             CombatTrack._onRenderCombatTrackerConfig(app, html, data);
@@ -196,20 +196,21 @@ export default class Conductor {
     }
 
     /**
-     * Render Item Sheet Hook
-     */
+    * Render Item Sheet Hook
+    */
     static _hookOnRenderItemSheet() {
         Hooks.on("renderItemSheet", (app, html, data) => {
             ItemTrack._onRenderItemSheet(app, html, data);
         });
-        
+
     }
+
 }
 
 /**
- * Tap, tap, tap, ahem
- * Shall we begin?
- * 
- * Initiates the module
- */
+* Tap, tap, tap, ahem
+* Shall we begin?
+*
+* Initiates the module
+*/
 Conductor.begin();

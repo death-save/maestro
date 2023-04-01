@@ -1,3 +1,4 @@
+import Conductor from "../maestro.js";
 import * as MAESTRO from "./config.js";
 import { _checkForCriticalPlaylist, _checkForFailurePlaylist, MaestroConfigForm } from "./misc.js";
 
@@ -30,7 +31,6 @@ export const registerModuleSettings = async function() {
         type: Boolean,
         default: false,
         config: true,
-        onChange: async s => {}
     }),
 
     /* -------------------------------------------- */
@@ -44,9 +44,6 @@ export const registerModuleSettings = async function() {
         type: Boolean,
         default: false,
         config: true,
-        onChange: s => {
-            
-        }
     }),
 
     game.settings.register(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.ItemTrack.createPlaylist, {
@@ -72,9 +69,6 @@ export const registerModuleSettings = async function() {
         type: String,
         default: "data-item-id",
         config: true,
-        onChange: s => {
-            
-        }
     }),
 
     game.settings.register(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.ItemTrack.deletedItems, {
@@ -84,7 +78,6 @@ export const registerModuleSettings = async function() {
         type: Object,
         default: {},
         config: false,
-        onChange: s => {}
     }),
 
     /* -------------------------------------------- */
@@ -98,9 +91,6 @@ export const registerModuleSettings = async function() {
         type: Boolean,
         default: false,
         config: true,
-        onChange: s => {
-            
-        }
     }),
 
     game.settings.register(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.CombatTrack.createPlaylist, {
@@ -125,9 +115,6 @@ export const registerModuleSettings = async function() {
         scope: "world",
         type: String,
         default: "",
-        onChange: s => {
-            
-        }
     }),
 
     game.settings.register(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.CombatTrack.defaultTrack, {
@@ -136,9 +123,6 @@ export const registerModuleSettings = async function() {
         scope: "world",
         type: String,
         default: "",
-        onChange: s => {
-            
-        }
     }),
 
     game.settings.register(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.CombatTrack.pauseOthers, {
@@ -148,7 +132,6 @@ export const registerModuleSettings = async function() {
         type: Boolean,
         default: false,
         config: true,
-        onChange: async s => {}
     }),
 
     /* -------------------------------------------- */
@@ -161,9 +144,6 @@ export const registerModuleSettings = async function() {
         scope: "world",
         type: String,
         default: "",
-        onChange: s => {
-
-        }
     }),
 
     /* -------------------------------------------- */
@@ -177,9 +157,6 @@ export const registerModuleSettings = async function() {
         type: Boolean,
         default: false,
         config: true,
-        onChange: s => {
-
-        }
     }),
 
     game.settings.register(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.Misc.enableCriticalSuccessFailureTracks, {
@@ -189,9 +166,6 @@ export const registerModuleSettings = async function() {
         type: Boolean,
         default: false,
         config: true,
-        onChange: s => {
-
-        }
     }),
 
     game.settings.register(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.Misc.createCriticalSuccessPlaylist, {
@@ -238,9 +212,6 @@ export const registerModuleSettings = async function() {
             criticalFailureSound: ""
         },
         config: false,
-        onChange: s => {
-
-        }
     }),
 
     game.settings.register(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.Misc.criticalDieFaces, {
@@ -250,7 +221,6 @@ export const registerModuleSettings = async function() {
         type: Number,
         default: 20,
         config: true,
-        onChange: s => {}
     }),
 
     game.settings.register(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.Misc.criticalSuccessThreshold, {
@@ -260,7 +230,6 @@ export const registerModuleSettings = async function() {
         type: Number,
         default: 20,
         config: true,
-        onChange: s => {}
     }),
 
     game.settings.register(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.Misc.criticalFailureThreshold, {
@@ -270,7 +239,24 @@ export const registerModuleSettings = async function() {
         type: Number,
         default: 1,
         config: true,
-        onChange: s => {}
+    }),
+
+      game.settings.register(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.Misc.criticalOnBlindRoll, {
+        name: "MAESTRO.SETTINGS.CriticalSuccessFailureTracks.criticalOnBlindRollN",
+        hint: "MAESTRO.SETTINGS.CriticalSuccessFailureTracks.criticalOnBlindRollH",
+        scope: "world",
+        type: Boolean,
+        default: true,
+        config: true,
+    }),
+
+    game.settings.register(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.PF2eSpecific.enablePF2RulesCriticals, {
+        name: "MAESTRO.SETTINGS.PF2eSpecific.enableN",
+        hint: "MAESTRO.SETTINGS.PF2eSpecific.enableH",
+        scope: "world",
+        type: Boolean,
+        default: false,
+        config: true,
     }),
 
     game.settings.registerMenu(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.Misc.maestroConfigMenu,{

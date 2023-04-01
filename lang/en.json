@@ -42,10 +42,15 @@
         "SETTINGS.CriticalSuccessFailureTracks.SuccessThresholdH": "What is the value that a roll must be at or above to critically succeed",
         "SETTINGS.CriticalSuccessFailureTracks.FailureThresholdN": "Failure Threshold",
         "SETTINGS.CriticalSuccessFailureTracks.FailureThresholdH": "What is the value that a roll must be at or below to critically fail",
+        "SETTINGS.CriticalSuccessFailureTracks.criticalOnBlindRollN": "Play sound on blind roll",
+        "SETTINGS.CriticalSuccessFailureTracks.criticalOnBlindRollH": "Play a sound on critical success/failure on blind rolls too",
+
+        "SETTINGS.PF2eSpecific.enableN":"Use pathfinder 2 critical success/failure",
+        "SETTINGS.PF2eSpecific.enableH":"Enable pathfinder 2 system-specific rules to define critical success and failures instead of thresholds",
 
         "SETTINGS.ItemTrack.DeletedItemsN": "Deleted Items",
         "SETTINGS.ItemTrack.DeletedItemsH": "Deleted Item Ids and and their associated Item Tracks",
-        
+
         "SETTINGS.Config.ButtonN": "Maestro Config",
         "SETTINGS.Config.ButtonH": "Additional Maestro Settings",
 
@@ -85,8 +90,8 @@
         "LOGS.MigrationTokenOwnedItemsMatched": "Maestro | Matched Item Track in Playlist:",
         "LOGS.MigrationTokenOwnedItemsNotMatched": "Maestro | Unable to match flag to track in Playlist:",
         "LOGS.MigrationTokenOwnedItemFailed": "Maestro | Failed to map Tracks for Token OwnedItems:",
-        "LOGS.MigrationTokenOwnedItemSuccess": "Maestro | Successfully mapped Tracks for Token OwnedItems:", 
-        
+        "LOGS.MigrationTokenOwnedItemSuccess": "Maestro | Successfully mapped Tracks for Token OwnedItems:",
+
         "FORM.PlaylistSelection": "Select a Playlist",
         "FORM.TrackSelection": "Select a Track",
         "FORM.SaveTrack": "Save Track",
@@ -96,7 +101,7 @@
         "FORM.PlayAll": "--Play Playlist--",
 
         "HYPE-TRACK.Form.PlaylistLabel": "Hype Playlist for this Actor",
-        "HYPE-TRACK.Form.TrackLabel": "Track to Play", 
+        "HYPE-TRACK.Form.TrackLabel": "Track to Play",
         "HYPE-TRACK.FormPlaylistTooltip": "Select a Playlist",
         "HYPE-TRACK.FormTrackSelection": "Select a Track",
         "HYPE-TRACK.FormNotes": "Select the audio file to use as this actor's Hype Track",
