@@ -1,4 +1,5 @@
 {
+  "id":"maestro",
   "name":"maestro",
   "title":"Maestro",
   "description":"Adds new sound-related features such as Hype Tracks and Item Tracks",
@@ -34,7 +35,7 @@
       "path": "lang/ko.json"
     },
     {
-      "lang": "pt-BR", 
+      "lang": "pt-BR",
       "name": "Português (Brasil)",
       "path": "lang/pt-BR.json"
     },
@@ -51,4 +52,4 @@
   "flags": {
     "allowBugReporter": true
   }
-}  
+}
