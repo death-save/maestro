@@ -74,8 +74,14 @@ export default class HypeTrack {
 
         // Find the hype track
         const flags = this._getActorHypeFlags(combat?.combatant?.actor);        
-        const track = flags?.track || "";
+        let track = flags?.track || "";
         const playlist = flags?.playlist || this.playlist?.id;
+        const hypePlaylist = game.playlists.get(playlist);
+
+        if (track === MAESTRO.DEFAULT_CONFIG.ItemTrack.playbackModes.random) {
+            const ids = hypePlaylist.sounds?.map(s => s.id) ?? [];
+            track = ids[ids.length * Math.random() | 0];
+        }
 
         if (!track) {
             if (this?.pausedSounds?.length) {
@@ -111,10 +117,7 @@ export default class HypeTrack {
         }
 
         // Resume other sounds on end
-        const isSingleTrack = ![MAESTRO.DEFAULT_CONFIG.ItemTrack.playbackModes.all, MAESTRO.DEFAULT_CONFIG.ItemTrack.playbackModes.random].includes(track);
-
-        if (isSingleTrack && this.pausedSounds?.length) {
-            const hypePlaylist = game.playlists.get(playlist);
+        if (this.pausedSounds?.length) {
             const hypeTrackSound = hypePlaylist?.sounds?.get(track);
 
             hypeTrackSound?.sound?.on("end", () => {
